@@ -56,7 +56,7 @@ TEST(SincInterpolateTest, Upsample2X)
     {
         std::array<float, 2> out{0};
         size_t out_size = out.max_size();
-        sinc.Process(input[i], out.begin(), out_size);
+        sinc.Process(input[i], &out[0], out_size);
         ASSERT_EQ(out_size, 2);
     }
 
@@ -65,7 +65,7 @@ TEST(SincInterpolateTest, Upsample2X)
     {
         std::array<float, 2> out{0};
         size_t out_size = out.max_size();
-        sinc.Process(input[i], out.begin(), out_size);
+        sinc.Process(input[i], &out[0], out_size);
 
         ASSERT_EQ(out_size, 2);
         for (size_t j = 0; j < out_size; ++j)
@@ -96,7 +96,7 @@ TEST(SincInterpolateTest, Downsample2X)
     {
         std::array<float, 2> out{0};
         size_t out_size = out.max_size();
-        sinc.Process(input[i], out.begin(), out_size);
+        sinc.Process(input[i], &out[0], out_size);
     }
 
     size_t out_idx = 0;
@@ -104,7 +104,7 @@ TEST(SincInterpolateTest, Downsample2X)
     {
         std::array<float, 2> out{0};
         size_t out_size = out.max_size();
-        sinc.Process(input[i], out.begin(), out_size);
+        sinc.Process(input[i], &out[0], out_size);
 
         ASSERT_LT(out_size, 2);
         for (size_t j = 0; j < out_size; ++j)

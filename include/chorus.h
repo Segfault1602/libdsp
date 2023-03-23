@@ -10,7 +10,10 @@ namespace dsp
 template <size_t MAX_DELAY_SIZE> class Chorus
 {
   public:
-    Chorus() = default;
+    Chorus(float delay, float width = 50.f, float speed = 5.f) : delay_(delay)
+    {
+    }
+
     ~Chorus() = default;
     Chorus(const Chorus &c) = delete;
 
@@ -19,7 +22,19 @@ template <size_t MAX_DELAY_SIZE> class Chorus
         delay_.Reset();
     }
 
+    void SetDelay(float delay)
+    {
+        delay_.SetDelay(delay);
+    }
+
+    float Tick(float in)
+    {
+        return delay_.Tick(in);
+    }
+
   private:
-    DelayLineSinc<MAX_DELAY_SIZE> delay_;
+    DelaySinc<MAX_DELAY_SIZE> delay_;
+    float width_ = 50.f;
+    float speed_ = 5.f;
 };
 } // namespace dsp

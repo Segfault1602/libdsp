@@ -1,3 +1,12 @@
 [submodule "externals/googletest"]
 	path = externals/googletest
 	url = https://github.com/google/googletest.git
+[submodule "externals/libsndfile"]
+	path = externals/libsndfile
+	url = https://github.com/libsndfile/libsndfile.git
+[submodule "externals/rtaudio"]
+	path = externals/rtaudio
+	url = https://github.com/thestk/rtaudio.git
+[submodule "rtaudio"]
+	path = rtaudio
+	url = https://github.com/thestk/rtaudio.git

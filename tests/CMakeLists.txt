@@ -1,16 +1,18 @@
-set(BINARY ${CMAKE_PROJECT_NAME}_tests.out)
-
-set(CMAKE_BUILD_TYPE Debug)
-
 set(TEST_SOURCES
-    main.cpp
+    main_tests.cpp
     circular_buffer_tests.cpp
     sinc_resampler_tests.cpp)
 
 set(SOURCES ${TEST_SOURCES})
 
-add_executable(${BINARY} ${TEST_SOURCES})
+add_executable(libdsp_tests ${TEST_SOURCES})
 
-add_test(NAME ${BINARY} COMMAND ${BINARY})
+add_test(NAME libdsp_tests COMMAND libdsp_tests)
 
-target_link_libraries(${BINARY} PUBLIC libdsp gtest)
+target_link_libraries(libdsp_tests PUBLIC libdsp gtest)
+
+# Player executable
+add_executable(dsp_player
+    player.cpp
+    test_utils.cpp)
+target_link_libraries(dsp_player PUBLIC libdsp sndfile rtaudio)
