@@ -12,83 +12,63 @@
 
 namespace dsp
 {
-class SincResampler
-{
-  public:
-    SincResampler(float ratio = 1);
-    ~SincResampler() = default;
-
-    void SetRatio(float ratio)
+    void sinc_resample(const float* in, size_t input_size, float ratio, float* out, size_t& out_size)
     {
-        ratio_ = ratio;
-        time_step_ = 1.f / ratio_;
-        filter_scale_ = 1;//std::min(1.f, ratio_);
-    }
-
-    size_t BaseDelayInSamples() const
-    {
-        return right_history_.Size();
-    }
-
-    void Process(const float in, float *out, size_t& out_size)
-    {
-        float current_sample = right_history_.Read();
-        right_history_.Write(in);
-        left_history_.Write(current_sample);
-
-        size_t filter_step = SAMPLES_PER_CROSSING * filter_scale_;
+        constexpr size_t filter_length = sizeof(sinc_table) / sizeof(sinc_table[0]);
+        float time_step = 1.0 / ratio;
+        float filter_scale = (ratio < 1.0) ? ratio : 1.0;
+        float filter_step = SAMPLES_PER_CROSSING * filter_scale;
 
         size_t out_idx = 0;
-
-        while (time_register_ < 1)
+        float t = 0.0;
+        while (t < input_size)
         {
-            float sum = 0;
 
-            float frac = time_register_;
-            frac *= filter_scale_;
+            size_t idx_integer = static_cast<size_t>(t);
+            float fractional_part = t - idx_integer;
 
-            // Compute left wing
-            float filter_idx_frac = SAMPLES_PER_CROSSING * frac;
-            size_t filter_offset = static_cast<size_t>(filter_idx_frac);
-            float eta = filter_idx_frac - filter_offset;
-            for (size_t i = 0; i < left_history_.Count(); ++i)
+            // Left wing
+            float left = 0.0;
+            float filter_offset = filter_step * fractional_part;
+
+            size_t left_coeff_count = static_cast<size_t>((filter_length - filter_offset) / filter_step);
+            left_coeff_count = std::min(idx_integer, left_coeff_count);
+            for (int32_t i = left_coeff_count; i >= 0; --i)
             {
-                size_t filter_idx = filter_offset + filter_step * i;
-                float weight = sinc_table[filter_idx] + eta * (sinc_table[filter_idx+1] - sinc_table[filter_idx]);
-                sum += left_history_[left_history_.Count() - i - 1] * weight;
+                float filter_idx = filter_offset + filter_step * i;
+                size_t filter_idx_int = static_cast<size_t>(filter_idx);
+                float fraction = filter_idx - filter_idx_int;
+
+                float weight = sinc_table[filter_idx_int] + fraction * (sinc_table[filter_idx_int + 1] - sinc_table[filter_idx_int]);
+                left += in[idx_integer - i] * weight;
             }
 
-            // Compute right wing
-            frac = filter_scale_ - frac;
-            filter_idx_frac = SAMPLES_PER_CROSSING * frac;
-            filter_offset = static_cast<size_t>(filter_idx_frac);
-            eta = filter_idx_frac - filter_offset;
-            for (size_t i = 0; i < right_history_.Count(); ++i)
+            // Right wing
+            float right = 0.0;
+            fractional_part = 1 - fractional_part;
+            filter_offset = filter_step * fractional_part;
+
+            size_t right_coeff_count = static_cast<size_t>((filter_length - filter_offset) / filter_step);
+            right_coeff_count = std::min(input_size - idx_integer - 1, right_coeff_count);
+            for (size_t i = 0; i < right_coeff_count; ++i)
             {
-                size_t filter_idx = filter_offset + filter_step * i;
-                float weight = sinc_table[filter_idx] + eta * (sinc_table[filter_idx+1] - sinc_table[filter_idx]);
-                sum += right_history_[i] * weight;
+                float filter_idx = filter_offset + filter_step * i;
+                size_t filter_idx_int = static_cast<size_t>(filter_idx);
+                float fraction = filter_idx - filter_idx_int;
+
+                float weight = sinc_table[filter_idx_int] + fraction * (sinc_table[filter_idx_int + 1] - sinc_table[filter_idx_int]);
+                right += in[idx_integer + 1 + i] * weight;
             }
 
             if (out_idx < out_size)
             {
-                out[out_idx++] = sum;
+                out[out_idx] = (left + right) * filter_scale;
+                ++out_idx;
             }
 
-            time_register_ += time_step_;
+            t += time_step;
         }
 
-        time_register_ -= 1;
         out_size = out_idx;
     }
-
-  private:
-    Buffer<SINC_ZERO_COUNT> left_history_;
-    Buffer<SINC_ZERO_COUNT> right_history_;
-
-    float ratio_ = 1;
-    float time_step_ = 1.f / ratio_;
-    float filter_scale_ = 1.f;
-    float time_register_ = 0.f;
-};
 } // namespace dsp

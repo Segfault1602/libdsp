@@ -1,0 +1,3 @@
+add_executable(resampler resampler.cpp)
+target_include_directories(resampler PRIVATE externals/libsamplerate/include)
+target_link_libraries(resampler PUBLIC libdsp sndfile samplerate)

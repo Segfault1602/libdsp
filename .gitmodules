@@ -10,3 +10,6 @@
 [submodule "rtaudio"]
 	path = rtaudio
 	url = https://github.com/thestk/rtaudio.git
+[submodule "externals/libsamplerate"]
+	path = externals/libsamplerate
+	url = https://github.com/libsndfile/libsamplerate.git

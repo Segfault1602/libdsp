@@ -1,27 +1,28 @@
 from scipy.signal import chirp
-from scipy.signal import spectrogram
-import numpy as np
-import matplotlib.pyplot as plt
 import scipy.io
+import numpy as np
 
+ATTENUATION = 0.1 # Attenuation to avoid clipping due to floating point math
 
-def plot_spectrogram(title, w, fs):
-    ff, tt, Sxx = spectrogram(w, fs=fs, nperseg=256, nfft=256)
-    fig, ax = plt.subplots()
-    ax.pcolormesh(tt, ff[:145], Sxx[:145], cmap='gray_r',
-                  shading='gouraud')
-    ax.set_title(title)
-    ax.set_xlabel('t (sec)')
-    ax.set_ylabel('Frequency (Hz)')
-    ax.grid(True)
-
+## 8 seconds quadratic chirp signal at 96kHz
 
 Fs = 96000
 chirp_length_seconds = 8
 time = np.linspace(0, chirp_length_seconds, Fs*chirp_length_seconds)
 
 x = chirp(time, 0, chirp_length_seconds, 48000, 'quadratic')
-plot_spectrogram(f'Quadratic Chirp, f(0)=0, f({8})=48000', x, Fs)
-plt.show()
+x = ATTENUATION * x
 
 scipy.io.wavfile.write('chirp.wav', Fs, x)
+
+## 1 second 1kHz tone
+
+Fs = 96000
+F0 = 1000
+tone_length_seconds = 1
+time = np.linspace(0, tone_length_seconds, Fs*tone_length_seconds)
+
+x = np.sin(2*np.pi*time * F0)
+x = ATTENUATION * x
+
+scipy.io.wavfile.write('1ktone.wav', Fs, x)

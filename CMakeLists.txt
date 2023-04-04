@@ -8,10 +8,12 @@ include_directories(include)
 
 add_subdirectory(src)
 add_subdirectory(tests)
+add_subdirectory(tools)
 
 set(CMAKE_WARN_DEPRECATED OFF CACHE BOOL "" FORCE)
 add_subdirectory(externals/rtaudio)
 add_subdirectory(externals/googletest)
+add_subdirectory(externals/libsamplerate)
 
 # Link to libsndfile
 set(BUILD_PROGRAMS OFF CACHE BOOL "Don't build libsndfile programs!")
