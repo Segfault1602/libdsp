@@ -16,6 +16,7 @@ template <size_t MAX_DELAY> class DelaySinc
   public:
     DelaySinc(unsigned long delay = 0)
     {
+        memset(inputs_, 0, sizeof(inputs_));
         if (delay > MAX_DELAY)
         {
             delay = MAX_DELAY;
@@ -23,7 +24,9 @@ template <size_t MAX_DELAY> class DelaySinc
 
         in_point_ = 0;
         this->SetDelay(delay);
-        left_history_.Fill(0);
+
+        filter_scale_ = 1.f;
+        filter_step_ = SAMPLES_PER_CROSSING * filter_scale_;
     }
 
     ~DelaySinc() = default;
@@ -73,40 +76,76 @@ template <size_t MAX_DELAY> class DelaySinc
         if (in_point_ == MAX_DELAY)
             in_point_ = 0;
 
-        left_history_.Write(inputs_[out_point_]);
         // Increment output pointer modulo length.
         if (++out_point_ == MAX_DELAY)
             out_point_ = 0;
 
-        last_frame_ = 0.f;
+        constexpr size_t filter_length = sizeof(sinc_table) / sizeof(sinc_table[0]);
 
         // Compute left wing
-        float filter_idx_frac = SAMPLES_PER_CROSSING * alpha_;
-        size_t filter_offset = static_cast<size_t>(filter_idx_frac);
-        float eta = filter_idx_frac - filter_offset;
-        for (size_t i = 0; i < left_history_.Count(); ++i)
+        float left = 0.0;
+        float filter_offset = filter_step_ * alpha_;
+
+        size_t coeff_count = static_cast<size_t>((filter_length - filter_offset) / filter_step_) - 1;
+        size_t num_element = (out_point_ > in_point_) ? (MAX_DELAY - out_point_ + in_point_) : (in_point_ - out_point_);
+        assert(num_element > coeff_count);
+
+        float filter_index = filter_offset + coeff_count * filter_step_;
+        int32_t data_index = static_cast<int32_t>(out_point_) - coeff_count;
+        if (data_index < 0)
         {
-            size_t filter_idx = filter_offset + SAMPLES_PER_CROSSING * i;
-            float weight = sinc_table[filter_idx] + eta * (sinc_table[filter_idx + 1] - sinc_table[filter_idx]);
-            last_frame_ += left_history_[left_history_.Count() - i - 1] * weight;
+            data_index += MAX_DELAY;
+        }
+
+        while (filter_index >= 0)
+        {
+            assert(data_index != in_point_);
+
+            size_t filter_idx_int = static_cast<size_t>(filter_index);
+            float fraction = filter_index - filter_idx_int;
+
+            float weight = sinc_table[filter_idx_int] + fraction * (sinc_table[filter_idx_int + 1] - sinc_table[filter_idx_int]);
+            left += inputs_[data_index] * weight;
+
+            filter_index -= filter_step_;
+            data_index += 1;
+            if (data_index == MAX_DELAY)
+            {
+                data_index = 0;
+            }
         }
 
         // Compute right wing
-        filter_idx_frac = SAMPLES_PER_CROSSING * om_alpha_;
-        filter_offset = static_cast<size_t>(filter_idx_frac);
-        eta = filter_idx_frac - filter_offset;
-        size_t tmp_out_ptr = out_point_;
-        for (size_t i = 0; i < MIN_DELAY; ++i)
+        float right = 0.0;
+        filter_offset = filter_step_ * om_alpha_;
+        filter_index = filter_offset + coeff_count * filter_step_;
+        data_index = out_point_ + coeff_count;
+        if (data_index >= MAX_DELAY)
         {
-            size_t filter_idx = filter_offset + SAMPLES_PER_CROSSING * i;
-            float weight = sinc_table[filter_idx] + eta * (sinc_table[filter_idx + 1] - sinc_table[filter_idx]);
-            last_frame_ += inputs_[tmp_out_ptr] * weight;
-
-            if (++tmp_out_ptr == MAX_DELAY)
-                tmp_out_ptr = 0;
+            data_index -= MAX_DELAY;
         }
 
-        return last_frame_;
+        do
+        {
+            assert(data_index != in_point_);
+
+            size_t filter_idx_int = static_cast<size_t>(filter_index);
+            float fraction = filter_index - filter_idx_int;
+
+            float weight =
+                sinc_table[filter_idx_int] + fraction * (sinc_table[filter_idx_int + 1] - sinc_table[filter_idx_int]);
+            right += inputs_[data_index] * weight;
+
+            filter_index -= filter_step_;
+            data_index -= 1;
+            if (data_index < 0)
+            {
+                data_index = MAX_DELAY - 1;
+            }
+
+        } while (filter_index > 0);
+
+        return left + right;
     }
 
   protected:
@@ -119,6 +158,7 @@ template <size_t MAX_DELAY> class DelaySinc
     float inputs_[MAX_DELAY];
     float last_frame_ = 0;
 
-    Buffer<SINC_ZERO_COUNT> left_history_;
+    float filter_scale_ = 1.f;
+    float filter_step_ = SAMPLES_PER_CROSSING;
 };
 } // namespace dsp

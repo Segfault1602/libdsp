@@ -10,6 +10,9 @@
 #include <sinc_resampler.h>
 #include <samplerate.h>
 
+void UseSincResample(const float* buffer, size_t input_size, float resampling_ratio, float* out, size_t& out_size);
+void UseLibSamplerate(const float* buffer, size_t input_size, float resampling_ratio, float* out, size_t& out_size);
+
 int main(int argc, char **argv)
 {
     const std::vector<std::string> args(argv + 1, argv + argc);
@@ -17,10 +20,11 @@ int main(int argc, char **argv)
     std::string input_file;
     std::string output_file;
     float target_fs;
+    bool use_libsamplerate = false;
 
-    if (args.size() != 6)
+    if (args.size() < 6)
     {
-        printf("Invalid command line options!\n");
+        printf("Invalid command line options! \n");
         printf("Usage: resampler.exe -f <wav_file> -t <target_fs>\n");
         return -1;
     }
@@ -42,6 +46,10 @@ int main(int argc, char **argv)
         {
             output_file = args[i+1];
             ++i;
+        }
+        else if (args[i] == "-s")
+        {
+            use_libsamplerate = true;
         }
     }
 
@@ -72,7 +80,14 @@ int main(int argc, char **argv)
     size_t out_size = std::ceil(count * resampling_ratio);
     std::unique_ptr<float[]> out = std::make_unique<float[]>(out_size);
 
-    dsp::sinc_resample(buffer.get(), count, resampling_ratio, out.get(), out_size);
+    if (!use_libsamplerate)
+    {
+        UseSincResample(buffer.get(), count, resampling_ratio, out.get(), out_size);
+    }
+    else
+    {
+        UseLibSamplerate(buffer.get(), count, resampling_ratio, out.get(), out_size);
+    }
 
     SF_INFO out_sf_info{0};
     out_sf_info.channels = 1;
@@ -89,36 +104,27 @@ int main(int argc, char **argv)
     sf_write_sync(out_file);
     sf_close(out_file);
 
-    memset(out.get(), 0, out_size);
+    return 0;
+}
+
+void UseSincResample(const float* buffer, size_t input_size, float resampling_ratio, float* out, size_t& out_size)
+{
+    dsp::sinc_resample(buffer, input_size, resampling_ratio, out, out_size);
+}
+
+void UseLibSamplerate(const float* buffer, size_t input_size, float resampling_ratio, float* out, size_t& out_size)
+{
     SRC_DATA src_data{0};
-    src_data.data_in = buffer.get();
-    src_data.input_frames = sf_info.frames;
-    src_data.data_out = out.get();
+    src_data.data_in = buffer;
+    src_data.input_frames = input_size;
+    src_data.data_out = out;
     src_data.output_frames = out_size;
-    src_data.src_ratio = 1;
+    src_data.src_ratio = resampling_ratio;
 
     int ret = src_simple(&src_data, SRC_SINC_FASTEST, 1);
 
     if (ret != 0)
     {
         printf("Failed to resample file using libsamplerate! (src_strerror: %s)", src_strerror(ret));
-        return -1;
     }
-
-    out_sf_info = {0};
-    out_sf_info.channels = 1;
-    out_sf_info.samplerate = target_fs;
-    out_sf_info.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
-    out_file = sf_open("out_chirp_libsamplerate.wav", SFM_WRITE, &out_sf_info);
-    if (out_file == nullptr)
-    {
-        printf("Failed to open output file! (sf_strerror: %s)\n", sf_strerror(out_file));
-        return -1;
-    }
-
-    sf_write_float(out_file, out.get(), src_data.output_frames);
-    sf_write_sync(out_file);
-    sf_close(out_file);
-
-    return 0;
 }

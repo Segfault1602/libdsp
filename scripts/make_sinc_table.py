@@ -3,7 +3,7 @@ from scipy.special import sinc
 from scipy.signal.windows import kaiser
 import matplotlib.pyplot as plt
 
-NZ = 32
+NZ = 13
 SAMPLES_PER_CROSSING = 512
 SINC_SIZE = NZ * SAMPLES_PER_CROSSING
 KAISER_BETA = 10

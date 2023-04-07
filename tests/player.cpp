@@ -11,7 +11,9 @@
 #include <sndfile.h>
 
 #include "chorus.h"
+#include "dsp_base.h"
 #include "test_utils.h"
+
 
 int RtOutputCallback(void *outputBuffer, void * /*inputBuffer*/, unsigned int nBufferFrames, double /*streamTime*/,
                      RtAudioStreamStatus /*status*/, void *data);
@@ -23,10 +25,8 @@ struct CbContext
 {
     size_t numFrames = 0;
     size_t readPtr = 0;
+    dsp::DspBase *effect = nullptr;
 };
-
-constexpr float g_base_delay = 500;
-dsp::Chorus<44100> chorus(g_base_delay);
 
 // Globals
 bool g_realtime = false;
@@ -56,18 +56,28 @@ int main()
     return 0;
 }
 
+double lastValues[2] = {0, 0};
+
 int RtOutputCallback(void *outputBuffer, void * /*inputBuffer*/, unsigned int nBufferFrames, double /*streamTime*/,
-                     RtAudioStreamStatus /*status*/, void *data)
+                     RtAudioStreamStatus status, void *data)
 {
+    if (status)
+        std::cout << "Stream underflow detected!" << std::endl;
     CbContext *context = static_cast<CbContext *>(data);
 
     size_t frameToRead = std::min(static_cast<size_t>(nBufferFrames), context->numFrames - context->readPtr);
 
-    for (size_t i = 0; i < frameToRead; ++i)
+    float *output = static_cast<float *>(outputBuffer);
+
+    // Write interleaved audio data.
+    for (size_t i = 0; i < frameToRead; i++)
     {
-        static_cast<float *>(outputBuffer)[i] =
-            chorus.Tick(g_input_buffer[context->readPtr]) * 0.5f + g_input_buffer[context->readPtr] * 0.5f;
+        float sample = context->effect->Tick(g_input_buffer[context->readPtr]);
         ++context->readPtr;
+        for (size_t j = 0; j < 2; j++)
+        {
+            *output++ = sample;
+        }
     }
 
     return frameToRead == 0;
@@ -86,13 +96,18 @@ int ProcessWithRTAudio()
     // Set our stream parameters for output only.
     RtAudio::StreamParameters oParams;
     oParams.deviceId = dac.getDefaultOutputDevice();
-    oParams.nChannels = 1;
+    oParams.nChannels = 2;
+    oParams.firstChannel = 0;
+
+    constexpr float g_base_delay = 256.33;
+    dsp::Chorus<512> chorus(g_sf_info.samplerate, g_base_delay, 50, 1);
 
     CbContext context;
     context.numFrames = g_sf_info.frames;
     context.readPtr = 0;
+    context.effect = &chorus;
 
-    uint32_t bufferFrames = 512;
+    uint32_t bufferFrames = 256;
     auto rtError = dac.openStream(&oParams, NULL, RTAUDIO_FLOAT32, g_sf_info.samplerate, &bufferFrames,
                                   &RtOutputCallback, static_cast<void *>(&context));
 
@@ -135,20 +150,17 @@ int ProcessToFile()
     out_sf_info.frames = out_size;
 
     auto out = std::make_unique<float[]>(out_size);
+    memset(out.get(), 0, out_size);
 
-    const float delta_t = 1.f / g_sf_info.samplerate;
-    const float mod_freq = 5.f;
-    float t = 0.f;
+    constexpr float g_base_delay = 64;
+    dsp::Chorus<128> chorus(g_sf_info.samplerate, g_base_delay, 50.0f, 1.f);
 
     auto start = std::chrono::high_resolution_clock::now();
     for (size_t i = 0; i < g_sf_info.frames; ++i)
     {
-        float mod = 10 * std::sin(2 * M_PI * mod_freq * t);
-        chorus.SetDelay(g_base_delay + mod);
         float out_sample = chorus.Tick(g_input_buffer[i]);
-        float mix = out_sample * 0.5f + g_input_buffer[i] * 0.5;
-        out[i] = mix;
-        t += delta_t;
+        float mix = out_sample;
+        out[i] = out_sample;
     }
     auto end = std::chrono::high_resolution_clock::now();
 
@@ -166,5 +178,5 @@ int ProcessToFile()
         float mix = out_sample * 0.5f;
     }
 
-    return WriteWavFile("out.wav", out.get(), out_sf_info) != 0;
+    return WriteWavFile("out.wav", out.get(), out_sf_info, out_size) != 0;
 }

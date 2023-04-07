@@ -25,7 +25,7 @@ bool LoadWavFile(std::string filename, std::unique_ptr<float[]> &buffer, size_t 
     return true;
 }
 
-bool WriteWavFile(std::string filename, const float *buffer, SF_INFO sf_info)
+bool WriteWavFile(std::string filename, const float *buffer, SF_INFO sf_info, size_t frames)
 {
     SNDFILE *out_file = sf_open(filename.c_str(), SFM_WRITE, &sf_info);
     if (out_file == nullptr)
@@ -34,7 +34,7 @@ bool WriteWavFile(std::string filename, const float *buffer, SF_INFO sf_info)
         return false;
     }
 
-    sf_writef_float(out_file, buffer, sf_info.frames);
+    sf_writef_float(out_file, buffer, frames);
     sf_write_sync(out_file); // Is this needed?
     sf_close(out_file);
     return true;

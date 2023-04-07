@@ -26,3 +26,11 @@ x = np.sin(2*np.pi*time * F0)
 x = ATTENUATION * x
 
 scipy.io.wavfile.write('1ktone.wav', Fs, x)
+
+## Dirac
+Fs = 96000
+IMPULSE_LENGTH = 100
+x = np.zeros(IMPULSE_LENGTH)
+x[round(IMPULSE_LENGTH/2)] = 1
+
+scipy.io.wavfile.write('dirac.wav', Fs, x);
