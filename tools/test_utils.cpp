@@ -2,11 +2,11 @@
 
 #include <cassert>
 
-bool LoadWavFile(const std::string& filename, std::unique_ptr<float[]> &buffer, size_t &buffer_size, SF_INFO &sf_info)
+bool LoadWavFile(const std::string& filename, std::unique_ptr<float[]>& buffer, size_t& buffer_size, SF_INFO& sf_info)
 {
     sf_info = {0};
 
-    SNDFILE *file = sf_open(filename.c_str(), SFM_READ, &sf_info);
+    SNDFILE* file = sf_open(filename.c_str(), SFM_READ, &sf_info);
 
     if (file == nullptr)
     {
@@ -25,9 +25,9 @@ bool LoadWavFile(const std::string& filename, std::unique_ptr<float[]> &buffer, 
     return true;
 }
 
-bool WriteWavFile(std::string filename, const float *buffer, SF_INFO sf_info, size_t frames)
+bool WriteWavFile(std::string filename, const float* buffer, SF_INFO sf_info, size_t frames)
 {
-    SNDFILE *out_file = sf_open(filename.c_str(), SFM_WRITE, &sf_info);
+    SNDFILE* out_file = sf_open(filename.c_str(), SFM_WRITE, &sf_info);
     if (out_file == nullptr)
     {
         printf("Error: %s\n", sf_strerror(out_file));

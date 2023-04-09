@@ -72,7 +72,7 @@ template <size_t CONTAINER_SIZE> class Buffer
         }
     }
 
-    const float &operator[](size_t idx) const
+    const float& operator[](size_t idx) const
     {
         auto real_idx = (read_ + idx) % CONTAINER_SIZE;
         return buffer_[real_idx];

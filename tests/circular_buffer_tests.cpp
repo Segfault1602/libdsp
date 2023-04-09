@@ -97,11 +97,10 @@ TEST(CircularBufferTests, CheckOverwrite)
         buf.Write(test_values[i]);
     }
 
-
-    const float offset = max_size*10;
+    const float offset = max_size * 10;
     for (size_t i = 0; i < buf.Size() - 1; ++i)
     {
         buf.Write(offset + i);
-        ASSERT_EQ(buf.Peek(), test_values[i+1]);
+        ASSERT_EQ(buf.Peek(), test_values[i + 1]);
     }
 }

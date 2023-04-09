@@ -22,7 +22,7 @@ template <size_t MAX_DELAY_SIZE> class Chorus : public DspBase
     }
 
     ~Chorus() = default;
-    Chorus(const Chorus &c) = delete;
+    Chorus(const Chorus& c) = delete;
 
     void Reset()
     {
@@ -51,7 +51,7 @@ template <size_t MAX_DELAY_SIZE> class Chorus : public DspBase
 
         float last_frame_ = delay_.Tick(in * (1.f - feedback_) + last_frame_ * feedback_);
 
-        return  last_frame_ * chorus_mix_ + in * input_mix_;
+        return last_frame_ * chorus_mix_ + in * input_mix_;
     }
 
   private:

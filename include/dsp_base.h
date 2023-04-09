@@ -7,12 +7,16 @@
 
 namespace dsp
 {
-    class DspBase
+class DspBase
+{
+  public:
+    DspBase()
     {
-public:
-    DspBase() {}
-    virtual ~DspBase() {}
+    }
+    virtual ~DspBase()
+    {
+    }
 
     virtual float Tick(float in) = 0;
-    };
-}
+};
+} // namespace dsp

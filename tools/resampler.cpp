@@ -1,19 +1,18 @@
 #include <cassert>
 #include <cmath>
+#include <cstdio>
 #include <memory>
 #include <sndfile.h>
-#include <cstdio>
 #include <string>
 #include <vector>
 
-
-#include <sinc_resampler.h>
 #include <samplerate.h>
+#include <sinc_resampler.h>
 
 void UseSincResample(const float* buffer, size_t input_size, float resampling_ratio, float* out, size_t& out_size);
 void UseLibSamplerate(const float* buffer, size_t input_size, float resampling_ratio, float* out, size_t& out_size);
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     const std::vector<std::string> args(argv + 1, argv + argc);
 
@@ -44,7 +43,7 @@ int main(int argc, char **argv)
         }
         else if (args[i] == "-o")
         {
-            output_file = args[i+1];
+            output_file = args[i + 1];
             ++i;
         }
         else if (args[i] == "-s")
@@ -54,7 +53,7 @@ int main(int argc, char **argv)
     }
 
     SF_INFO sf_info{0};
-    SNDFILE *file = sf_open(input_file.c_str(), SFM_READ, &sf_info);
+    SNDFILE* file = sf_open(input_file.c_str(), SFM_READ, &sf_info);
 
     if (file == nullptr)
     {
@@ -93,7 +92,7 @@ int main(int argc, char **argv)
     out_sf_info.channels = 1;
     out_sf_info.samplerate = static_cast<int>(target_fs);
     out_sf_info.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
-    SNDFILE *out_file = sf_open(output_file.c_str(), SFM_WRITE, &out_sf_info);
+    SNDFILE* out_file = sf_open(output_file.c_str(), SFM_WRITE, &out_sf_info);
     if (out_file == nullptr)
     {
         printf("Failed to open output file! (sf_strerror: %s)\n", sf_strerror(out_file));

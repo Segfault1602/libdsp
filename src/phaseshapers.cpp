@@ -156,4 +156,4 @@ float Phaseshaper::ProcessVarSlope()
     float vslope = 0.5f * m_phase * (1.0f - pulse) / width + pulse * (m_phase - width) / (1 - width);
     return std::sin(TWOPI_F * vslope);
 }
-} // namespace PhaseShapers
+} // namespace dsp

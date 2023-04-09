@@ -16,8 +16,8 @@
 #include "dsp_base.h"
 #include "test_utils.h"
 
-int RtOutputCallback(void *outputBuffer, void * /*inputBuffer*/, unsigned int nBufferFrames, double /*streamTime*/,
-                     RtAudioStreamStatus /*status*/, void *data);
+int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBufferFrames, double /*streamTime*/,
+                     RtAudioStreamStatus /*status*/, void* data);
 
 int ProcessWithRTAudio();
 int ProcessToFile();
@@ -39,7 +39,7 @@ struct CbContext
 {
     size_t numFrames = 0;
     size_t readPtr = 0;
-    dsp::DspBase *effect = nullptr;
+    dsp::DspBase* effect = nullptr;
 };
 
 // Globals
@@ -74,18 +74,18 @@ int main()
 
 double lastValues[2] = {0, 0};
 
-int RtOutputCallback(void *outputBuffer, void * /*inputBuffer*/, unsigned int nBufferFrames, double /*streamTime*/,
-                     RtAudioStreamStatus status, void *data)
+int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBufferFrames, double /*streamTime*/,
+                     RtAudioStreamStatus status, void* data)
 {
     if (status)
     {
         std::cout << "Stream underflow detected!" << std::endl;
     }
-    auto *context = static_cast<CbContext *>(data);
+    auto* context = static_cast<CbContext*>(data);
 
     size_t frameToRead = std::min(static_cast<size_t>(nBufferFrames), context->numFrames - context->readPtr);
 
-    auto *output = static_cast<float *>(outputBuffer);
+    auto* output = static_cast<float*>(outputBuffer);
 
     // Write interleaved audio data.
     for (size_t i = 0; i < frameToRead; i++)
@@ -127,7 +127,7 @@ int ProcessWithRTAudio()
 
     uint32_t bufferFrames = 256;
     auto rtError = dac_wrapper.dac.openStream(&oParams, nullptr, RTAUDIO_FLOAT32, g_sf_info.samplerate, &bufferFrames,
-                                  &RtOutputCallback, static_cast<void *>(&context));
+                                              &RtOutputCallback, static_cast<void*>(&context));
 
     if (rtError != RTAUDIO_NO_ERROR)
     {

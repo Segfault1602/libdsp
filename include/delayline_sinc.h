@@ -104,7 +104,8 @@ template <size_t MAX_DELAY> class DelaySinc
             size_t filter_idx_int = static_cast<size_t>(filter_index);
             float fraction = filter_index - filter_idx_int;
 
-            float weight = sinc_table[filter_idx_int] + fraction * (sinc_table[filter_idx_int + 1] - sinc_table[filter_idx_int]);
+            float weight =
+                sinc_table[filter_idx_int] + fraction * (sinc_table[filter_idx_int + 1] - sinc_table[filter_idx_int]);
             left += inputs_[data_index] * weight;
 
             filter_index -= filter_step_;
