@@ -20,7 +20,7 @@ def main():
     SCRIPT_DIR = os.path.realpath(os.path.dirname(__file__))
     BUILD_DIR = os.path.join(SCRIPT_DIR, "..", "build")
 
-    RESAMPLER_EXE_PATH = os.path.join(BUILD_DIR, "tools", "resampler.exe")
+    RESAMPLER_EXE_PATH = os.path.join(BUILD_DIR, "tools", "resampler")
 
     WAVES_DIR = os.path.join(SCRIPT_DIR, "..", "waves")
     CHIRP_FILE = os.path.join(WAVES_DIR, "chirp.wav")
@@ -36,7 +36,7 @@ def main():
     OUT_TONE_LIBSAMPLERATE = os.path.join(OUTPUT_DIR, "out_1ktone_libsamplerate.wav")
     OUT_DIRAC_LIBSAMPLERATE = os.path.join(OUTPUT_DIR, "out_dirac_libsamplerate.wav")
 
-    if not os.path.exists(OUT_CHIRP):
+    if not os.path.exists(OUTPUT_DIR):
         os.mkdir(OUTPUT_DIR)
 
     subprocess.run([RESAMPLER_EXE_PATH, "-f", CHIRP_FILE, "-t", "44100", "-o", OUT_CHIRP], check=True)

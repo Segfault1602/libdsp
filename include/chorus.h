@@ -13,7 +13,7 @@ namespace dsp
 template <size_t MAX_DELAY_SIZE> class Chorus : public DspBase
 {
   public:
-    Chorus(float samplerate, float delay, float width = 10.f, float speed = 5.f)
+    Chorus(uint32_t samplerate, float delay, float width = 10.f, float speed = 5.f)
         : samplerate_(samplerate), base_delay_(delay), delay_(delay), width_(width), speed_(speed)
     {
         float mod_period = samplerate / speed;
@@ -55,7 +55,7 @@ template <size_t MAX_DELAY_SIZE> class Chorus : public DspBase
     }
 
   private:
-    float samplerate_ = 48000;
+    uint32_t samplerate_ = 48000;
     float base_delay_ = 0.f;
     DelaySinc<MAX_DELAY_SIZE> delay_ = {0};
     float width_ = 50.f;

@@ -2,7 +2,7 @@
 
 #include <cassert>
 
-bool LoadWavFile(std::string filename, std::unique_ptr<float[]> &buffer, size_t &buffer_size, SF_INFO &sf_info)
+bool LoadWavFile(const std::string& filename, std::unique_ptr<float[]> &buffer, size_t &buffer_size, SF_INFO &sf_info)
 {
     sf_info = {0};
 
@@ -34,7 +34,7 @@ bool WriteWavFile(std::string filename, const float *buffer, SF_INFO sf_info, si
         return false;
     }
 
-    sf_writef_float(out_file, buffer, frames);
+    sf_writef_float(out_file, buffer, static_cast<sf_count_t>(frames));
     sf_write_sync(out_file); // Is this needed?
     sf_close(out_file);
     return true;

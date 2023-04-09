@@ -2,9 +2,11 @@
 #include <cassert>
 #include <chrono>
 #define _USE_MATH_DEFINES
+#include <chrono>
 #include <cmath>
+#include <cstdio>
 #include <memory>
-#include <stdio.h>
+#include <thread>
 #include <vector>
 
 #include <RtAudio.h>
@@ -14,12 +16,24 @@
 #include "dsp_base.h"
 #include "test_utils.h"
 
-
 int RtOutputCallback(void *outputBuffer, void * /*inputBuffer*/, unsigned int nBufferFrames, double /*streamTime*/,
                      RtAudioStreamStatus /*status*/, void *data);
 
 int ProcessWithRTAudio();
 int ProcessToFile();
+
+struct RtAudioWrapper
+{
+    RtAudio dac;
+
+    ~RtAudioWrapper()
+    {
+        if (dac.isStreamOpen())
+        {
+            dac.closeStream();
+        }
+    }
+};
 
 struct CbContext
 {
@@ -36,7 +50,8 @@ SF_INFO g_sf_info = {0};
 int main()
 {
     size_t buffer_size;
-    if (!LoadWavFile("c:\\source\\libdsp\\waves\\piano.wav", g_input_buffer, buffer_size, g_sf_info))
+    const std::string audio_file = R"(c:/source/libdsp/waves/piano.wav)";
+    if (!LoadWavFile(audio_file, g_input_buffer, buffer_size, g_sf_info))
     {
         return -1;
     }
@@ -44,16 +59,17 @@ int main()
     // For now I'm only working in mono
     assert(g_sf_info.channels == 1);
 
+    int ret = 0;
     if (g_realtime)
     {
-        return ProcessWithRTAudio();
+        ret = ProcessWithRTAudio();
     }
     else
     {
-        return ProcessToFile();
+        ret = ProcessToFile();
     }
 
-    return 0;
+    return ret;
 }
 
 double lastValues[2] = {0, 0};
@@ -62,12 +78,14 @@ int RtOutputCallback(void *outputBuffer, void * /*inputBuffer*/, unsigned int nB
                      RtAudioStreamStatus status, void *data)
 {
     if (status)
+    {
         std::cout << "Stream underflow detected!" << std::endl;
-    CbContext *context = static_cast<CbContext *>(data);
+    }
+    auto *context = static_cast<CbContext *>(data);
 
     size_t frameToRead = std::min(static_cast<size_t>(nBufferFrames), context->numFrames - context->readPtr);
 
-    float *output = static_cast<float *>(outputBuffer);
+    auto *output = static_cast<float *>(outputBuffer);
 
     // Write interleaved audio data.
     for (size_t i = 0; i < frameToRead; i++)
@@ -85,9 +103,9 @@ int RtOutputCallback(void *outputBuffer, void * /*inputBuffer*/, unsigned int nB
 
 int ProcessWithRTAudio()
 {
-    RtAudio dac;
-    std::vector<unsigned int> deviceIds = dac.getDeviceIds();
-    if (deviceIds.size() < 1)
+    RtAudioWrapper dac_wrapper;
+    std::vector<unsigned int> deviceIds = dac_wrapper.dac.getDeviceIds();
+    if (deviceIds.empty())
     {
         printf("No audio devices found!\n");
         return -1;
@@ -95,7 +113,7 @@ int ProcessWithRTAudio()
 
     // Set our stream parameters for output only.
     RtAudio::StreamParameters oParams;
-    oParams.deviceId = dac.getDefaultOutputDevice();
+    oParams.deviceId = dac_wrapper.dac.getDefaultOutputDevice();
     oParams.nChannels = 2;
     oParams.firstChannel = 0;
 
@@ -108,7 +126,7 @@ int ProcessWithRTAudio()
     context.effect = &chorus;
 
     uint32_t bufferFrames = 256;
-    auto rtError = dac.openStream(&oParams, NULL, RTAUDIO_FLOAT32, g_sf_info.samplerate, &bufferFrames,
+    auto rtError = dac_wrapper.dac.openStream(&oParams, nullptr, RTAUDIO_FLOAT32, g_sf_info.samplerate, &bufferFrames,
                                   &RtOutputCallback, static_cast<void *>(&context));
 
     if (rtError != RTAUDIO_NO_ERROR)
@@ -116,25 +134,22 @@ int ProcessWithRTAudio()
         printf("rtaudio::openStream failed with erro %u!", rtError);
     }
 
-    if (dac.isStreamOpen() == false)
-        goto cleanup;
-
-    if (dac.startStream())
-        goto cleanup;
+    rtError = dac_wrapper.dac.startStream();
+    if (rtError != RTAUDIO_NO_ERROR)
+    {
+        printf("rtaudio::startStream failed with erro %u!", rtError);
+    }
 
     printf("Playing raw file...\n");
-    while (1)
+    while (true)
     {
-        Sleep(100); // wake every 100 ms to check if we're done
-        if (dac.isStreamRunning() == false)
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        if (!dac_wrapper.dac.isStreamRunning())
         {
             printf("Done streaming!\n");
             break;
         }
     }
-cleanup:
-    if (dac.isStreamOpen())
-        dac.closeStream();
 
     return 0;
 }
@@ -147,7 +162,7 @@ int ProcessToFile()
     out_sf_info.channels = 1;
     out_sf_info.format = g_sf_info.format;
     out_sf_info.samplerate = g_sf_info.samplerate;
-    out_sf_info.frames = out_size;
+    out_sf_info.frames = static_cast<sf_count_t>(out_size);
 
     auto out = std::make_unique<float[]>(out_size);
     memset(out.get(), 0, out_size);
@@ -167,7 +182,7 @@ int ProcessToFile()
     std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
     printf("Time elapsed: %f\n", time_span.count());
 
-    float file_duration = static_cast<double>(g_sf_info.frames) / g_sf_info.samplerate;
+    float file_duration = static_cast<float>(g_sf_info.frames) / static_cast<float>(g_sf_info.samplerate);
 
     printf("Which is %f %% of the audio time (%f seconds).\n", time_span.count() / file_duration, file_duration);
 
