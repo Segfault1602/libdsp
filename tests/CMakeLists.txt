@@ -9,4 +9,4 @@ add_executable(libdsp_tests ${TEST_SOURCES})
 
 add_test(NAME libdsp_tests COMMAND libdsp_tests)
 
-target_link_libraries(libdsp_tests PUBLIC libdsp gtest)
+target_link_libraries(libdsp_tests PUBLIC dsp gtest)
