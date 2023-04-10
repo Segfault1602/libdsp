@@ -43,15 +43,31 @@ struct CbContext
 };
 
 // Globals
-bool g_realtime = false;
 std::unique_ptr<float[]> g_input_buffer;
 SF_INFO g_sf_info = {0};
 
-int main()
+int main(int argc, char** argv)
 {
+    const std::vector<std::string> args(argv + 1, argv + argc);
+
+    bool realtime = false;
+    std::string input_file;
+
+    for (size_t i = 0; i < args.size(); ++i)
+    {
+        if (args[i] == "-f")
+        {
+            input_file = args[i + 1];
+            ++i;
+        }
+        else if (args[i] == "-r")
+        {
+            realtime = true;
+        }
+    }
+
     size_t buffer_size;
-    const std::string audio_file = R"(c:/source/libdsp/waves/piano.wav)";
-    if (!LoadWavFile(audio_file, g_input_buffer, buffer_size, g_sf_info))
+    if (!LoadWavFile(input_file, g_input_buffer, buffer_size, g_sf_info))
     {
         return -1;
     }
@@ -60,7 +76,7 @@ int main()
     assert(g_sf_info.channels == 1);
 
     int ret = 0;
-    if (g_realtime)
+    if (realtime)
     {
         ret = ProcessWithRTAudio();
     }
