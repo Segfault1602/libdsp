@@ -49,7 +49,7 @@ template <size_t MAX_DELAY_SIZE> class Chorus : public DspBase
 
         SetDelay(base_delay_ + mod);
 
-        float last_frame_ = delay_.Tick(in * (1.f - feedback_) + last_frame_ * feedback_);
+        last_frame_ = delay_.Tick(in * (1.f - feedback_) + last_frame_ * feedback_);
 
         return last_frame_ * chorus_mix_ + in * input_mix_;
     }

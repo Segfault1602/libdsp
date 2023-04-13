@@ -190,12 +190,11 @@ int ProcessToFile()
     for (size_t i = 0; i < g_sf_info.frames; ++i)
     {
         float out_sample = chorus.Tick(g_input_buffer[i]);
-        float mix = out_sample;
         out[i] = out_sample;
     }
     auto end = std::chrono::high_resolution_clock::now();
 
-    std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
+    auto time_span = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
     printf("Time elapsed: %f\n", time_span.count());
 
     float file_duration = static_cast<float>(g_sf_info.frames) / static_cast<float>(g_sf_info.samplerate);
@@ -203,10 +202,10 @@ int ProcessToFile()
     printf("Which is %f %% of the audio time (%f seconds).\n", time_span.count() / file_duration, file_duration);
 
     // Send silence for the rest
-    for (size_t i = 0; i < extra_time; ++i)
+    for (size_t i = g_sf_info.frames; i < (g_sf_info.frames + extra_time); ++i)
     {
         float out_sample = chorus.Tick(0.f);
-        float mix = out_sample * 0.5f;
+        out[i] = out_sample;
     }
 
     return WriteWavFile("out.wav", out.get(), out_sf_info, out_size) != 0;

@@ -4,8 +4,6 @@
 
 bool LoadWavFile(const std::string& filename, std::unique_ptr<float[]>& buffer, size_t& buffer_size, SF_INFO& sf_info)
 {
-    sf_info = {0};
-
     SNDFILE* file = sf_open(filename.c_str(), SFM_READ, &sf_info);
 
     if (file == nullptr)
