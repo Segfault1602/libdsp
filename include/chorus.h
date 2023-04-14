@@ -13,16 +13,23 @@ namespace dsp
 template <size_t MAX_DELAY_SIZE> class Chorus : public DspBase
 {
   public:
-    Chorus(uint32_t samplerate, float delay, float width = 10.f, float speed = 5.f)
-        : samplerate_(samplerate), base_delay_(delay), delay_(delay), width_(width), speed_(speed)
+    Chorus() = default;
+
+    ~Chorus() override = default;
+    Chorus(const Chorus& c) = delete;
+
+    void Init(uint32_t samplerate, float delay, float width = 10.f, float speed = 5.f)
     {
+        samplerate_ = samplerate;
+        base_delay_ = delay;
+        delay_.SetDelay(base_delay_);
+        width_ = width;
+        speed_ = speed;
+
         float mod_period = samplerate / speed;
         mod_phase_dt_ = 1.f / mod_period;
         delta_t_ = 1.f / samplerate_;
     }
-
-    ~Chorus() = default;
-    Chorus(const Chorus& c) = delete;
 
     void Reset()
     {

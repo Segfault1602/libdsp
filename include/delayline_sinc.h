@@ -34,7 +34,7 @@ template <size_t MAX_DELAY> class DelaySinc
     unsigned long MaxDelay(void)
     {
         return MAX_DELAY - 1;
-    };
+    }
 
     void SetDelay(float delay)
     {
@@ -66,7 +66,7 @@ template <size_t MAX_DELAY> class DelaySinc
     unsigned long GetDelay(void) const
     {
         return delay_;
-    };
+    }
 
     float Tick(float input)
     {
@@ -86,7 +86,7 @@ template <size_t MAX_DELAY> class DelaySinc
         float left = 0.0;
         float filter_offset = filter_step_ * alpha_;
 
-        size_t coeff_count = static_cast<size_t>((filter_length - filter_offset) / filter_step_) - 1;
+        auto coeff_count = static_cast<uint8_t>((filter_length - filter_offset) / filter_step_) - 1;
         size_t num_element = (out_point_ > in_point_) ? (MAX_DELAY - out_point_ + in_point_) : (in_point_ - out_point_);
         assert(num_element > coeff_count);
 

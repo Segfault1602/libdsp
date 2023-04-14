@@ -13,7 +13,7 @@ add_subdirectory(src)
 
 option(LIBDSP_LIB_ONLY "Only build libdsp static library" OFF)
 
-# if (NOT LIBDSP_LIB_ONLY)
+if (NOT LIBDSP_LIB_ONLY)
 
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build libsndfile shared library" FORCE)
 add_definitions(-D_CRT_SECURE_NO_WARNINGS)
@@ -38,4 +38,4 @@ add_subdirectory(externals/libsndfile)
 target_compile_definitions(sndfile PRIVATE _CRT_SECURE_NO_WARNINGS _USE_MATH_DEFINES)
 target_compile_options(sndfile PRIVATE -Wno-deprecated-declarations)
 
-# endif()
+endif()

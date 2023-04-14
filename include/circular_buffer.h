@@ -40,7 +40,7 @@ template <size_t CONTAINER_SIZE> class Buffer
 
     void Fill(float value)
     {
-        buffer_.fill(0.f);
+        buffer_.fill(value);
         count_ = buffer_.size();
     }
 
