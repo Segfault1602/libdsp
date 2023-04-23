@@ -133,8 +133,9 @@ int ProcessWithRTAudio()
     oParams.nChannels = 2;
     oParams.firstChannel = 0;
 
-    constexpr float g_base_delay = 256.33;
-    dsp::Chorus<512> chorus(g_sf_info.samplerate, g_base_delay, 50, 1);
+    constexpr float g_base_delay = 20.f;
+    dsp::Chorus<4096> chorus;
+    chorus.Init(g_sf_info.samplerate, g_base_delay);
 
     CbContext context;
     context.numFrames = g_sf_info.frames;
@@ -183,8 +184,9 @@ int ProcessToFile()
     auto out = std::make_unique<float[]>(out_size);
     memset(out.get(), 0, out_size);
 
-    constexpr float g_base_delay = 64;
-    dsp::Chorus<128> chorus(g_sf_info.samplerate, g_base_delay, 50.0f, 1.f);
+    constexpr float g_base_delay = 20;
+    dsp::Chorus<4096> chorus;
+    chorus.Init(g_sf_info.samplerate, g_base_delay);
 
     auto start = std::chrono::high_resolution_clock::now();
     for (size_t i = 0; i < g_sf_info.frames; ++i)

@@ -7,6 +7,8 @@
 #include "circular_buffer.h"
 #include "sinc_table.h"
 
+#include <cassert>
+
 constexpr size_t MIN_DELAY = SINC_ZERO_COUNT;
 
 namespace dsp
@@ -23,7 +25,7 @@ template <size_t MAX_DELAY> class DelaySinc
         }
 
         in_point_ = 0;
-        this->SetDelay(delay);
+        this->SetDelay(delay, true);
 
         filter_scale_ = 1.f;
         filter_step_ = SAMPLES_PER_CROSSING * filter_scale_;
@@ -36,7 +38,7 @@ template <size_t MAX_DELAY> class DelaySinc
         return MAX_DELAY - 1;
     }
 
-    void SetDelay(float delay)
+    void SetDelay(float delay, bool resetFilterScale)
     {
         if (delay > MAX_DELAY)
         {
@@ -47,6 +49,8 @@ template <size_t MAX_DELAY> class DelaySinc
         {
             delay = static_cast<float>(MIN_DELAY);
         }
+
+        float time_step = 1 - std::abs(delay - delay_);
 
         float outPointer = in_point_ - delay; // read chases write
         delay_ = delay;
@@ -61,6 +65,20 @@ template <size_t MAX_DELAY> class DelaySinc
 
         if (out_point_ == MAX_DELAY)
             out_point_ = 0;
+
+        if (!resetFilterScale)
+        {
+            float ratio = 1.f / time_step;
+
+            filter_scale_ = (ratio < 1.0f) ? ratio : 1.0f;
+            filter_step_ = SAMPLES_PER_CROSSING * filter_scale_;
+        }
+        else
+        {
+            filter_scale_ = 1.f;
+            filter_step_ = SAMPLES_PER_CROSSING;
+            last_out_ptr_ = outPointer - 1;
+        }
     }
 
     unsigned long GetDelay(void) const
@@ -68,9 +86,22 @@ template <size_t MAX_DELAY> class DelaySinc
         return delay_;
     }
 
+    float TapOut(size_t delay)
+    {
+        int tap_ptr = in_point_ - delay;
+
+        while (tap_ptr < 0)
+        {
+            tap_ptr += MAX_DELAY;
+        }
+
+        return inputs_[tap_ptr];
+    }
+
     float Tick(float input)
     {
         inputs_[in_point_++] = input;
+        last_out_ptr_ = out_point_ + alpha_;
 
         // Increment input pointer modulo length.
         if (in_point_ == MAX_DELAY)
@@ -146,12 +177,13 @@ template <size_t MAX_DELAY> class DelaySinc
 
         } while (filter_index > 0);
 
-        return left + right;
+        return (left + right) * filter_scale_;
     }
 
   protected:
     unsigned long in_point_ = 0;
     unsigned long out_point_ = 0;
+    float last_out_ptr_ = 0.f;
     float delay_ = 0.f;
     float alpha_ = 0.f;
     float om_alpha_ = 0.f;

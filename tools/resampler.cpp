@@ -74,7 +74,7 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    auto resampling_ratio = static_cast<float>(target_fs / sf_info.samplerate);
+    auto resampling_ratio = static_cast<float>(target_fs) / static_cast<float>(sf_info.samplerate);
 
     size_t out_size = std::ceil(static_cast<float>(count) * resampling_ratio);
     std::vector<float> out(out_size, 0);
