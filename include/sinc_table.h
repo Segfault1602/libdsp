@@ -4,6 +4,8 @@
 // Kaiser window beta       : 10
 #pragma once
 
+#include <stdint.h>
+
 constexpr size_t SINC_ZERO_COUNT = 32;
 constexpr size_t SAMPLES_PER_CROSSING = 512;
 constexpr size_t sinc_table_size = 16384;

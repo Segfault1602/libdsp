@@ -7,8 +7,7 @@ target_compile_options(resampler PRIVATE -Wall -Wpedantic -Werror)
 
 # Player executable
 add_executable(dsp_player
-    player.cpp
-    test_utils.cpp)
+    player.cpp)
 target_link_libraries(dsp_player PUBLIC dsp sndfile rtaudio)
 
 set_target_properties(dsp_player PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")

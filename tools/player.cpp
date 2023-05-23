@@ -43,7 +43,7 @@ struct CbContext
 };
 
 // Globals
-std::unique_ptr<float[]> g_input_buffer;
+std::unique_ptr<DspFloat[]> g_input_buffer;
 SF_INFO g_sf_info = {0};
 
 int main(int argc, char** argv)
@@ -101,12 +101,12 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
 
     size_t frameToRead = std::min(static_cast<size_t>(nBufferFrames), context->numFrames - context->readPtr);
 
-    auto* output = static_cast<float*>(outputBuffer);
+    auto* output = static_cast<DspFloat*>(outputBuffer);
 
     // Write interleaved audio data.
     for (size_t i = 0; i < frameToRead; i++)
     {
-        float sample = context->effect->Tick(g_input_buffer[context->readPtr]);
+        DspFloat sample = context->effect->Tick(g_input_buffer[context->readPtr]);
         ++context->readPtr;
         for (size_t j = 0; j < 2; j++)
         {
@@ -181,7 +181,7 @@ int ProcessToFile()
     out_sf_info.samplerate = g_sf_info.samplerate;
     out_sf_info.frames = static_cast<sf_count_t>(out_size);
 
-    auto out = std::make_unique<float[]>(out_size);
+    auto out = std::make_unique<DspFloat[]>(out_size);
     memset(out.get(), 0, out_size);
 
     constexpr float g_base_delay = 20;
@@ -191,7 +191,7 @@ int ProcessToFile()
     auto start = std::chrono::high_resolution_clock::now();
     for (size_t i = 0; i < g_sf_info.frames; ++i)
     {
-        float out_sample = chorus.Tick(g_input_buffer[i]);
+        DspFloat out_sample = chorus.Tick(g_input_buffer[i]);
         out[i] = out_sample;
     }
     auto end = std::chrono::high_resolution_clock::now();
@@ -206,7 +206,7 @@ int ProcessToFile()
     // Send silence for the rest
     for (size_t i = g_sf_info.frames; i < (g_sf_info.frames + extra_time); ++i)
     {
-        float out_sample = chorus.Tick(0.f);
+        DspFloat out_sample = chorus.Tick(0.f);
         out[i] = out_sample;
     }
 

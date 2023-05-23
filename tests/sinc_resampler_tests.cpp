@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 
+#include "dsp_base.h"
 #include "chorus.h"
 #include "sinc_resampler.h"
 #include <numeric>
@@ -8,10 +9,10 @@ TEST(SincInterpolateTest, NoOp)
 {
 
     constexpr size_t array_size = 512;
-    std::array<float, array_size> input{0};
+    std::array<DspFloat, array_size> input{0};
     std::iota(input.begin(), input.end(), 0.f);
 
-    std::array<float, array_size> output{0};
+    std::array<DspFloat, array_size> output{0};
 
     size_t out_size = output.max_size();
     dsp::sinc_resample(input.data(), array_size, 1, output.data(), out_size);

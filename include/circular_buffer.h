@@ -5,6 +5,8 @@
 
 #include <array>
 
+#include "dsp_base.h"
+
 namespace dsp
 {
 template <size_t CONTAINER_SIZE> class Buffer
@@ -38,27 +40,27 @@ template <size_t CONTAINER_SIZE> class Buffer
         return CONTAINER_SIZE;
     }
 
-    void Fill(float value)
+    void Fill(DspFloat value)
     {
         buffer_.fill(value);
         count_ = buffer_.size();
     }
 
-    float Read()
+    DspFloat Read()
     {
-        float val = buffer_[read_];
+        DspFloat val = buffer_[read_];
         read_ = (read_ + 1) % CONTAINER_SIZE;
         --count_;
 
         return val;
     }
 
-    float Peek() const
+    DspFloat Peek() const
     {
         return buffer_[read_];
     }
 
-    void Write(float in)
+    void Write(DspFloat in)
     {
         buffer_[write_] = in;
         write_ = (write_ + 1) % CONTAINER_SIZE;
@@ -72,14 +74,14 @@ template <size_t CONTAINER_SIZE> class Buffer
         }
     }
 
-    const float& operator[](size_t idx) const
+    const DspFloat& operator[](size_t idx) const
     {
         auto real_idx = (read_ + idx) % CONTAINER_SIZE;
         return buffer_[real_idx];
     }
 
   private:
-    std::array<float, CONTAINER_SIZE> buffer_ = {0};
+    std::array<DspFloat, CONTAINER_SIZE> buffer_ = {0};
     size_t count_ = 0;
     size_t write_ = 0;
     size_t read_ = 0;

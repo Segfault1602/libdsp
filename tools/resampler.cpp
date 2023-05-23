@@ -6,11 +6,13 @@
 #include <string>
 #include <vector>
 
+#include "test_utils.h"
 #include <samplerate.h>
 #include <sinc_resampler.h>
 
-void UseSincResample(const float* buffer, size_t input_size, float resampling_ratio, float* out, size_t& out_size);
-void UseLibSamplerate(const float* buffer, size_t input_size, float resampling_ratio, float* out, size_t& out_size);
+void UseSincResample(const DspFloat* buffer, size_t input_size, DspFloat resampling_ratio, DspFloat* out,
+                     size_t& out_size);
+void UseLibSamplerate(const float* buffer, size_t input_size, double resampling_ratio, float* out, size_t& out_size);
 
 int main(int argc, char** argv)
 {
@@ -53,65 +55,54 @@ int main(int argc, char** argv)
     }
 
     SF_INFO sf_info{0};
-    SNDFILE* file = sf_open(input_file.c_str(), SFM_READ, &sf_info);
-
-    if (file == nullptr)
+    std::unique_ptr<DspFloat[]> buffer;
+    size_t buffer_size;
+    if (!LoadWavFile(input_file, buffer, buffer_size, sf_info))
     {
-        printf("Failed to open input file! (sf_strerror: %s)\n", sf_strerror(file));
         return -1;
     }
 
-    // For benchmarking purposes, load the whole file into memory first.
-    std::vector<float> buffer(sf_info.frames, 0);
+    auto resampling_ratio = static_cast<DspFloat>(target_fs) / static_cast<float>(sf_info.samplerate);
 
-    sf_count_t count = sf_readf_float(file, buffer.data(), sf_info.frames);
-    assert(count == sf_info.frames);
-    sf_close(file);
-
-    if (sf_info.channels != 1)
-    {
-        printf("Only mono is currently supported!\n");
-        return -1;
-    }
-
-    auto resampling_ratio = static_cast<float>(target_fs) / static_cast<float>(sf_info.samplerate);
-
-    size_t out_size = std::ceil(static_cast<float>(count) * resampling_ratio);
-    std::vector<float> out(out_size, 0);
+    size_t out_size = std::ceil(static_cast<float>(buffer_size) * resampling_ratio);
+    std::vector<DspFloat> out(out_size, 0);
 
     if (!use_libsamplerate)
     {
-        UseSincResample(buffer.data(), count, resampling_ratio, out.data(), out_size);
+        UseSincResample(buffer.get(), buffer_size, resampling_ratio, out.data(), out_size);
     }
     else
     {
-        UseLibSamplerate(buffer.data(), count, resampling_ratio, out.data(), out_size);
+        // LibSamplerate only support float
+        sf_info = {0};
+        std::unique_ptr<float[]> float_buffer;
+        buffer_size = 0;
+        if (!LoadWavFile(input_file, float_buffer, buffer_size, sf_info))
+        {
+            return -1;
+        }
+        std::vector<float> float_out(out_size, 0);
+        UseLibSamplerate(float_buffer.get(), buffer_size, resampling_ratio, float_out.data(), out_size);
+
+        std::copy(float_out.begin(), float_out.end(), out.begin());
     }
 
     SF_INFO out_sf_info{0};
     out_sf_info.channels = 1;
     out_sf_info.samplerate = static_cast<int>(target_fs);
     out_sf_info.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
-    SNDFILE* out_file = sf_open(output_file.c_str(), SFM_WRITE, &out_sf_info);
-    if (out_file == nullptr)
-    {
-        printf("Failed to open output file! (sf_strerror: %s)\n", sf_strerror(out_file));
-        return -1;
-    }
-
-    sf_write_float(out_file, out.data(), static_cast<sf_count_t>(out_size));
-    sf_write_sync(out_file);
-    sf_close(out_file);
+    WriteWavFile(output_file, out.data(), out_sf_info, out_size);
 
     return 0;
 }
 
-void UseSincResample(const float* buffer, size_t input_size, float resampling_ratio, float* out, size_t& out_size)
+void UseSincResample(const DspFloat* buffer, size_t input_size, DspFloat resampling_ratio, DspFloat* out,
+                     size_t& out_size)
 {
     dsp::sinc_resample(buffer, input_size, resampling_ratio, out, out_size);
 }
 
-void UseLibSamplerate(const float* buffer, size_t input_size, float resampling_ratio, float* out, size_t& out_size)
+void UseLibSamplerate(const float* buffer, size_t input_size, double resampling_ratio, float* out, size_t& out_size)
 {
     SRC_DATA src_data;
     src_data.data_in = buffer;

@@ -12,6 +12,8 @@
 #pragma once
 #include <stdint.h>
 
+#include "dsp_base.h"
+
 namespace dsp
 {
 
@@ -32,7 +34,7 @@ class Phaseshaper
     Phaseshaper() = default;
     ~Phaseshaper() = default;
 
-    void Init(float sampleRate)
+    void Init(DspFloat sampleRate)
     {
         m_sampleRate = sampleRate;
         m_phase = 0.f;
@@ -41,37 +43,37 @@ class Phaseshaper
         m_period = m_sampleRate / m_freq;
     }
 
-    void SetWaveform(float wave)
+    void SetWaveform(DspFloat wave)
     {
         m_waveform = wave;
     }
 
-    void SetFreq(float freq)
+    void SetFreq(DspFloat freq)
     {
         m_freq = freq;
         m_phaseIncrement = m_freq / m_sampleRate;
         m_period = m_sampleRate / m_freq;
     }
 
-    void SetMod(float mod)
+    void SetMod(DspFloat mod)
     {
         m_mod = mod;
     }
 
-    float Process();
+    DspFloat Process();
 
   private:
-    float ProcessWaveSlice();
-    float ProcessHardSync();
-    float ProcessSoftSync();
-    float ProcessTriMod();
-    float ProcessSupersaw();
-    float ProcessVarSlope();
-    float ProcessVarTri();
+    DspFloat ProcessWaveSlice();
+    DspFloat ProcessHardSync();
+    DspFloat ProcessSoftSync();
+    DspFloat ProcessTriMod();
+    DspFloat ProcessSupersaw();
+    DspFloat ProcessVarSlope();
+    DspFloat ProcessVarTri();
 
-    inline float ProcessWave(Waveform wave)
+    inline DspFloat ProcessWave(Waveform wave)
     {
-        float out = 0.f;
+        DspFloat out = 0.f;
         switch (wave)
         {
         case Waveform::VARIABLE_SLOPE:
@@ -99,13 +101,13 @@ class Phaseshaper
     }
 
   private:
-    float m_sampleRate = 0.f;
-    float m_freq = 220.f;
-    float m_phaseIncrement = 0.f;
-    float m_phase = 0.f;
-    float m_period = 0.f;
-    float m_waveform = static_cast<float>(Waveform::WAVESLICE);
+    DspFloat m_sampleRate = 0.f;
+    DspFloat m_freq = 220.f;
+    DspFloat m_phaseIncrement = 0.f;
+    DspFloat m_phase = 0.f;
+    DspFloat m_period = 0.f;
+    DspFloat m_waveform = static_cast<DspFloat>(Waveform::WAVESLICE);
 
-    float m_mod = 0.f;
+    DspFloat m_mod = 0.f;
 };
 } // namespace dsp
