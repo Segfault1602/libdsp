@@ -11,53 +11,84 @@ namespace dsp
 {
 
 template <size_t MAX_DELAY>
-class LinearDelayline : public Delayline<MAX_DELAY>
+class LinearDelayline : public Delayline
 {
   public:
-    LinearDelayline() = default;
+    LinearDelayline() : Delayline(MAX_DELAY)
+    {
+        line_.fill(0.f);
+    }
     ~LinearDelayline() override = default;
 
-    DspFloat Read() override
+    DspFloat NextOut() override
     {
-        DspFloat next = line_[out_ptr_] * inv_frac_;
-        size_t next_ptr = std::fmodf(out_ptr_ + 1, MAX_DELAY);
-        next += line_[next_ptr] * frac_;
+        if (do_next_out_)
+        {
+            DspFloat a = line_[read_ptr_];
+            DspFloat b = line_[(read_ptr_ + 1) % MAX_DELAY];
+            next_out_ = a + (b - a) * frac_;
+            do_next_out_ = false;
+        }
 
-        return next;
+        return next_out_;
     }
 
     DspFloat Tick(DspFloat input) override
     {
-        line_[in_ptr_++] = input;
-        in_ptr_ = (in_ptr_ + 1) % MAX_DELAY;
+        line_[write_ptr_] = input;
+        write_ptr_ = (write_ptr_ + 1) % MAX_DELAY;
 
-        DspFloat next = line_[out_ptr_] * inv_frac_;
-        out_ptr_ = fmodf(out_ptr_ + 1, MAX_DELAY);
-        next += line_[out_ptr_] * frac_;
+        last_out_ = NextOut();
+        do_next_out_ = true;
 
-        return next;
+        read_ptr_ = (read_ptr_ + 1) % MAX_DELAY;
+
+        return last_out_;
+    }
+
+    DspFloat LastOut() const override
+    {
+        return last_out_;
     }
 
     DspFloat TapOut(DspFloat delay) const override
     {
-        DspFloat out_ptr = std::fmodf(in_ptr_ - delay, MAX_DELAY);
+        DspFloat read_ptr = write_ptr_ - delay - 1;
+        while (read_ptr < 0)
+        {
+            read_ptr += MAX_DELAY;
+        }
 
-        DspFloat out_idx = static_cast<size_t>(out_ptr);
-        DspFloat frac = out_ptr - out_idx;
+        size_t read_idx = static_cast<size_t>(read_ptr);
+        DspFloat frac = read_ptr - read_idx;
 
-        DspFloat out = line_[out_idx] * (1.f - frac);
-        out_idx = std::fmodf(out_idx + 1, MAX_DELAY);
-        out += line_[out_idx] * frac;
+        DspFloat a = line_[read_idx];
+        DspFloat b = line_[(read_idx + 1) % MAX_DELAY];
 
-        return out;
+        return a + (b - a) * frac;
+    }
+
+    void TapIn(DspFloat delay, DspFloat input) override
+    {
+        DspFloat write_ptr = write_ptr_ - delay - 1;
+        while (write_ptr < 0)
+        {
+            write_ptr += MAX_DELAY;
+        }
+
+        size_t write_idx = static_cast<size_t>(write_ptr);
+        DspFloat frac = write_ptr - write_idx;
+
+        line_[write_idx] += input * (1.f - frac);
+        line_[(write_idx + 1) % MAX_DELAY] += input * frac;
     }
 
   private:
-    using Delayline<MAX_DELAY>::line_;
-    using Delayline<MAX_DELAY>::in_ptr_;
-    using Delayline<MAX_DELAY>::out_ptr_;
-    using Delayline<MAX_DELAY>::frac_;
-    using Delayline<MAX_DELAY>::inv_frac_;
+    bool do_next_out_ = true;
+    DspFloat next_out_ = 0.f;
+    DspFloat last_out_ = 0.f;
+
+    std::array<DspFloat, MAX_DELAY> line_ = {0, 1, 2, 3, 4, 5};
 };
 
 } // namespace dsp

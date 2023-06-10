@@ -2,37 +2,65 @@
 
 #include <cstddef>
 
-#include "dsp_base.h"
 #include "delayline_linear.h"
-#include "filter.h"
+#include "dsp_base.h"
+#include "termination.h"
+#include "junction.h"
+
+namespace dsp
+{
 
 template <size_t MAX_SIZE>
 class Waveguide
 {
-public:
+  public:
     Waveguide() = default;
 
     void SetDelay(DspFloat delay)
     {
-        left_to_right_.SetDelay(delay);
-        right_to_left_.SetDelay(delay);
+        // right_traveling_line_.SetDelay(delay);
+        // left_traveling_line_.SetDelay(delay);
+        junction_.SetDelay(delay);
+        current_delay_ = delay;
     }
 
-    DspFloat Tick()
+    void Tick()
     {
-        DspFloat right = left_to_right_.Read();
-
-        right = right_filter_.Tick(right);
-
-        DspFloat left = right_to_left_.Tick(right);
-        left = left_filter_.Tick(left)
-        (void)left_to_right_.Tick(left);
+        junction_.Tick(left_traveling_line_, right_traveling_line_);
+        left_termination_.Tick(left_traveling_line_, right_traveling_line_);
+        right_termination_.Tick(left_traveling_line_, right_traveling_line_);
     }
 
-private:
-    LinearDelayLine<MAX_SIZE> left_to_right_;
-    LinearDelayLine<MAX_SIZE> right_to_left_;
+    void TapIn(DspFloat delay, DspFloat input)
+    {
+        assert(delay < MAX_SIZE);
+        if (delay >= current_delay_)
+        {
+            delay = current_delay_;
+        }
 
-    Filter* left_filter_;
-    Filter* right_filter_;
+        right_traveling_line_.TapIn(delay, input);
+        left_traveling_line_.TapIn(current_delay_ - delay, input);
+    }
+
+    DspFloat TapOut(DspFloat delay)
+    {
+        assert(delay < MAX_SIZE);
+        if (delay >= current_delay_)
+        {
+            delay = current_delay_;
+        }
+
+        return right_traveling_line_.TapOut(delay) + left_traveling_line_.TapOut(current_delay_ - delay);
+    }
+
+  private:
+    DspFloat current_delay_ = MAX_SIZE;
+    LinearDelayline<MAX_SIZE> right_traveling_line_;
+    LinearDelayline<MAX_SIZE> left_traveling_line_;
+
+    LeftTermination left_termination_;
+    RightTermination right_termination_;
+    Junction junction_;
 };
+} // namespace dsp

@@ -9,58 +9,56 @@
 namespace dsp
 {
 
-template <size_t MAX_DELAY>
 class Delayline
 {
   public:
-    Delayline()
+    Delayline(size_t max_delay) : max_delay_(max_delay)
     {
-        line_.fill(0.f);
+        SetDelay(max_delay_);
     }
 
     virtual ~Delayline() = default;
 
     void SetDelay(DspFloat delay)
     {
-        if (delay > MAX_DELAY)
+        if ((delay + 1) > max_delay_)
         {
-            delay = MAX_DELAY;
+            delay = max_delay_ - 1;
         }
 
-        DspFloat out_ptr = in_ptr_ - delay;
+        DspFloat read_ptr = write_ptr_ - delay;
         delay_ = delay;
 
-        while (out_ptr < 0)
-            out_ptr += MAX_DELAY;
+        while (read_ptr < 0)
+            read_ptr += max_delay_;
 
-        out_ptr_ = static_cast<size_t>(out_ptr);
-        frac_ = out_ptr - out_ptr_;
+        read_ptr_ = static_cast<size_t>(read_ptr);
+        frac_ = read_ptr - read_ptr_;
         inv_frac_ = 1.f - frac_;
 
-        if (out_ptr_ == MAX_DELAY)
-            out_ptr_ = 0;
+        if (read_ptr_ == max_delay_)
+            read_ptr_ = 0;
     }
 
-    virtual DspFloat Read() = 0;
+    DspFloat GetDelay() const
+    {
+        return delay_;
+    }
+
+    virtual DspFloat NextOut() = 0;
     virtual DspFloat Tick(DspFloat input) = 0;
     virtual DspFloat TapOut(DspFloat delay) const = 0;
-
-    DspFloat TapOut(size_t delay) const
-    {
-        size_t tap_ptr = in_ptr_ - delay;
-        while (tap_ptr < 0)
-            tap_ptr += MAX_DELAY;
-
-        return line_[tap_ptr];
-    }
+    virtual void TapIn(DspFloat delay, DspFloat input) = 0;
+    virtual DspFloat LastOut() const = 0;
 
   protected:
-    size_t in_ptr_ = 0;
-    size_t out_ptr_ = 0;
+    size_t write_ptr_ = 0;
+    size_t read_ptr_ = 0;
     DspFloat delay_ = 0.f;
     DspFloat frac_ = 0.f;
     DspFloat inv_frac_ = 0.f;
 
-    std::array<DspFloat, MAX_DELAY> line_;
+    const size_t max_delay_ = 0.f;
+
 };
 }

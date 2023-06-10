@@ -13,6 +13,7 @@
 #include <sndfile.h>
 
 #include "chorus.h"
+#include "bowed_string.h"
 #include "dsp_base.h"
 #include "test_utils.h"
 
@@ -184,31 +185,44 @@ int ProcessToFile()
     auto out = std::make_unique<DspFloat[]>(out_size);
     memset(out.get(), 0, out_size);
 
-    constexpr float g_base_delay = 20;
-    dsp::Chorus<4096> chorus;
-    chorus.Init(g_sf_info.samplerate, g_base_delay);
+    dsp::BowedString bowed_string;
+    bowed_string.Init(static_cast<DspFloat>(out_sf_info.samplerate));
+    bowed_string.SetFrequency(440);
 
-    auto start = std::chrono::high_resolution_clock::now();
-    for (size_t i = 0; i < g_sf_info.frames; ++i)
+    for (size_t i = 0; i < out_size; ++i)
     {
-        DspFloat out_sample = chorus.Tick(g_input_buffer[i]);
-        out[i] = out_sample;
+        if (i == 0)
+        {
+            bowed_string.Excite();
+        }
+        out[i] = bowed_string.Tick();
     }
-    auto end = std::chrono::high_resolution_clock::now();
 
-    auto time_span = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
-    printf("Time elapsed: %f\n", time_span.count());
+    // constexpr float g_base_delay = 20;
+    // dsp::Chorus<4096> chorus;
+    // chorus.Init(g_sf_info.samplerate, g_base_delay);
 
-    float file_duration = static_cast<float>(g_sf_info.frames) / static_cast<float>(g_sf_info.samplerate);
+    // auto start = std::chrono::high_resolution_clock::now();
+    // for (size_t i = 0; i < g_sf_info.frames; ++i)
+    // {
+    //     DspFloat out_sample = chorus.Tick(g_input_buffer[i]);
+    //     out[i] = out_sample;
+    // }
+    // auto end = std::chrono::high_resolution_clock::now();
 
-    printf("Which is %f %% of the audio time (%f seconds).\n", time_span.count() / file_duration, file_duration);
+    // auto time_span = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
+    // printf("Time elapsed: %f\n", time_span.count());
 
-    // Send silence for the rest
-    for (size_t i = g_sf_info.frames; i < (g_sf_info.frames + extra_time); ++i)
-    {
-        DspFloat out_sample = chorus.Tick(0.f);
-        out[i] = out_sample;
-    }
+    // float file_duration = static_cast<float>(g_sf_info.frames) / static_cast<float>(g_sf_info.samplerate);
+
+    // printf("Which is %f %% of the audio time (%f seconds).\n", time_span.count() / file_duration, file_duration);
+
+    // // Send silence for the rest
+    // for (size_t i = g_sf_info.frames; i < (g_sf_info.frames + extra_time); ++i)
+    // {
+    //     DspFloat out_sample = chorus.Tick(0.f);
+    //     out[i] = out_sample;
+    // }
 
     return WriteWavFile("out.wav", out.get(), out_sf_info, out_size) != 0;
 }

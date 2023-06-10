@@ -5,11 +5,31 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Tests",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/tests/libdsp_tests.exe",
+            "args": [
+                "--gtest_filter=LinearDelaylineTests.*"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "console": "externalTerminal"
+        },
+        {
             "name": "Debug Resampler.exe",
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/tools/resampler.exe",
-            "args": ["-f", "${workspaceFolder}/waves/chirp.wav", "-t", "44100", "-o", "out.wav"],
+            "args": [
+                "-f",
+                "${workspaceFolder}/waves/chirp.wav",
+                "-t",
+                "44100",
+                "-o",
+                "out.wav"
+            ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
@@ -20,12 +40,14 @@
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/tools/dsp_player.exe",
-            "args": ["-f", "${workspaceFolder}/waves/piano.wav"],
+            "args": [
+                "-f",
+                "${workspaceFolder}/waves/piano.wav"
+            ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
             "console": "externalTerminal"
         }
-
     ]
 }
