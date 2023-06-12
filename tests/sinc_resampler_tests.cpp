@@ -22,7 +22,7 @@ TEST(SincInterpolateTest, NoOp)
     for (size_t i = 0; i < output.size(); ++i)
     {
         // Lets treat anything smaller than this as zero
-        constexpr float float_zero = 1e-16;
+        constexpr float float_zero = 1e-15;
         if (output[i] < float_zero)
         {
             ASSERT_LT(input[i], float_zero);

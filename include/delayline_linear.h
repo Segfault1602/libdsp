@@ -79,8 +79,14 @@ class LinearDelayline : public Delayline
         size_t write_idx = static_cast<size_t>(write_ptr);
         DspFloat frac = write_ptr - write_idx;
 
-        line_[write_idx] += input * (1.f - frac);
-        line_[(write_idx + 1) % MAX_DELAY] += input * frac;
+        DspFloat a = line_[write_idx];
+        DspFloat b = line_[(write_idx + 1) % MAX_DELAY];
+        DspFloat c = a + (b - a) * frac + input;
+        DspFloat x = c - frac * b - c + frac * c;
+        x = x / (2 * frac * frac - 2 * frac + 1);
+
+        line_[write_idx] += x * frac;
+        line_[(write_idx + 1) % MAX_DELAY] += x * (1 - frac);
     }
 
   private:

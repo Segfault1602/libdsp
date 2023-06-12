@@ -1,10 +1,8 @@
 #include "gmock/gmock-matchers.h"
 #include "gtest/gtest.h"
 
-
 #include "delayline_linear.h"
 #include "resources.h"
-
 
 template <size_t max_size>
 class DelayLine
@@ -42,9 +40,9 @@ class DelayLine
         while (outPointer < 0)
             outPointer += inputs_.size(); // modulo maximum length
 
-        outPoint_ = (long)outPointer; // integer part
+        outPoint_ = (long)outPointer;     // integer part
 
-        alpha_ = outPointer - outPoint_; // fractional part
+        alpha_ = outPointer - outPoint_;  // fractional part
         omAlpha_ = (float)1.0 - alpha_;
 
         if (outPoint_ == inputs_.size())
@@ -85,6 +83,24 @@ class DelayLine
             outPoint_ = 0;
 
         return lastFrame_;
+    }
+
+    float TapOut(unsigned long tapDelay)
+    {
+        long tap = inPoint_ - tapDelay - 1;
+        while (tap < 0) // Check for wraparound.
+            tap += inputs_.size();
+
+        return inputs_[tap];
+    }
+
+    void TapIn(unsigned long tapDelay, float value)
+    {
+        long tap = inPoint_ - tapDelay - 1;
+        while (tap < 0) // Check for wraparound.
+            tap += inputs_.size();
+
+        inputs_[tap] = value;
     }
 
   private:
@@ -173,4 +189,81 @@ TEST(LinearDelaylineTests, WithInterpolation2)
     {
         ASSERT_EQ(output[i], stkLinearInterpolationResult2[i]);
     }
+}
+
+TEST(LinearDelaylineTests, TapOut)
+{
+    constexpr size_t max_delay_size = 100;
+    dsp::LinearDelayline<max_delay_size> line_;
+
+    constexpr float delay = 10;
+    line_.SetDelay(delay);
+
+    constexpr size_t loop_count = delay;
+
+    // This will give us a delay line that looks like
+    // read->[0 1 2 3 4 5 6 7 8 9]<-write
+    for (size_t i = 0; i < loop_count; ++i)
+    {
+        line_.Tick(i);
+    }
+
+    for (size_t i = 0; i < loop_count; ++i)
+    {
+        DspFloat tap = line_.TapOut(i);
+        ASSERT_EQ(tap, loop_count - i - 1);
+    }
+
+    // When asking to tap out a sample past the current delay the
+    // function should simply return the last sample available
+    DspFloat tap_out_of_bound = line_.TapOut(delay + 1);
+    ASSERT_EQ(tap_out_of_bound, line_.TapOut(delay));
+}
+
+TEST(LinearDelaylineTests, TapOutInterpolation)
+{
+    constexpr size_t max_delay_size = 100;
+    dsp::LinearDelayline<max_delay_size> line_;
+
+    constexpr float delay = 10;
+    line_.SetDelay(delay);
+
+    constexpr size_t loop_count = delay;
+
+    // This will give us a delay line that looks like
+    // read->[0 1 2 3 4 5 6 7 8 9]<-write
+    for (size_t i = 0; i < loop_count; ++i)
+    {
+        line_.Tick(i);
+    }
+
+    for (size_t i = 0; i < loop_count - 1; ++i)
+    {
+        DspFloat tap = line_.TapOut(i + 0.25f);
+        ASSERT_EQ(tap, loop_count - i - 1 - 0.25f);
+    }
+
+    // When asking to tap out a sample past the current delay the
+    // function should simply return the last sample available
+    DspFloat tap_out_of_bound = line_.TapOut(delay + 0.5f);
+    ASSERT_EQ(tap_out_of_bound, line_.TapOut(delay));
+}
+
+TEST(LinearDelaylineTests, TapIn)
+{
+    constexpr size_t max_delay_size = 100;
+    dsp::LinearDelayline<max_delay_size> line_;
+
+    constexpr float delay = 10;
+    line_.SetDelay(delay);
+
+    constexpr DspFloat sample = 0.1234f;
+    line_.TapIn(5, sample);
+    ASSERT_EQ(line_.TapOut(5), sample);
+
+    line_.TapIn(delay, sample);
+    ASSERT_EQ(line_.TapOut(delay), sample);
+
+    line_.TapIn(delay + 1, sample);
+    ASSERT_EQ(line_.TapOut(delay), sample);
 }

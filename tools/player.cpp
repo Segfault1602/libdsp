@@ -16,12 +16,13 @@
 #include "bowed_string.h"
 #include "dsp_base.h"
 #include "test_utils.h"
+#include "dsp_tester.h"
 
 int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBufferFrames, double /*streamTime*/,
                      RtAudioStreamStatus /*status*/, void* data);
 
-int ProcessWithRTAudio();
-int ProcessToFile();
+int ProcessWithRTAudio(DspTester* dsp);
+int ProcessToFile(DspTester* dsp);
 
 struct RtAudioWrapper
 {
@@ -40,7 +41,7 @@ struct CbContext
 {
     size_t numFrames = 0;
     size_t readPtr = 0;
-    dsp::DspBase* effect = nullptr;
+    DspTester* dsp = nullptr;
 };
 
 // Globals
@@ -76,14 +77,16 @@ int main(int argc, char** argv)
     // For now I'm only working in mono
     assert(g_sf_info.channels == 1);
 
+    auto dsp_test = std::make_unique<WaveguideTester>();
+    dsp_test->Init(g_sf_info.samplerate);
     int ret = 0;
     if (realtime)
     {
-        ret = ProcessWithRTAudio();
+        ret = ProcessWithRTAudio(dsp_test.get());
     }
     else
     {
-        ret = ProcessToFile();
+        ret = ProcessToFile(dsp_test.get());
     }
 
     return ret;
@@ -107,7 +110,7 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
     // Write interleaved audio data.
     for (size_t i = 0; i < frameToRead; i++)
     {
-        DspFloat sample = context->effect->Tick(g_input_buffer[context->readPtr]);
+        DspFloat sample = context->dsp->Tick(g_input_buffer[context->readPtr]);
         ++context->readPtr;
         for (size_t j = 0; j < 2; j++)
         {
@@ -118,7 +121,7 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
     return frameToRead == 0;
 }
 
-int ProcessWithRTAudio()
+int ProcessWithRTAudio(DspTester* dsp)
 {
     RtAudioWrapper dac_wrapper;
     std::vector<unsigned int> deviceIds = dac_wrapper.dac.getDeviceIds();
@@ -134,14 +137,10 @@ int ProcessWithRTAudio()
     oParams.nChannels = 2;
     oParams.firstChannel = 0;
 
-    constexpr float g_base_delay = 20.f;
-    dsp::Chorus<4096> chorus;
-    chorus.Init(g_sf_info.samplerate, g_base_delay);
-
     CbContext context;
     context.numFrames = g_sf_info.frames;
     context.readPtr = 0;
-    context.effect = &chorus;
+    context.dsp = dsp;
 
     uint32_t bufferFrames = 256;
     auto rtError = dac_wrapper.dac.openStream(&oParams, nullptr, RTAUDIO_FLOAT32, g_sf_info.samplerate, &bufferFrames,
@@ -172,7 +171,7 @@ int ProcessWithRTAudio()
     return 0;
 }
 
-int ProcessToFile()
+int ProcessToFile(DspTester* dsp)
 {
     size_t extra_time = g_sf_info.samplerate; // Adding a second at the end in case we are testing long delay
     size_t out_size = g_sf_info.frames + extra_time;
@@ -185,44 +184,27 @@ int ProcessToFile()
     auto out = std::make_unique<DspFloat[]>(out_size);
     memset(out.get(), 0, out_size);
 
-    dsp::BowedString bowed_string;
-    bowed_string.Init(static_cast<DspFloat>(out_sf_info.samplerate));
-    bowed_string.SetFrequency(440);
-
-    for (size_t i = 0; i < out_size; ++i)
+    auto start = std::chrono::high_resolution_clock::now();
+    for (size_t i = 0; i < g_sf_info.frames; ++i)
     {
-        if (i == 0)
-        {
-            bowed_string.Excite();
-        }
-        out[i] = bowed_string.Tick();
+        DspFloat out_sample = dsp->Tick(g_input_buffer[i]);
+        out[i] = out_sample;
     }
+    auto end = std::chrono::high_resolution_clock::now();
 
-    // constexpr float g_base_delay = 20;
-    // dsp::Chorus<4096> chorus;
-    // chorus.Init(g_sf_info.samplerate, g_base_delay);
+    auto time_span = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
+    printf("Time elapsed: %f\n", time_span.count());
 
-    // auto start = std::chrono::high_resolution_clock::now();
-    // for (size_t i = 0; i < g_sf_info.frames; ++i)
-    // {
-    //     DspFloat out_sample = chorus.Tick(g_input_buffer[i]);
-    //     out[i] = out_sample;
-    // }
-    // auto end = std::chrono::high_resolution_clock::now();
+    float file_duration = static_cast<float>(g_sf_info.frames) / static_cast<float>(g_sf_info.samplerate);
 
-    // auto time_span = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
-    // printf("Time elapsed: %f\n", time_span.count());
+    printf("Which is %f %% of the audio time (%f seconds).\n", time_span.count() / file_duration, file_duration);
 
-    // float file_duration = static_cast<float>(g_sf_info.frames) / static_cast<float>(g_sf_info.samplerate);
-
-    // printf("Which is %f %% of the audio time (%f seconds).\n", time_span.count() / file_duration, file_duration);
-
-    // // Send silence for the rest
-    // for (size_t i = g_sf_info.frames; i < (g_sf_info.frames + extra_time); ++i)
-    // {
-    //     DspFloat out_sample = chorus.Tick(0.f);
-    //     out[i] = out_sample;
-    // }
+    // Send silence for the rest
+    for (size_t i = g_sf_info.frames; i < (g_sf_info.frames + extra_time); ++i)
+    {
+        DspFloat out_sample = dsp->Tick(0.f);
+        out[i] = out_sample;
+    }
 
     return WriteWavFile("out.wav", out.get(), out_sf_info, out_size) != 0;
 }
