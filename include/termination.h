@@ -12,13 +12,27 @@ class Termination
     Termination() = default;
     virtual ~Termination() = default;
 
+    virtual void SetGain(DspFloat gain)
+    {
+        gain_ = gain;
+    }
+
     virtual void Tick(Delayline& left_traveling_line, Delayline& right_traveling_line) = 0;
+
+  protected:
+    DspFloat gain_;
 };
 
+/// @brief Simple Termination that takes one sample from the left traveling lane and feeds it
+/// to the right traveling lane with a gain adjustment (gain defaults to -1).
 class LeftTermination : public Termination
 {
-public:
-    LeftTermination() = default;
+  public:
+    LeftTermination()
+    {
+        SetGain(-1.f);
+    }
+
     virtual ~LeftTermination() override = default;
 
     virtual void Tick(Delayline& left_traveling_line, Delayline& right_traveling_line) override
@@ -26,13 +40,18 @@ public:
         DspFloat next_out = left_traveling_line.NextOut();
         (void)right_traveling_line.Tick(next_out * -1.f);
     }
-
 };
 
+/// @brief Simple Termination that takes one sample from the right traveling lane and feeds it
+/// to the left traveling lane with a gain adjustment (gain defaults to -0.99).
 class RightTermination : public Termination
 {
-public:
-    RightTermination(DspFloat gain = -0.99f): gain_(gain) {};
+  public:
+    RightTermination()
+    {
+        SetGain(-0.99);
+    }
+
     virtual ~RightTermination() override = default;
 
     virtual void Tick(Delayline& left_traveling_line, Delayline& right_traveling_line) override
@@ -40,9 +59,5 @@ public:
         DspFloat next_out = right_traveling_line.LastOut();
         (void)left_traveling_line.Tick(next_out * gain_);
     }
-
-private:
-    DspFloat gain_;
-
 };
 } // namespace dsp

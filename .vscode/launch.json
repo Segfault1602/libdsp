@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/tests/libdsp_tests",
-            "args": ["--gtest_filter=LinearDelaylineTests.*"],
+            "args": ["--gtest_filter=WaveguideTests.*"],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
@@ -22,12 +22,12 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/tests/libdsp_tests.exe",
             "args": [
-                "--gtest_filter=LinearDelaylineTests.*"
+                "--gtest_filter=WaveguideTests.*"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
-            "console": "externalTerminal"
+            "console": "internalConsole"
         },
         {
             "name": "Debug Resampler.exe",

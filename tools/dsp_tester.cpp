@@ -22,7 +22,7 @@ DspFloat ChorusTester::Tick(DspFloat input)
 void WaveguideTester::Init(size_t samplerate)
 {
     string_.Init(static_cast<DspFloat>(samplerate));
-    string_.SetFrequency(440);
+    string_.SetFrequency(220);
     string_.Excite();
 }
 

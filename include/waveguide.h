@@ -14,19 +14,32 @@ template <size_t MAX_SIZE>
 class Waveguide
 {
   public:
-    Waveguide() = default;
+    Waveguide()
+    {
+        SetDelay(MAX_SIZE-1);
+    }
 
     void SetDelay(DspFloat delay)
     {
-        // right_traveling_line_.SetDelay(delay);
-        // left_traveling_line_.SetDelay(delay);
-        junction_.SetDelay(delay);
-        current_delay_ = delay;
+        right_traveling_line_.SetDelay(delay);
+        left_traveling_line_.SetDelay(delay);
+        // junction_.SetDelay(delay);
+        current_delay_ = right_traveling_line_.GetDelay();
+    }
+
+    DspFloat GetDelay() const
+    {
+        return current_delay_;
+    }
+
+    void SetGain(DspFloat gain)
+    {
+        right_termination_.SetGain(gain);
     }
 
     void Tick()
     {
-        junction_.Tick(left_traveling_line_, right_traveling_line_);
+        // junction_.Tick(left_traveling_line_, right_traveling_line_);
         left_termination_.Tick(left_traveling_line_, right_traveling_line_);
         right_termination_.Tick(left_traveling_line_, right_traveling_line_);
     }
@@ -52,6 +65,18 @@ class Waveguide
         }
 
         return right_traveling_line_.TapOut(delay) + left_traveling_line_.TapOut(current_delay_ - delay);
+    }
+
+    void TapOut(DspFloat delay, DspFloat& right_out, DspFloat& left_out)
+    {
+        assert(delay < MAX_SIZE);
+        if (delay >= current_delay_)
+        {
+            delay = current_delay_;
+        }
+
+        right_out = right_traveling_line_.TapOut(delay);
+        left_out = left_traveling_line_.TapOut(current_delay_ - delay);
     }
 
   private:
