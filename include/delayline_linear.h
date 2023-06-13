@@ -35,11 +35,11 @@ class LinearDelayline : public Delayline
 
     DspFloat Tick(DspFloat input) override
     {
-        line_[write_ptr_] = input;
-        write_ptr_ = (write_ptr_ + 1) % MAX_DELAY;
-
         last_out_ = NextOut();
         do_next_out_ = true;
+
+        line_[write_ptr_] = input;
+        write_ptr_ = (write_ptr_ + 1) % MAX_DELAY;
 
         read_ptr_ = (read_ptr_ + 1) % MAX_DELAY;
 
