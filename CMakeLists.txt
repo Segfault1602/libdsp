@@ -12,19 +12,23 @@ include_directories(include)
 add_subdirectory(src)
 
 option(LIBDSP_LIB_ONLY "Only build libdsp static library" OFF)
+option(LIBDSP_BUILD_TESTS "Build libdsp tests" ON)
+
+if (LIBDSP_BUILD_TESTS)
+add_subdirectory(tests)
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+add_subdirectory(externals/googletest)
+endif()
 
 if (NOT LIBDSP_LIB_ONLY)
 
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build libsndfile shared library" FORCE)
 add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
-add_subdirectory(tests)
 add_subdirectory(tools)
 
 set(CMAKE_WARN_DEPRECATED OFF CACHE BOOL "" FORCE)
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 add_subdirectory(externals/rtaudio)
-add_subdirectory(externals/googletest)
 add_subdirectory(externals/libsamplerate)
 
 # Link to libsndfile
