@@ -6,6 +6,7 @@
 
 namespace dsp
 {
+/// @brief Base class for termination points between two delaylines
 class Termination
 {
   public:

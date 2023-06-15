@@ -7,6 +7,7 @@
 
 namespace dsp
 {
+/// @brief Implements a junction point between two delaylines
 class Junction
 {
   public:
@@ -35,10 +36,10 @@ class Junction
         DspFloat d = left_traveling_line.TapOut(d_ptr);
         DspFloat a = right_traveling_line.TapOut(delay_ - 1);
         // printf("Taking %f and moving it to %f\n", d, a);
-        right_traveling_line.TapIn(delay_ - 1, d*gain_ - a);
+        right_traveling_line.TapIn(delay_ - 1, d * gain_ - a);
 
         // Do the other side of the loop
-        left_traveling_line.TapIn(d_ptr, a*gain_ - d);
+        left_traveling_line.TapIn(d_ptr, a * gain_ - d);
     }
 
   private:

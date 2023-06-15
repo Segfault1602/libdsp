@@ -11,6 +11,8 @@
 namespace dsp
 {
 
+/// @brief Implements a waveguide with a maximum delay of MAX_SIZE
+/// @tparam MAX_SIZE The maximum delay in samples
 template <size_t MAX_SIZE>
 class Waveguide
 {
@@ -38,6 +40,8 @@ class Waveguide
         return current_delay_;
     }
 
+    /// @brief Sets the gain of the right termination. The gain for the left termination is always -1.
+    /// @param gain
     void SetGain(DspFloat gain)
     {
         right_termination_.SetGain(gain);

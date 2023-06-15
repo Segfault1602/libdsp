@@ -8,6 +8,7 @@
 namespace dsp
 {
 
+/// @brief Implements a bowed string model using a waveguide.
 class BowedString
 {
   public:
@@ -22,6 +23,8 @@ class BowedString
         SetFrequency(220);
     }
 
+    /// @brief Set the frequency of the string
+    /// @param f
     void SetFrequency(DspFloat f)
     {
         freq_ = f;
@@ -31,16 +34,21 @@ class BowedString
         output_pickup_ = new_delay - 10;
     }
 
+    /// @brief Set the velocity of the bow
+    /// @param v The velocity of the bow
     void SetVelocity(DspFloat v)
     {
         velocity_ = v;
     }
 
+    /// @brief Set the force of the bow
+    /// @param f The force of the bow
     void SetForce(DspFloat f)
     {
         force_ = f;
     }
 
+    /// @brief Excite the string
     void Excite()
     {
         constexpr DspFloat relative_position = 0.66f;

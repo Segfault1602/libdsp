@@ -10,6 +10,8 @@
 namespace dsp
 {
 
+/// @brief Implements a linear delayline with a maximum delay of MAX_DELAY
+/// @tparam MAX_DELAY The maximum delay in samples
 template <size_t MAX_DELAY>
 class LinearDelayline : public Delayline
 {

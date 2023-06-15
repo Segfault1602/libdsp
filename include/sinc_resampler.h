@@ -13,6 +13,12 @@
 
 namespace dsp
 {
+/// @brief Resamples the input signal by the given ratio using a windowed sinc filter
+/// @param in
+/// @param input_size
+/// @param ratio
+/// @param out
+/// @param out_size
 void sinc_resample(const DspFloat* in, size_t input_size, DspFloat ratio, DspFloat* out, size_t& out_size)
 {
     constexpr size_t filter_length = sizeof(sinc_table) / sizeof(sinc_table[0]);

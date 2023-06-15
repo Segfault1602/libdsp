@@ -16,7 +16,10 @@
 
 namespace dsp
 {
-template <size_t MAX_DELAY_SIZE> class Chorus : public DspBase
+/// @brief Simple chorus effect.
+/// @tparam MAX_DELAY_SIZE
+template <size_t MAX_DELAY_SIZE>
+class Chorus : public DspBase
 {
   public:
     Chorus() = default;

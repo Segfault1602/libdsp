@@ -14,7 +14,10 @@ constexpr size_t MIN_DELAY = SINC_ZERO_COUNT;
 
 namespace dsp
 {
-template <size_t MAX_DELAY> class DelaySinc
+/// @brief Implements a sinc delay line with a maximum delay of MAX_DELAY
+/// @tparam MAX_DELAY The maximum delay in samples
+template <size_t MAX_DELAY>
+class DelaySinc
 {
   public:
     DelaySinc(unsigned long delay = 0)
@@ -57,9 +60,9 @@ template <size_t MAX_DELAY> class DelaySinc
         delay_ = delay;
 
         while (outPointer < 0)
-            outPointer += MAX_DELAY; // modulo maximum length
+            outPointer += MAX_DELAY;      // modulo maximum length
 
-        out_point_ = (long)outPointer; // integer part
+        out_point_ = (long)outPointer;    // integer part
 
         alpha_ = outPointer - out_point_; // fractional part
         om_alpha_ = 1.f - alpha_;
@@ -99,6 +102,9 @@ template <size_t MAX_DELAY> class DelaySinc
         return inputs_[tap_ptr];
     }
 
+    /// @brief Returns the last output sample
+    /// @param input
+    /// @return DspFloat
     DspFloat Tick(DspFloat input)
     {
         inputs_[in_point_++] = input;
