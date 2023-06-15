@@ -31,12 +31,23 @@ class BowedString
         output_pickup_ = new_delay - 10;
     }
 
+    void SetVelocity(DspFloat v)
+    {
+        velocity_ = v;
+    }
+
+    void SetForce(DspFloat f)
+    {
+        force_ = f;
+    }
+
     void Excite()
     {
         constexpr DspFloat relative_position = 0.66f;
         DspFloat pos = waveguide_.GetDelay() * relative_position;
         DspFloat out = waveguide_.TapOut(pos);
-        waveguide_.TapIn(pos, ComputeBowOutput(-0.25*out, 1.f));
+        DspFloat deltaVelovity = velocity_ - out;
+        waveguide_.TapIn(pos, ComputeBowOutput(deltaVelovity, force_));
     }
 
     DspFloat Tick()
@@ -48,7 +59,7 @@ class BowedString
   private:
     // Simple bowed string non-linear function taken from the STK.
     // https://github.com/thestk/stk/blob/master/include/BowTable.h
-    DspFloat ComputeBowOutput(DspFloat in, DspFloat force)
+    DspFloat ComputeBowOutput(DspFloat in, DspFloat force) const
     {
         DspFloat sample = (in + offset_) * force;
 
@@ -66,7 +77,7 @@ class BowedString
     DspFloat output_pickup_;
     DspFloat freq_;
     DspFloat offset_ = 0.001f;
-    // DspFloat velocity_ = 0.25f;
-    // DspFloat force_ = 3.f;
+    DspFloat velocity_ = 0.25f;
+    DspFloat force_ = 3.f;
 };
 } // namespace dsp
