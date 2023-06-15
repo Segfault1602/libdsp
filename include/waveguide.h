@@ -4,8 +4,9 @@
 
 #include "delayline_linear.h"
 #include "dsp_base.h"
-#include "termination.h"
 #include "junction.h"
+#include "termination.h"
+
 
 namespace dsp
 {
@@ -16,15 +17,20 @@ class Waveguide
   public:
     Waveguide()
     {
-        SetDelay(MAX_SIZE-1);
+        SetDelay(MAX_SIZE - 1);
+        SetJunction(0);
     }
 
     void SetDelay(DspFloat delay)
     {
+        if ((delay + 1) > MAX_SIZE)
+        {
+            delay = MAX_SIZE - 1;
+        }
+
         right_traveling_line_.SetDelay(delay);
         left_traveling_line_.SetDelay(delay);
-        // junction_.SetDelay(delay);
-        current_delay_ = right_traveling_line_.GetDelay();
+        current_delay_ = delay;
     }
 
     DspFloat GetDelay() const
@@ -37,9 +43,15 @@ class Waveguide
         right_termination_.SetGain(gain);
     }
 
+    void SetJunction(DspFloat pos)
+    {
+        junction_.SetDelay(pos);
+    }
+
     void Tick()
     {
-        // junction_.Tick(left_traveling_line_, right_traveling_line_);
+        // The order here is important
+        junction_.Tick(left_traveling_line_, right_traveling_line_);
         left_termination_.Tick(left_traveling_line_, right_traveling_line_);
         right_termination_.Tick(left_traveling_line_, right_traveling_line_);
     }
@@ -53,18 +65,14 @@ class Waveguide
         }
 
         right_traveling_line_.TapIn(delay, input);
-        left_traveling_line_.TapIn(current_delay_ - delay, input);
+        left_traveling_line_.TapIn(current_delay_ - delay - 1, input);
     }
 
     DspFloat TapOut(DspFloat delay)
     {
-        assert(delay < MAX_SIZE);
-        if (delay >= current_delay_)
-        {
-            delay = current_delay_;
-        }
-
-        return right_traveling_line_.TapOut(delay) + left_traveling_line_.TapOut(current_delay_ - delay);
+        DspFloat right, left;
+        TapOut(delay, right, left);
+        return right + left;
     }
 
     void TapOut(DspFloat delay, DspFloat& right_out, DspFloat& left_out)
@@ -76,7 +84,7 @@ class Waveguide
         }
 
         right_out = right_traveling_line_.TapOut(delay);
-        left_out = left_traveling_line_.TapOut(current_delay_ - delay);
+        left_out = left_traveling_line_.TapOut(current_delay_ - delay - 1);
     }
 
   private:

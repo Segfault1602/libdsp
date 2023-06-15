@@ -13,13 +13,13 @@ class BowedString
   public:
     BowedString()
     {
-        SetFrequency(220);
     }
     ~BowedString() = default;
 
     void Init(DspFloat samplerate)
     {
         samplerate_ = samplerate;
+        SetFrequency(220);
     }
 
     void SetFrequency(DspFloat f)
@@ -27,13 +27,16 @@ class BowedString
         freq_ = f;
         DspFloat new_delay = (samplerate_ / freq_) * 0.5;
         waveguide_.SetDelay(new_delay);
-        output_pickup_ = waveguide_.GetDelay() * 0.9f;
+        // waveguide_.SetJunction(waveguide_.GetDelay() - new_delay);
+        output_pickup_ = new_delay - 10;
     }
 
     void Excite()
     {
-        DspFloat pos = waveguide_.GetDelay() * 0.5f;
-        waveguide_.TapIn(pos, 1.f);
+        constexpr DspFloat relative_position = 0.66f;
+        DspFloat pos = waveguide_.GetDelay() * relative_position;
+        DspFloat out = waveguide_.TapOut(pos);
+        waveguide_.TapIn(pos, ComputeBowOutput(-0.25*out, 1.f));
     }
 
     DspFloat Tick()

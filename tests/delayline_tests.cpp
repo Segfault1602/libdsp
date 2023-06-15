@@ -163,15 +163,39 @@ TEST(LinearDelaylineTests, TapInTick)
     constexpr size_t max_delay_size = 100;
     dsp::LinearDelayline<max_delay_size> line;
 
-    constexpr float delay = 10;
+    constexpr float delay = max_delay_size - 1;
     line.SetDelay(delay);
 
-    // If we tap in a sample at `delay-1`, we expect the next Tick()
-    // to return that same sample.
-    constexpr DspFloat SAMPLE = 0.1234f;
-    line.TapIn(delay - 1, SAMPLE);
+    for (size_t i = 0; i < delay; ++i)
+    {
+        // If we tap in a sample at `delay-1`, we expect the next Tick()
+        // to return that same sample.
+        const DspFloat SAMPLE = 0.1234f * i;
+        line.TapIn(delay - 1, SAMPLE);
 
-    constexpr DspFloat TICK_SAMPLE = 1.f;
-    DspFloat out = line.Tick(TICK_SAMPLE);
-    ASSERT_THAT(out, ::testing::Eq(SAMPLE));
+        constexpr DspFloat TICK_SAMPLE = 1.f;
+        DspFloat out = line.Tick(TICK_SAMPLE);
+        ASSERT_THAT(out, ::testing::Eq(SAMPLE));
+    }
+}
+
+TEST(LinearDelaylineTests, TapInFrac)
+{
+    constexpr size_t max_delay_size = 100;
+    dsp::LinearDelayline<max_delay_size> line;
+
+    constexpr float delay = max_delay_size - 1;
+    line.SetDelay(delay);
+
+    for (size_t i = 0; i < max_delay_size * 2; ++i)
+    {
+        // If we tap in a sample at `delay-1`, we expect the next Tick()
+        // to return that same sample.
+        const DspFloat SAMPLE = 0.1234f * i;
+        const DspFloat tap_pos = 24.3f;
+        line.TapIn(delay - 1, SAMPLE);
+
+        constexpr DspFloat TICK_SAMPLE = 1.f;
+        DspFloat out = line.Tick(TICK_SAMPLE);
+    }
 }

@@ -17,13 +17,13 @@ void PrintWaveguide(dsp::Waveguide<size>& wave, size_t delay_size)
 
     for (auto sample : right_samples)
     {
-        printf("%f ", sample);
+        printf("%5.1f ", sample);
     }
     printf("\n");
 
     for (auto sample : left_samples)
     {
-        printf("%f ", sample);
+        printf("%5.1f ", sample);
     }
     printf("\n");
 }
@@ -47,10 +47,10 @@ TEST(WaveguideTests, EmptyWaveguide)
 TEST(WaveguideTests, TapInTapOut)
 {
     // Check that energy is not magically introduce into the waveguide
-    constexpr size_t WAVEGUIDE_SIZE = 6;
+    constexpr size_t WAVEGUIDE_SIZE = 128;
     dsp::Waveguide<WAVEGUIDE_SIZE> wave;
 
-    constexpr size_t DELAY_SIZE = WAVEGUIDE_SIZE;
+    constexpr size_t DELAY_SIZE = WAVEGUIDE_SIZE - 1;
     wave.SetDelay(DELAY_SIZE);
 
     for (size_t i = 0; i < DELAY_SIZE; ++i)
@@ -66,13 +66,13 @@ TEST(WaveguideTests, TapInTapOut)
 
 TEST(WaveguideTests, GainTest)
 {
-    // Check that energy is not magically introduce into the waveguide
     constexpr size_t WAVEGUIDE_SIZE = 7;
     dsp::Waveguide<WAVEGUIDE_SIZE> wave;
 
-    constexpr size_t DELAY_SIZE = WAVEGUIDE_SIZE-1;
+    constexpr size_t DELAY_SIZE = WAVEGUIDE_SIZE - 1;
     wave.SetDelay(DELAY_SIZE);
 
+    // Set the gain to -1 so we can check that no energy is lost.
     wave.SetGain(-1);
 
     constexpr DspFloat input[DELAY_SIZE] = {1, 2, 3, 4, 5, 6};
@@ -83,18 +83,76 @@ TEST(WaveguideTests, GainTest)
         ASSERT_THAT(input[i] * 2, ::testing::Eq(out));
     }
 
-    PrintWaveguide(wave, DELAY_SIZE);
+    // Waveguide should now look like this:
+    //    ▶  1  2  3  4  5  6   ▼
+    // Left                    Right
+    //    ▲  1  2  3  4  5  6   ◀
 
     for (size_t i = 0; i < DELAY_SIZE; ++i)
     {
-        printf("Iter %zu:\n", i);
         wave.Tick();
-        PrintWaveguide(wave, DELAY_SIZE);
     }
+
+    // Waveguide should now look like this:
+    //    ▶  -6 -5 -4 -3 -2 -1  ▼
+    // Left                    Right
+    //    ▲  -6 -5 -4 -3 -2 -1  ◀
 
     for (int i = 0; i < DELAY_SIZE; ++i)
     {
         DspFloat out = wave.TapOut(i);
-        ASSERT_THAT(-1 * (i * 2), ::testing::Eq(out));
+        ASSERT_THAT(out, ::testing::Eq(-1 * (input[DELAY_SIZE - i - 1] * 2)));
+    }
+
+    for (size_t i = 0; i < DELAY_SIZE; ++i)
+    {
+        wave.Tick();
+    }
+
+    // Waveguide should now be back to initial state:
+    //    ▶  1  2  3  4  5  6   ▼
+    // Left                    Right
+    //    ▲  1  2  3  4  5  6   ◀
+
+    for (int i = 0; i < DELAY_SIZE; ++i)
+    {
+        DspFloat out = wave.TapOut(i);
+        ASSERT_THAT(out, ::testing::Eq(input[i] * 2));
+    }
+}
+
+TEST(WaveguideTests, JunctionTest)
+{
+    constexpr size_t WAVEGUIDE_SIZE = 7;
+    dsp::Waveguide<WAVEGUIDE_SIZE> wave;
+
+    constexpr size_t DELAY_SIZE = 6;
+    wave.SetDelay(DELAY_SIZE);
+
+    // Set the gain to -1 so we can check that no energy is lost.
+    wave.SetGain(-1);
+
+    constexpr DspFloat input[DELAY_SIZE] = {1, 2, 3, 4, 5, 6};
+    for (size_t i = 0; i < DELAY_SIZE; ++i)
+    {
+        wave.TapIn(i, input[i]);
+        DspFloat out = wave.TapOut(i);
+        ASSERT_THAT(input[i] * 2, ::testing::Eq(out));
+    }
+
+    // Waveguide should now look like this:
+    //    ▶  1  2  3  4  5  6   ▼
+    // Left                    Right
+    //    ▲  1  2  3  4  5  6   ◀
+
+    PrintWaveguide(wave, DELAY_SIZE);
+
+    wave.SetJunction(5);
+
+    for (size_t i = 0; i < DELAY_SIZE; ++i)
+    {
+        wave.Tick();
+        printf("iter #%zu\n", i);
+        PrintWaveguide(wave, DELAY_SIZE);
     }
 }
