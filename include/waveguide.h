@@ -44,7 +44,7 @@ class Waveguide
     /// @param gain
     void SetGain(DspFloat gain)
     {
-        right_termination_.SetGain(gain);
+        RightTermination.SetGain(gain);
     }
 
     void SetJunction(DspFloat pos)
@@ -56,8 +56,8 @@ class Waveguide
     {
         // The order here is important
         junction_.Tick(left_traveling_line_, right_traveling_line_);
-        left_termination_.Tick(left_traveling_line_, right_traveling_line_);
-        right_termination_.Tick(left_traveling_line_, right_traveling_line_);
+        LeftTermination.Tick(left_traveling_line_, right_traveling_line_);
+        RightTermination.Tick(left_traveling_line_, right_traveling_line_);
     }
 
     void TapIn(DspFloat delay, DspFloat input)
@@ -91,13 +91,14 @@ class Waveguide
         left_out = left_traveling_line_.TapOut(current_delay_ - delay - 1);
     }
 
+    LeftTermination LeftTermination;
+    RightTermination RightTermination;
+
   private:
     DspFloat current_delay_ = MAX_SIZE;
     LinearDelayline<MAX_SIZE> right_traveling_line_;
     LinearDelayline<MAX_SIZE> left_traveling_line_;
 
-    LeftTermination left_termination_;
-    RightTermination right_termination_;
     Junction junction_;
 };
 } // namespace dsp

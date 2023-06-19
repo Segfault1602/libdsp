@@ -5,11 +5,13 @@ target_link_libraries(resampler PUBLIC dsp sndfile samplerate)
 set_target_properties(resampler PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
 target_compile_options(resampler PRIVATE -Wall -Wpedantic -Werror)
 
-# Player executable
-add_executable(dsp_player
-    player.cpp
+# effect player executable
+add_executable(effect_player
+    effect_player.cpp
     dsp_tester.cpp)
-target_link_libraries(dsp_player PUBLIC dsp sndfile rtaudio)
+target_link_libraries(effect_player PUBLIC dsp sndfile rtaudio)
 
-set_target_properties(dsp_player PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
-target_compile_options(dsp_player PRIVATE -Wall -Wpedantic -Werror)
+set_target_properties(effect_player PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
+target_compile_options(effect_player PRIVATE -Wall -Wpedantic -Werror)
+
+add_subdirectory(player)

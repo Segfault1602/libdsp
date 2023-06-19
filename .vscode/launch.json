@@ -5,6 +5,17 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Instrument Player",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/tools/player/player.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "console": "externalTerminal"
+        },
+        {
             "name": "(lldb) Tests",
             "type": "cppdbg",
             "request": "launch",
@@ -51,7 +62,7 @@
             "name": "Debug Player.exe",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/tools/dsp_player.exe",
+            "program": "${workspaceFolder}/build/tools/effect_player.exe",
             "args": [
                 "-f",
                 "${workspaceFolder}/waves/piano.wav"

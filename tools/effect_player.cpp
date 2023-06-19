@@ -148,13 +148,13 @@ int ProcessWithRTAudio(DspTester* dsp)
 
     if (rtError != RTAUDIO_NO_ERROR)
     {
-        printf("rtaudio::openStream failed with erro %u!", rtError);
+        printf("rtaudio::openStream failed with error %u!", rtError);
     }
 
     rtError = dac_wrapper.dac.startStream();
     if (rtError != RTAUDIO_NO_ERROR)
     {
-        printf("rtaudio::startStream failed with erro %u!", rtError);
+        printf("rtaudio::startStream failed with error %u!", rtError);
     }
 
     printf("Playing raw file...\n");
