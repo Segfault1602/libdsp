@@ -78,7 +78,7 @@ TEST(WaveguideTests, StabilityTestFrac)
 
     constexpr size_t LOOP_SIZE = DELAY_SIZE * 2;
 
-    constexpr float tap_in_pos = 2.f;
+    constexpr float tap_in_pos = 2.5f;
     constexpr float tap_out_pos = 4.5f;
     for (size_t i = 0; i < LOOP_SIZE; ++i)
     {

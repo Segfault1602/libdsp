@@ -76,20 +76,15 @@ class LinearDelayline : public Delayline
     void TapIn(DspFloat delay, DspFloat input) override
     {
         DspFloat delay_integer = std::floor(delay);
-        DspFloat delay_frac = delay - delay_integer;
-        DspFloat write_ptr = write_ptr_ - delay_integer - 1;
+        DspFloat frac = delay - delay_integer;
+        int32_t write_ptr = write_ptr_ - delay_integer - 1;
         while (write_ptr < 0)
         {
             write_ptr += MAX_DELAY;
         }
 
-        write_ptr -= delay_frac;
-
-        size_t write_idx = static_cast<size_t>(write_ptr);
-        DspFloat frac = write_ptr - write_idx;
-
-        line_[write_idx] += input * (1.f - frac);
-        line_[(write_idx + 1) % MAX_DELAY] += input * frac;
+        line_[write_ptr] += input * (1.f - frac);
+        line_[(write_ptr - 1) % MAX_DELAY] += input * frac;
     }
 
   private:

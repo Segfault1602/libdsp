@@ -23,7 +23,7 @@ class BowedString
     void Init(DspFloat samplerate)
     {
         samplerate_ = samplerate;
-        SetFrequency(440);
+        SetFrequency(220);
 
         reflection_filter_.SetGain(0.95f);
         reflection_filter_.SetPole(0.75 - (0.2 * 22050.0 / samplerate_));
@@ -86,6 +86,13 @@ class BowedString
         DspFloat out = waveguide_.TapOut(pos);
         DspFloat deltaVelovity = bow_velocity - out;
         waveguide_.TapIn(pos, ComputeBowOutput(deltaVelovity));
+    }
+
+    void Strike()
+    {
+        constexpr DspFloat relative_position = 0.75f;
+        size_t pos = waveguide_.GetDelay() * relative_position;
+        waveguide_.TapIn(pos, 0.95f);
     }
 
     DspFloat Tick()

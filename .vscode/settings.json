@@ -109,5 +109,8 @@
         "memory_resource": "cpp",
         "source_location": "cpp",
         "shared_mutex": "cpp"
-    }
+    },
+    "vscode-nmake-tools.workspaceBuildDirectories": [
+        "."
+    ]
 }
