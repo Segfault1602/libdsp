@@ -13,7 +13,7 @@
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
-            "console": "externalTerminal"
+            "console": "internalConsole"
         },
         {
             "name": "(lldb) Tests",
@@ -33,7 +33,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/tests/libdsp_tests.exe",
             "args": [
-                "--gtest_filter=WaveguideTests.*"
+                "--gtest_filter=*"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

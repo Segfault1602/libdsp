@@ -1,20 +1,35 @@
 #include <atomic>
+#include <chrono>
 #include <csignal>
 #include <cstdio>
+#include <mutex>
 #include <thread>
 
 #include <RtAudio.h>
 
 #include "gamepad.h"
-#include <dsp_base.h>
 #include <bowed_string.h>
+#include <dsp_base.h>
 
-constexpr size_t DEFAULT_SAMPLE_RATE = 48000;
-constexpr size_t DEFAULT_BUFFER_FRAMES = 256;
+constexpr size_t DEFAULT_SAMPLE_RATE = 44100;
+constexpr size_t DEFAULT_BUFFER_FRAMES = 512;
+
+size_t g_period_microseconds = DEFAULT_BUFFER_FRAMES * 1000000 / DEFAULT_SAMPLE_RATE;
 
 std::atomic_bool g_exit = false;
 std::unique_ptr<Gamepad> g_gamepad;
 std::unique_ptr<dsp::BowedString> g_bowed_string;
+
+struct InstrumentControl
+{
+    DspFloat velocity = 0.25f;
+    DspFloat velocity_change_rate = 0.f;
+    DspFloat force = 3.f;
+    DspFloat force_change_rate = 0.f;
+    bool bow_down = false;
+} g_instrument_control;
+
+std::mutex g_instrument_control_mutex;
 
 int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBufferFrames, double /*streamTime*/,
                      RtAudioStreamStatus /*status*/, void* data);
@@ -77,9 +92,31 @@ int main(int argc, char** argv)
         printf("rtaudio::startStream failed with error %u!", rtError);
     }
 
+    // Control loop will run at ~30Hz
+    constexpr auto control_loop_period = std::chrono::milliseconds(33);
+
+    // We will interpolate control values between control loop iterations
+    const DspFloat dt = (control_loop_period.count() / 1000.f) * DEFAULT_SAMPLE_RATE;
+
     while (!g_exit)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        GamepadState state;
+        bool update = g_gamepad->Poll(state);
+        if (update)
+        {
+
+            g_instrument_control.bow_down = state.left_trigger > 0.f;
+
+            std::lock_guard<std::mutex> lock(g_instrument_control_mutex);
+            g_instrument_control.velocity = 0.03f + ( 0.2f * state.left_trigger);
+            g_instrument_control.force = 5.f - (4.f * state.right_trigger);
+
+            g_instrument_control.velocity_change_rate =
+                (g_instrument_control.velocity - g_bowed_string->GetVelocity()) / dt;
+            g_instrument_control.force_change_rate = (g_instrument_control.force - g_bowed_string->GetForce()) / dt;
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(control_loop_period));
     }
 
     printf("Stopping stream...\n");
@@ -93,42 +130,56 @@ int main(int argc, char** argv)
 int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBufferFrames, double /*streamTime*/,
                      RtAudioStreamStatus status, void* data)
 {
+    auto start = std::chrono::high_resolution_clock::now();
     if (status)
     {
         std::cout << "Stream underflow detected!" << std::endl;
     }
 
-    GamepadState state;
-    (void)g_gamepad->Poll(state);
-
-    DspFloat current_velocity = g_bowed_string->GetVelocity();
-    DspFloat current_force = g_bowed_string->GetForce();
-
-    DspFloat new_velocity = state.thumb_left_magnitude;
-    DspFloat new_force = 5.f - (4.f * state.thumb_right_magnitude);
-
-    const DspFloat velocity_change_rate = (new_velocity - current_velocity) / static_cast<float>(nBufferFrames);
-    const DspFloat force_change_rate = (new_force - current_force) / static_cast<float>(nBufferFrames);
+    InstrumentControl control;
+    {
+        std::lock_guard<std::mutex> lock(g_instrument_control_mutex);
+        control = g_instrument_control;
+    }
 
     auto* output = static_cast<DspFloat*>(outputBuffer);
 
     // Write interleaved audio data.
     for (size_t i = 0; i < nBufferFrames; i++)
     {
-        current_velocity += velocity_change_rate;
-        current_force += force_change_rate;
-        g_bowed_string->SetVelocity(current_velocity);
-        // g_bowed_string->SetForce(current_force);
+        DspFloat current_velocity = g_bowed_string->GetVelocity();
 
-        g_bowed_string->Excite();
+        if ((control.velocity_change_rate < 0.f && current_velocity > control.velocity) ||
+            (control.velocity_change_rate > 0.f && current_velocity < control.velocity))
+        {
+            g_bowed_string->SetVelocity(current_velocity + control.velocity_change_rate);
+        }
 
+        DspFloat current_force = g_bowed_string->GetForce();
+        if ((control.force_change_rate < 0.f && current_force > control.force) ||
+            (control.force_change_rate > 0.f && current_force < control.force))
+        {
+            g_bowed_string->SetForce(control.force + control.force_change_rate);
+        }
+
+        if (control.bow_down)
+        {
+            g_bowed_string->Excite();
+        }
         DspFloat sample = g_bowed_string->Tick();
-        // assert(std::abs(sample) <= 1.0);
+        assert(sample < 1.f && sample > -1.f);
+
         for (size_t j = 0; j < 2; j++)
         {
             *output++ = sample;
         }
     }
+
+    auto end = std::chrono::high_resolution_clock::now();
+    auto time_span = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+    (void)time_span;
+    // assert(time_span < g_period_microseconds * 0.5f);
+    // printf("Callback took %lld microsec out of %lld\n", time_span, g_period_microseconds);
 
     return 0;
 }

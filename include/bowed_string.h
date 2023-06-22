@@ -2,7 +2,9 @@
 
 #include "dsp_base.h"
 #include "filter.h"
+#include "termination.h"
 #include "waveguide.h"
+
 
 #include <algorithm>
 
@@ -21,7 +23,7 @@ class BowedString
     void Init(DspFloat samplerate)
     {
         samplerate_ = samplerate;
-        SetFrequency(220);
+        SetFrequency(440);
 
         reflection_filter_.SetGain(0.95f);
         reflection_filter_.SetPole(0.75 - (0.2 * 22050.0 / samplerate_));
@@ -77,25 +79,22 @@ class BowedString
     /// @brief Excite the string
     void Excite()
     {
-        if (force_ < 0.001f )
-        {
-            return;
-        }
-
-        DspFloat bow_velocity = ( 0.2 * 0.5 ) * velocity_;
+        DspFloat bow_velocity = velocity_ * 0.01f;
 
         constexpr DspFloat relative_position = 0.75f;
         DspFloat pos = waveguide_.GetDelay() * relative_position;
         DspFloat out = waveguide_.TapOut(pos);
         DspFloat deltaVelovity = bow_velocity - out;
-        waveguide_.TapIn(pos, 0.3f * ComputeBowOutput(deltaVelovity));
+        waveguide_.TapIn(pos, ComputeBowOutput(deltaVelovity));
     }
 
     DspFloat Tick()
     {
         waveguide_.Tick();
+        constexpr DspFloat relative_position = 0.90f;
+        DspFloat pos = waveguide_.GetDelay() * relative_position;
         DspFloat right, left;
-        waveguide_.TapOut(waveguide_.GetDelay(), right, left);
+        waveguide_.TapOut(pos, right, left);
 
         DspFloat out = 0.1248 * body_filters_[5].Tick(body_filters_[4].Tick(body_filters_[3].Tick(
                                     body_filters_[2].Tick(body_filters_[1].Tick(body_filters_[0].Tick(right))))));

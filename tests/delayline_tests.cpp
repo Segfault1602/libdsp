@@ -95,6 +95,7 @@ TEST(LinearDelaylineTests, TapOut)
     for (size_t i = 0; i < loop_count; ++i)
     {
         line.Tick(i);
+        ASSERT_THAT(line.TapOut(0), ::testing::FloatEq(i));
     }
 
     for (size_t i = 0; i < loop_count; ++i)
@@ -126,10 +127,10 @@ TEST(LinearDelaylineTests, TapOutInterpolation)
         line.Tick(i);
     }
 
-    for (size_t i = 0; i < loop_count - 1; ++i)
+    for (float i = 0; i < loop_count - 1; i += 0.25f)
     {
-        DspFloat tap = line.TapOut(i + 0.25f);
-        ASSERT_EQ(tap, loop_count - i - 1 - 0.25f);
+        DspFloat tap = line.TapOut(i);
+        ASSERT_EQ(tap, loop_count - i - 1);
     }
 
     // When asking to tap out a sample past the current delay the
@@ -187,15 +188,7 @@ TEST(LinearDelaylineTests, TapInFrac)
     constexpr float delay = max_delay_size - 1;
     line.SetDelay(delay);
 
-    for (size_t i = 0; i < max_delay_size * 2; ++i)
-    {
-        // If we tap in a sample at `delay-1`, we expect the next Tick()
-        // to return that same sample.
-        const DspFloat SAMPLE = 0.1234f * i;
-        const DspFloat tap_pos = 24.3f;
-        line.TapIn(delay - 1, SAMPLE);
-
-        constexpr DspFloat TICK_SAMPLE = 1.f;
-        DspFloat out = line.Tick(TICK_SAMPLE);
-    }
+    line.TapIn(2.5, 1.f);
+    ASSERT_THAT(line.TapOut(2), ::testing::FloatEq(0.5f));
+    ASSERT_THAT(line.TapOut(3), ::testing::FloatEq(0.5f));
 }

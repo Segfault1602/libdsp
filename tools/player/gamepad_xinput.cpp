@@ -5,7 +5,7 @@
 
 #include <cmath>
 
-void NormalizeInput(float x, float y, float deadzone, float& normalized_x, float& normalized_y,
+void NormalizeJoystick(float x, float y, float deadzone, float& normalized_x, float& normalized_y,
                     float& normalized_magnitude)
 {
     float magnitude = std::sqrt(x * x + y * y);
@@ -35,6 +35,22 @@ void NormalizeInput(float x, float y, float deadzone, float& normalized_x, float
     normalized_y = (y / magnitude) * normalized_magnitude;
 }
 
+float NormalizeTrigger(uint8_t trigger, uint8_t deadzone)
+{
+    float normalized_trigger = 0.0f;
+    if (trigger > deadzone)
+    {
+        // adjust magnitude relative to the end of the dead zone
+        trigger -= deadzone;
+
+        // optionalleft_y normalize the magnitude with respect to its expected range
+        // giving a magnitude value of 0.0 to 1.0
+        normalized_trigger = static_cast<float>(trigger) / (255.f - static_cast<float>(deadzone));
+    }
+
+    return normalized_trigger;
+}
+
 class Gamepad::Impl
 {
   public:
@@ -50,6 +66,8 @@ class Gamepad::Impl
 
     bool Poll(GamepadState& state)
     {
+        ZeroMemory(&state, sizeof(GamepadState));
+
         XINPUT_STATE xinput_state;
         ZeroMemory(&xinput_state, sizeof(XINPUT_STATE));
         DWORD result = XInputGetState(0, &xinput_state);
@@ -65,13 +83,18 @@ class Gamepad::Impl
                 state.x = xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_X;
                 state.y = xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_Y;
 
-                NormalizeInput(xinput_state.Gamepad.sThumbLX, xinput_state.Gamepad.sThumbLY,
+                NormalizeJoystick(xinput_state.Gamepad.sThumbLX, xinput_state.Gamepad.sThumbLY,
                                XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, state.thumb_left_x, state.thumb_left_y,
                                state.thumb_left_magnitude);
 
-                NormalizeInput(xinput_state.Gamepad.sThumbRX, xinput_state.Gamepad.sThumbRY,
+                NormalizeJoystick(xinput_state.Gamepad.sThumbRX, xinput_state.Gamepad.sThumbRY,
                                XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE, state.thumb_right_x, state.thumb_right_y,
                                state.thumb_right_magnitude);
+
+                state.left_trigger = NormalizeTrigger(xinput_state.Gamepad.bLeftTrigger, 10);
+
+                state.right_trigger = NormalizeTrigger(xinput_state.Gamepad.bRightTrigger, 10);
+
                 return true;
             }
         }

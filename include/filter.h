@@ -75,7 +75,8 @@ class OnePoleFilter : public Filter
 
     DspFloat Tick(DspFloat in) override
     {
-        outputs_[0] = gain_ * in * b_[0] - outputs_[0] * a_[1];
+        outputs_[0] = gain_ * in * b_[0] - outputs_[1] * a_[1];
+        outputs_[1] = outputs_[0];
         return outputs_[0];
     }
 };

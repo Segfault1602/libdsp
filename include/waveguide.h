@@ -40,13 +40,6 @@ class Waveguide
         return current_delay_;
     }
 
-    /// @brief Sets the gain of the right termination. The gain for the left termination is always -1.
-    /// @param gain
-    void SetGain(DspFloat gain)
-    {
-        RightTermination.SetGain(gain);
-    }
-
     void SetJunction(DspFloat pos)
     {
         junction_.SetDelay(pos);
@@ -54,10 +47,12 @@ class Waveguide
 
     void Tick()
     {
-        // The order here is important
-        junction_.Tick(left_traveling_line_, right_traveling_line_);
-        LeftTermination.Tick(left_traveling_line_, right_traveling_line_);
-        RightTermination.Tick(left_traveling_line_, right_traveling_line_);
+        DspFloat right = right_traveling_line_.NextOut();
+        DspFloat left = left_traveling_line_.NextOut();
+        right = RightTermination.Tick(right);
+        left = LeftTermination.Tick(left);
+        right_traveling_line_.Tick(left);
+        left_traveling_line_.Tick(right);
     }
 
     void TapIn(DspFloat delay, DspFloat input)
@@ -91,8 +86,8 @@ class Waveguide
         left_out = left_traveling_line_.TapOut(current_delay_ - delay - 1);
     }
 
-    LeftTermination LeftTermination;
-    RightTermination RightTermination;
+    Termination LeftTermination;
+    Termination RightTermination;
 
   private:
     DspFloat current_delay_ = MAX_SIZE;

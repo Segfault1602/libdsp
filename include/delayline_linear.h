@@ -60,20 +60,15 @@ class LinearDelayline : public Delayline
     DspFloat TapOut(DspFloat delay) const override
     {
         DspFloat delay_integer = std::floor(delay);
-        DspFloat delay_frac = delay - delay_integer;
-        DspFloat read_ptr = write_ptr_ - delay_integer - 1;
+        DspFloat frac = delay - delay_integer;
+        int32_t read_ptr = write_ptr_ - delay_integer - 1;
         while (read_ptr < 0)
         {
             read_ptr += MAX_DELAY;
         }
 
-        read_ptr -= delay_frac;
-
-        size_t read_idx = static_cast<size_t>(read_ptr);
-        DspFloat frac = read_ptr - read_idx;
-
-        DspFloat a = line_[read_idx];
-        DspFloat b = line_[(read_idx + 1) % MAX_DELAY];
+        DspFloat a = line_[read_ptr];
+        DspFloat b = line_[(read_ptr - 1) % MAX_DELAY];
 
         return a + (b - a) * frac;
     }
