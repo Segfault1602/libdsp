@@ -5,6 +5,7 @@
 #include <chrono>
 #include <cmath>
 #include <cstdio>
+#include <cstring>
 #include <memory>
 #include <thread>
 #include <vector>
@@ -182,10 +183,10 @@ int ProcessToFile(DspTester* dsp)
     out_sf_info.frames = static_cast<sf_count_t>(out_size);
 
     auto out = std::make_unique<float[]>(out_size);
-    memset(out.get(), 0, out_size);
+    std::memset(out.get(), 0, out_size);
 
     auto start = std::chrono::high_resolution_clock::now();
-    for (size_t i = 0; i < g_sf_info.frames; ++i)
+    for (size_t i = 0; i < static_cast<size_t>(g_sf_info.frames); ++i)
     {
         float out_sample = dsp->Tick(g_input_buffer[i]);
         out[i] = out_sample;

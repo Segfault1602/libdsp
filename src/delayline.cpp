@@ -1,5 +1,7 @@
 #include "delayline.h"
 
+#include <cstdint>
+
 namespace dsp
 {
 Delayline::Delayline(size_t max_delay) : max_delay_(max_delay)

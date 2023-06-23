@@ -3,6 +3,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <cstdint>
 
 #include "delayline.h"
 #include "dsp_base.h"

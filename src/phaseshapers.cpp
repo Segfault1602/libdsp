@@ -26,18 +26,18 @@ inline float g_lin(float x, float a1 = 1, float a0 = 0)
 
 inline float g_ramp(float x, float a1 = 1, float a0 = 0)
 {
-    return std::fmodf(g_lin(x, a1, a0), 1.f);
+    return std::fmod(g_lin(x, a1, a0), 1.f);
 }
 
 inline float g_tri(float x, float a1 = 1, float a0 = 0)
 {
-    return std::fmodf(g_lin(std::abs(G_B(x)), a1, a0), 1.f);
+    return std::fmod(g_lin(std::abs(G_B(x)), a1, a0), 1.f);
 }
 
 inline float g_pulse(float x, float phaseIncrement, float width = 0.5f, float period = 100.f)
 {
     float d = width * period;
-    return x - std::fmodf(x + phaseIncrement * d, 1.f) + width;
+    return x - std::fmod(x + phaseIncrement * d, 1.f) + width;
 }
 
 inline float g_pulse_trivial(float x, float width = 0.5f)
@@ -96,7 +96,7 @@ float Phaseshaper::Process()
     float w2 = 1.f - w1;
 
     m_phase += m_phaseIncrement;
-    m_phase = std::fmodf(m_phase, 1.f);
+    m_phase = std::fmod(m_phase, 1.f);
 
     return out1 * w1 + out2 * w2;
 }
@@ -139,7 +139,7 @@ float Phaseshaper::ProcessSupersaw()
     const float a1 = 1.5f;
     float xs = g_lin(m_phase, a1);
 
-    float supersawPhase = std::fmodf(xs, m1) + std::fmodf(xs, m2);
+    float supersawPhase = std::fmod(xs, m1) + std::fmod(xs, m2);
     return G_B(std::sin(supersawPhase));
 }
 
