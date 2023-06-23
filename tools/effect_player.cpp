@@ -12,11 +12,11 @@
 #include <RtAudio.h>
 #include <sndfile.h>
 
-#include "chorus.h"
 #include "bowed_string.h"
+#include "chorus.h"
 #include "dsp_base.h"
-#include "test_utils.h"
 #include "dsp_tester.h"
+#include "test_utils.h"
 
 int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBufferFrames, double /*streamTime*/,
                      RtAudioStreamStatus /*status*/, void* data);
@@ -45,7 +45,7 @@ struct CbContext
 };
 
 // Globals
-std::unique_ptr<DspFloat[]> g_input_buffer;
+std::unique_ptr<float[]> g_input_buffer;
 SF_INFO g_sf_info = {0};
 
 int main(int argc, char** argv)
@@ -105,12 +105,12 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
 
     size_t frameToRead = std::min(static_cast<size_t>(nBufferFrames), context->numFrames - context->readPtr);
 
-    auto* output = static_cast<DspFloat*>(outputBuffer);
+    auto* output = static_cast<float*>(outputBuffer);
 
     // Write interleaved audio data.
     for (size_t i = 0; i < frameToRead; i++)
     {
-        DspFloat sample = context->dsp->Tick(g_input_buffer[context->readPtr]);
+        float sample = context->dsp->Tick(g_input_buffer[context->readPtr]);
         ++context->readPtr;
         for (size_t j = 0; j < 2; j++)
         {
@@ -181,13 +181,13 @@ int ProcessToFile(DspTester* dsp)
     out_sf_info.samplerate = g_sf_info.samplerate;
     out_sf_info.frames = static_cast<sf_count_t>(out_size);
 
-    auto out = std::make_unique<DspFloat[]>(out_size);
+    auto out = std::make_unique<float[]>(out_size);
     memset(out.get(), 0, out_size);
 
     auto start = std::chrono::high_resolution_clock::now();
     for (size_t i = 0; i < g_sf_info.frames; ++i)
     {
-        DspFloat out_sample = dsp->Tick(g_input_buffer[i]);
+        float out_sample = dsp->Tick(g_input_buffer[i]);
         out[i] = out_sample;
     }
     auto end = std::chrono::high_resolution_clock::now();
@@ -202,7 +202,7 @@ int ProcessToFile(DspTester* dsp)
     // Send silence for the rest
     for (size_t i = g_sf_info.frames; i < (g_sf_info.frames + extra_time); ++i)
     {
-        DspFloat out_sample = dsp->Tick(0.f);
+        float out_sample = dsp->Tick(0.f);
         out[i] = out_sample;
     }
 

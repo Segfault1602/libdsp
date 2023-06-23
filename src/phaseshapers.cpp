@@ -19,33 +19,33 @@
 
 // -- Linear transformations
 
-inline DspFloat g_lin(DspFloat x, DspFloat a1 = 1, DspFloat a0 = 0)
+inline float g_lin(float x, float a1 = 1, float a0 = 0)
 {
     return a1 * x + a0;
 }
 
-inline DspFloat g_ramp(DspFloat x, DspFloat a1 = 1, DspFloat a0 = 0)
+inline float g_ramp(float x, float a1 = 1, float a0 = 0)
 {
     return std::fmodf(g_lin(x, a1, a0), 1.f);
 }
 
-inline DspFloat g_tri(DspFloat x, DspFloat a1 = 1, DspFloat a0 = 0)
+inline float g_tri(float x, float a1 = 1, float a0 = 0)
 {
     return std::fmodf(g_lin(std::abs(G_B(x)), a1, a0), 1.f);
 }
 
-inline DspFloat g_pulse(DspFloat x, DspFloat phaseIncrement, DspFloat width = 0.5f, int period = 100)
+inline float g_pulse(float x, float phaseIncrement, float width = 0.5f, float period = 100.f)
 {
-    DspFloat d = static_cast<int>(width * period);
+    float d = width * period;
     return x - std::fmodf(x + phaseIncrement * d, 1.f) + width;
 }
 
-inline DspFloat g_pulse_trivial(DspFloat x, DspFloat width = 0.5f)
+inline float g_pulse_trivial(float x, float width = 0.5f)
 {
-    return (x < width) ? 0 : 1;
+    return (x < width) ? 0.f : 1.f;
 }
 
-inline DspFloat s_tri(DspFloat x)
+inline float s_tri(float x)
 {
     if (x < 0.5f)
     {
@@ -55,27 +55,25 @@ inline DspFloat s_tri(DspFloat x)
     {
         return 2.f - 2.f * x;
     }
-
-    return 0.f;
 }
 
-DspFloat polyBLEP(DspFloat phase, DspFloat phaseIncrement, DspFloat h = -1.f)
+float polyBLEP(float phase, float phaseIncrement, float h = -1.f)
 {
-    DspFloat out = 0.f;
-    DspFloat p = phase;
+    float out = 0.f;
+    float p = phase;
     p -= floorf(p);
 
     if (p > (1 - phaseIncrement))
     {
-        DspFloat t = (p - 1) / phaseIncrement;
-        DspFloat c = 0.5f * t * t + t * 0.5f;
+        float t = (p - 1) / phaseIncrement;
+        float c = 0.5f * t * t + t * 0.5f;
         c *= h;
         out = c;
     }
     else if (p < phaseIncrement)
     {
-        DspFloat t = p / phaseIncrement;
-        DspFloat c = -0.5f * t * t + t - 0.5f;
+        float t = p / phaseIncrement;
+        float c = -0.5f * t * t + t - 0.5f;
         c *= h;
         out = c;
     }
@@ -86,16 +84,16 @@ DspFloat polyBLEP(DspFloat phase, DspFloat phaseIncrement, DspFloat h = -1.f)
 namespace dsp
 {
 
-DspFloat Phaseshaper::Process()
+float Phaseshaper::Process()
 {
-    DspFloat wave1 = std::floor(m_waveform);
-    DspFloat out1 = ProcessWave(static_cast<Waveform>(wave1));
+    float wave1 = std::floor(m_waveform);
+    float out1 = ProcessWave(static_cast<Waveform>(wave1));
 
-    DspFloat wave2 = std::ceil(m_waveform);
-    DspFloat out2 = ProcessWave(static_cast<Waveform>(wave2));
+    float wave2 = std::ceil(m_waveform);
+    float out2 = ProcessWave(static_cast<Waveform>(wave2));
 
-    DspFloat w1 = 1 - (m_waveform - wave1);
-    DspFloat w2 = 1 - w1;
+    float w1 = 1.f - (m_waveform - wave1);
+    float w2 = 1.f - w1;
 
     m_phase += m_phaseIncrement;
     m_phase = std::fmodf(m_phase, 1.f);
@@ -103,54 +101,54 @@ DspFloat Phaseshaper::Process()
     return out1 * w1 + out2 * w2;
 }
 
-DspFloat Phaseshaper::ProcessWaveSlice()
+float Phaseshaper::ProcessWaveSlice()
 {
-    DspFloat a1 = 0.25f + (1 + m_mod) * 0.10;
-    DspFloat slicePhase = g_lin(m_phase, a1);
-    DspFloat trivial = G_B(std::sin(TWO_PI * slicePhase));
+    float a1 = 0.25f + (1.f + m_mod) * 0.10f;
+    float slicePhase = g_lin(m_phase, a1);
+    float trivial = G_B(std::sin(TWO_PI * slicePhase));
 
-    DspFloat blep = polyBLEP(m_phase, m_phaseIncrement, -2);
+    float blep = polyBLEP(m_phase, m_phaseIncrement, -2);
     return trivial + blep;
 }
 
-DspFloat Phaseshaper::ProcessHardSync()
+float Phaseshaper::ProcessHardSync()
 {
-    DspFloat a1 = 2.5f + m_mod;
+    float a1 = 2.5f + m_mod;
     return G_B(g_ramp(m_phase, a1));
 }
 
-DspFloat Phaseshaper::ProcessSoftSync()
+float Phaseshaper::ProcessSoftSync()
 {
-    DspFloat a1 = 1.25f + m_mod;
-    DspFloat softPhase = g_tri(m_phase, a1);
+    float a1 = 1.25f + m_mod;
+    float softPhase = g_tri(m_phase, a1);
     return G_B(s_tri(softPhase));
 }
 
-DspFloat Phaseshaper::ProcessTriMod()
+float Phaseshaper::ProcessTriMod()
 {
-    const DspFloat atm = 0.82f; // Roland JP-8000 triangle modulation offset parameter
-    DspFloat mod = atm + m_mod * 0.15;
-    DspFloat trimodPhase = mod * G_B(g_tri(m_phase));
+    const float atm = 0.82f; // Roland JP-8000 triangle modulation offset parameter
+    float mod = atm + m_mod * 0.15f;
+    float trimodPhase = mod * G_B(g_tri(m_phase));
     return 2 * (trimodPhase - std::ceil(trimodPhase - 0.5f));
 }
 
-DspFloat Phaseshaper::ProcessSupersaw()
+float Phaseshaper::ProcessSupersaw()
 {
-    const DspFloat m1 = 0.5f + (m_mod * 0.25f);
-    const DspFloat m2 = 0.88f;
-    const DspFloat a1 = 1.5f;
-    DspFloat xs = g_lin(m_phase, a1);
+    const float m1 = 0.5f + (m_mod * 0.25f);
+    const float m2 = 0.88f;
+    const float a1 = 1.5f;
+    float xs = g_lin(m_phase, a1);
 
-    DspFloat supersawPhase = std::fmodf(xs, m1) + std::fmodf(xs, m2);
+    float supersawPhase = std::fmodf(xs, m1) + std::fmodf(xs, m2);
     return G_B(std::sin(supersawPhase));
 }
 
-DspFloat Phaseshaper::ProcessVarSlope()
+float Phaseshaper::ProcessVarSlope()
 {
-    DspFloat width = 0.5f + m_mod * 0.25f;
+    float width = 0.5f + m_mod * 0.25f;
 
-    DspFloat pulse = g_pulse(m_phase, m_phaseIncrement, width, m_period);
-    DspFloat vslope = 0.5f * m_phase * (1.0f - pulse) / width + pulse * (m_phase - width) / (1 - width);
+    float pulse = g_pulse(m_phase, m_phaseIncrement, width, m_period);
+    float vslope = 0.5f * m_phase * (1.0f - pulse) / width + pulse * (m_phase - width) / (1 - width);
     return std::sin(TWO_PI * vslope);
 }
 } // namespace dsp

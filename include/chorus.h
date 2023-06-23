@@ -27,7 +27,7 @@ class Chorus : public DspBase
     ~Chorus() override = default;
     Chorus(const Chorus& c) = delete;
 
-    void Init(uint32_t samplerate, DspFloat delay_ms, DspFloat width = 100, DspFloat speed = .5f)
+    void Init(uint32_t samplerate, float delay_ms, float width = 100, float speed = .5f)
     {
         samplerate_ = samplerate;
         SetDelay(delay_ms);
@@ -35,7 +35,7 @@ class Chorus : public DspBase
         width_ = width;
         speed_ = speed;
 
-        DspFloat mod_period = samplerate / speed;
+        float mod_period = samplerate / speed;
         mod_phase_dt_ = 1.f / mod_period;
         delta_t_ = 1.f / samplerate_;
     }
@@ -45,7 +45,7 @@ class Chorus : public DspBase
         delay_.Reset();
     }
 
-    void SetDelay(DspFloat delay_ms)
+    void SetDelay(float delay_ms)
     {
         // TODO: add max delay check here
         if (base_delay_ms_ != delay_ms)
@@ -55,43 +55,43 @@ class Chorus : public DspBase
         }
     }
 
-    void SetMix(DspFloat mix)
+    void SetMix(float mix)
     {
         chorus_mix_ = mix;
         input_mix_ = 1.f - mix;
     }
 
-    void SetWidth(DspFloat width)
+    void SetWidth(float width)
     {
         width_ = width;
     }
 
-    void SetSpeed(DspFloat speed)
+    void SetSpeed(float speed)
     {
         if (speed_ != speed)
         {
             speed_ = speed;
-            DspFloat mod_period = samplerate_ / speed;
+            float mod_period = samplerate_ / speed;
             mod_phase_dt_ = 1.f / mod_period;
         }
     }
 
-    DspFloat Tick(DspFloat in) override
+    float Tick(float in) override
     {
 
-        DspFloat mod = Sine(mod_phase_) * width_;
+        float mod = Sine(mod_phase_) * width_;
         mod_phase_ += mod_phase_dt_;
         if (mod_phase_ >= 1.f)
         {
             mod_phase_ -= 1.f;
         }
 
-        constexpr DspFloat FB = -0.7f;
-        constexpr DspFloat FF = 1.f;
-        constexpr DspFloat BL = 0.7f;
+        constexpr float FB = -0.7f;
+        constexpr float FF = 1.f;
+        constexpr float BL = 0.7f;
 
-        DspFloat feedback = delay_.TapOut(base_delay_) * FB;
-        DspFloat xn = in + feedback;
+        float feedback = delay_.TapOut(base_delay_) * FB;
+        float xn = in + feedback;
 
         delay_.SetDelay(base_delay_ + mod);
 
@@ -100,31 +100,31 @@ class Chorus : public DspBase
 
   private:
     uint32_t samplerate_ = 48000;
-    DspFloat samples_per_ms_ = samplerate_ / 1000.f;
+    float samples_per_ms_ = samplerate_ / 1000.f;
 
-    DspFloat base_delay_ms_ = 0.f;
-    DspFloat base_delay_ = 0.f;
+    float base_delay_ms_ = 0.f;
+    float base_delay_ = 0.f;
 #ifdef CHORUS_LINEAR_DELAY
     LinearDelayline<MAX_DELAY_SIZE> delay_;
 #else
     DelaySinc<MAX_DELAY_SIZE> delay_;
 #endif
-    DspFloat width_ = 50.f;
-    DspFloat speed_ = 5.f;
+    float width_ = 50.f;
+    float speed_ = 5.f;
 
-    DspFloat mod_phase_dt_ = 0.f;
-    DspFloat mod_phase_ = 0.f;
-    DspFloat t_ = 0;
-    DspFloat delta_t_ = 0.f;
+    float mod_phase_dt_ = 0.f;
+    float mod_phase_ = 0.f;
+    float t_ = 0;
+    float delta_t_ = 0.f;
 
-    DspFloat chorus_mix_ = 0.5f;
-    DspFloat input_mix_ = 0.5f;
+    float chorus_mix_ = 0.5f;
+    float input_mix_ = 0.5f;
 
-    DspFloat last_frame_ = 0.f;
-    DspFloat feedback_ = 0.0f;
+    float last_frame_ = 0.f;
+    float feedback_ = 0.0f;
 
   private:
-    DspFloat Sine(DspFloat phase)
+    float Sine(float phase)
     {
         return sinf(TWO_PI * phase);
     }

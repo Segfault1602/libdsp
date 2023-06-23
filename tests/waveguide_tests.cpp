@@ -6,10 +6,10 @@
 template <size_t size>
 void PrintWaveguide(dsp::Waveguide<size>& wave, size_t delay_size)
 {
-    std::vector<DspFloat> right_samples, left_samples;
+    std::vector<float> right_samples, left_samples;
     for (size_t i = 0; i < delay_size; ++i)
     {
-        DspFloat right, left;
+        float right, left;
         wave.TapOut(i, right, left);
         right_samples.push_back(right);
         left_samples.push_back(left);
@@ -39,7 +39,7 @@ TEST(WaveguideTests, EmptyWaveguide)
     for (size_t i = 0; i < LOOP_SIZE; ++i)
     {
         wave.Tick();
-        DspFloat sample = wave.TapOut(WAVEGUIDE_SIZE / 2);
+        float sample = wave.TapOut(WAVEGUIDE_SIZE / 2);
         ASSERT_THAT(0.f, ::testing::FloatEq(sample));
     }
 }
@@ -60,7 +60,7 @@ TEST(WaveguideTests, StabilityTestInteger)
         wave.TapIn(tap_in_pos, 1.f);
         wave.Tick();
 
-        DspFloat sample = wave.TapOut(tap_out_pos);
+        float sample = wave.TapOut(tap_out_pos);
         ASSERT_THAT(std::fabs(sample), ::testing::Le(1.f));
     }
 }
@@ -90,7 +90,7 @@ TEST(WaveguideTests, StabilityTestFrac)
         printf("After tick:\n");
         PrintWaveguide(wave, DELAY_SIZE);
 
-        DspFloat sample = wave.TapOut(tap_out_pos);
+        float sample = wave.TapOut(tap_out_pos);
         ASSERT_THAT(std::fabs(sample), ::testing::Le(1.f));
     }
 }
@@ -107,7 +107,7 @@ TEST(WaveguideTests, TapInTapOut)
     for (size_t i = 0; i < DELAY_SIZE; ++i)
     {
         wave.TapIn(i, i);
-        DspFloat out = wave.TapOut(i);
+        float out = wave.TapOut(i);
 
         // TapOut will return the sum of both delayline so we should expect two time
         // the energy we tapped in.
@@ -126,11 +126,11 @@ TEST(WaveguideTests, TapInTapOut2)
     // Set the gain to -1 so we can check that no energy is lost.
     wave.RightTermination.SetGain(-1);
 
-    constexpr DspFloat input[DELAY_SIZE] = {1, 2, 3, 4, 5, 6};
+    constexpr float input[DELAY_SIZE] = {1, 2, 3, 4, 5, 6};
     for (size_t i = 0; i < DELAY_SIZE; ++i)
     {
         wave.TapIn(i, input[i]);
-        DspFloat out = wave.TapOut(i);
+        float out = wave.TapOut(i);
         ASSERT_THAT(input[i] * 2, ::testing::Eq(out));
     }
 
@@ -142,7 +142,7 @@ TEST(WaveguideTests, TapInTapOut2)
 
     for (float i = 0; i <= DELAY_SIZE - 1; i += .25f)
     {
-        DspFloat right, left;
+        float right, left;
         wave.TapOut(i, right, left);
         ASSERT_THAT(right, ::testing::FloatEq(i + 1));
         ASSERT_THAT(right, ::testing::FloatEq(left));
@@ -160,11 +160,11 @@ TEST(WaveguideTests, GainTest)
     // Set the gain to -1 so we can check that no energy is lost.
     wave.RightTermination.SetGain(-1);
 
-    constexpr DspFloat input[DELAY_SIZE] = {1, 2, 3, 4, 5, 6};
+    constexpr float input[DELAY_SIZE] = {1, 2, 3, 4, 5, 6};
     for (size_t i = 0; i < DELAY_SIZE; ++i)
     {
         wave.TapIn(i, input[i]);
-        DspFloat out = wave.TapOut(i);
+        float out = wave.TapOut(i);
         ASSERT_THAT(input[i] * 2, ::testing::Eq(out));
     }
 
@@ -185,7 +185,7 @@ TEST(WaveguideTests, GainTest)
 
     for (int i = 0; i < DELAY_SIZE; ++i)
     {
-        DspFloat out = wave.TapOut(i);
+        float out = wave.TapOut(i);
         ASSERT_THAT(out, ::testing::Eq(-1 * (input[DELAY_SIZE - i - 1] * 2)));
     }
 
@@ -201,7 +201,7 @@ TEST(WaveguideTests, GainTest)
 
     for (int i = 0; i < DELAY_SIZE; ++i)
     {
-        DspFloat out = wave.TapOut(i);
+        float out = wave.TapOut(i);
         ASSERT_THAT(out, ::testing::Eq(input[i] * 2));
     }
 }
@@ -217,11 +217,11 @@ TEST(WaveguideTests, JunctionTest)
     // Set the gain to -1 so we can check that no energy is lost.
     wave.RightTermination.SetGain(-1);
 
-    constexpr DspFloat input[DELAY_SIZE] = {1, 2, 3, 4, 5, 6};
+    constexpr float input[DELAY_SIZE] = {1, 2, 3, 4, 5, 6};
     for (size_t i = 0; i < DELAY_SIZE; ++i)
     {
         wave.TapIn(i, input[i]);
-        DspFloat out = wave.TapOut(i);
+        float out = wave.TapOut(i);
         ASSERT_THAT(input[i] * 2, ::testing::Eq(out));
     }
 

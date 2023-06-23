@@ -6,7 +6,7 @@
 #include <cmath>
 
 void NormalizeJoystick(float x, float y, float deadzone, float& normalized_x, float& normalized_y,
-                    float& normalized_magnitude)
+                       float& normalized_magnitude)
 {
     float magnitude = std::sqrt(x * x + y * y);
 
@@ -84,12 +84,12 @@ class Gamepad::Impl
                 state.y = xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_Y;
 
                 NormalizeJoystick(xinput_state.Gamepad.sThumbLX, xinput_state.Gamepad.sThumbLY,
-                               XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, state.thumb_left_x, state.thumb_left_y,
-                               state.thumb_left_magnitude);
+                                  XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, state.thumb_left_x, state.thumb_left_y,
+                                  state.thumb_left_magnitude);
 
                 NormalizeJoystick(xinput_state.Gamepad.sThumbRX, xinput_state.Gamepad.sThumbRY,
-                               XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE, state.thumb_right_x, state.thumb_right_y,
-                               state.thumb_right_magnitude);
+                                  XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE, state.thumb_right_x, state.thumb_right_y,
+                                  state.thumb_right_magnitude);
 
                 state.left_trigger = NormalizeTrigger(xinput_state.Gamepad.bLeftTrigger, 10);
 

@@ -22,10 +22,10 @@ std::unique_ptr<dsp::BowedString> g_bowed_string;
 
 struct InstrumentControl
 {
-    DspFloat velocity = 0.25f;
-    DspFloat velocity_change_rate = 0.f;
-    DspFloat force = 3.f;
-    DspFloat force_change_rate = 0.f;
+    float velocity = 0.25f;
+    float velocity_change_rate = 0.f;
+    float force = 3.f;
+    float force_change_rate = 0.f;
     bool bow_down = false;
     bool strike = false;
 } g_instrument_control;
@@ -33,7 +33,7 @@ struct InstrumentControl
 std::mutex g_instrument_control_mutex;
 
 int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBufferFrames, double /*streamTime*/,
-    RtAudioStreamStatus /*status*/, void* data);
+                     RtAudioStreamStatus /*status*/, void* data);
 
 struct RtAudioWrapper
 {
@@ -55,7 +55,7 @@ int main(int argc, char** argv)
     signal(SIGINT, [](int) {
         printf("Exiting...\n");
         g_exit.store(true);
-        });
+    });
 
     g_gamepad = std::make_unique<Gamepad>();
     g_bowed_string = std::make_unique<dsp::BowedString>();
@@ -80,7 +80,7 @@ int main(int argc, char** argv)
 
     uint32_t bufferFrames = DEFAULT_BUFFER_FRAMES;
     auto rtError = dac_wrapper.dac.openStream(&oParams, nullptr, RTAUDIO_FLOAT32, DEFAULT_SAMPLE_RATE, &bufferFrames,
-        &RtOutputCallback, nullptr);
+                                              &RtOutputCallback, nullptr);
 
     if (rtError != RTAUDIO_NO_ERROR)
     {
@@ -97,7 +97,7 @@ int main(int argc, char** argv)
     constexpr auto control_loop_period = std::chrono::milliseconds(15);
 
     // We will interpolate control values between control loop iterations
-    const DspFloat dt = (control_loop_period.count() / 1000.f) * DEFAULT_SAMPLE_RATE;
+    const float dt = (control_loop_period.count() / 1000.f) * DEFAULT_SAMPLE_RATE;
 
     while (!g_exit)
     {
@@ -130,7 +130,7 @@ int main(int argc, char** argv)
 }
 
 int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBufferFrames, double /*streamTime*/,
-    RtAudioStreamStatus status, void* data)
+                     RtAudioStreamStatus status, void* data)
 {
     auto start = std::chrono::high_resolution_clock::now();
     if (status)
@@ -147,7 +147,7 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
         g_instrument_control.strike = false;
     }
 
-    auto* output = static_cast<DspFloat*>(outputBuffer);
+    auto* output = static_cast<float*>(outputBuffer);
 
     if (control.strike)
     {
@@ -157,7 +157,7 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
     // Write interleaved audio data.
     for (size_t i = 0; i < nBufferFrames; i++)
     {
-        DspFloat current_velocity = g_bowed_string->GetVelocity();
+        float current_velocity = g_bowed_string->GetVelocity();
 
         if ((control.velocity_change_rate < 0.f && current_velocity > control.velocity) ||
             (control.velocity_change_rate > 0.f && current_velocity < control.velocity))
@@ -165,7 +165,7 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
             g_bowed_string->SetVelocity(current_velocity + control.velocity_change_rate);
         }
 
-        DspFloat current_force = g_bowed_string->GetForce();
+        float current_force = g_bowed_string->GetForce();
         if ((control.force_change_rate < 0.f && current_force > control.force) ||
             (control.force_change_rate > 0.f && current_force < control.force))
         {
@@ -177,7 +177,7 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
             g_bowed_string->Excite();
         }
 
-        DspFloat sample = g_bowed_string->Tick() * 0.1f;
+        float sample = g_bowed_string->Tick() * 0.1f;
         assert(sample < 1.f && sample > -1.f);
 
         for (size_t j = 0; j < 2; j++)

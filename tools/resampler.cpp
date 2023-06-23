@@ -10,8 +10,7 @@
 #include <samplerate.h>
 #include <sinc_resampler.h>
 
-void UseSincResample(const DspFloat* buffer, size_t input_size, DspFloat resampling_ratio, DspFloat* out,
-                     size_t& out_size);
+void UseSincResample(const float* buffer, size_t input_size, float resampling_ratio, float* out, size_t& out_size);
 void UseLibSamplerate(const float* buffer, size_t input_size, double resampling_ratio, float* out, size_t& out_size);
 
 int main(int argc, char** argv)
@@ -55,17 +54,17 @@ int main(int argc, char** argv)
     }
 
     SF_INFO sf_info{0};
-    std::unique_ptr<DspFloat[]> buffer;
+    std::unique_ptr<float[]> buffer;
     size_t buffer_size;
     if (!LoadWavFile(input_file, buffer, buffer_size, sf_info))
     {
         return -1;
     }
 
-    auto resampling_ratio = static_cast<DspFloat>(target_fs) / static_cast<float>(sf_info.samplerate);
+    auto resampling_ratio = static_cast<float>(target_fs) / static_cast<float>(sf_info.samplerate);
 
     size_t out_size = std::ceil(static_cast<float>(buffer_size) * resampling_ratio);
-    std::vector<DspFloat> out(out_size, 0);
+    std::vector<float> out(out_size, 0);
 
     if (!use_libsamplerate)
     {
@@ -96,8 +95,7 @@ int main(int argc, char** argv)
     return 0;
 }
 
-void UseSincResample(const DspFloat* buffer, size_t input_size, DspFloat resampling_ratio, DspFloat* out,
-                     size_t& out_size)
+void UseSincResample(const float* buffer, size_t input_size, float resampling_ratio, float* out, size_t& out_size)
 {
     dsp::sinc_resample(buffer, input_size, resampling_ratio, out, out_size);
 }

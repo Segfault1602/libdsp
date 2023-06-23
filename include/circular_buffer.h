@@ -9,7 +9,8 @@
 
 namespace dsp
 {
-template <size_t CONTAINER_SIZE> class Buffer
+template <size_t CONTAINER_SIZE>
+class Buffer
 {
   public:
     Buffer() = default;
@@ -40,27 +41,27 @@ template <size_t CONTAINER_SIZE> class Buffer
         return CONTAINER_SIZE;
     }
 
-    void Fill(DspFloat value)
+    void Fill(float value)
     {
         buffer_.fill(value);
         count_ = buffer_.size();
     }
 
-    DspFloat Read()
+    float Read()
     {
-        DspFloat val = buffer_[read_];
+        float val = buffer_[read_];
         read_ = (read_ + 1) % CONTAINER_SIZE;
         --count_;
 
         return val;
     }
 
-    DspFloat Peek() const
+    float Peek() const
     {
         return buffer_[read_];
     }
 
-    void Write(DspFloat in)
+    void Write(float in)
     {
         buffer_[write_] = in;
         write_ = (write_ + 1) % CONTAINER_SIZE;
@@ -74,14 +75,14 @@ template <size_t CONTAINER_SIZE> class Buffer
         }
     }
 
-    const DspFloat& operator[](size_t idx) const
+    const float& operator[](size_t idx) const
     {
         auto real_idx = (read_ + idx) % CONTAINER_SIZE;
         return buffer_[real_idx];
     }
 
   private:
-    std::array<DspFloat, CONTAINER_SIZE> buffer_ = {0};
+    std::array<float, CONTAINER_SIZE> buffer_ = {0};
     size_t count_ = 0;
     size_t write_ = 0;
     size_t read_ = 0;

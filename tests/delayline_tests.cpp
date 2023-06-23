@@ -1,5 +1,5 @@
-#include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#include "gtest/gtest.h"
 
 #include "delayline_linear.h"
 #include "test_resources.h"
@@ -13,7 +13,7 @@ TEST(LinearDelaylineTests, NoInterpolation)
     line.SetDelay(delay);
 
     constexpr size_t loop_count = 100;
-    std::vector<DspFloat> output;
+    std::vector<float> output;
 
     for (size_t i = 0; i < loop_count; ++i)
     {
@@ -41,7 +41,7 @@ TEST(LinearDelaylineTests, WithInterpolation)
     line.SetDelay(delay);
 
     constexpr size_t loop_count = 100;
-    std::vector<DspFloat> output;
+    std::vector<float> output;
 
     for (size_t i = 0; i < loop_count; ++i)
     {
@@ -65,7 +65,7 @@ TEST(LinearDelaylineTests, WithInterpolation2)
     line.SetDelay(delay);
 
     constexpr size_t loop_count = 100;
-    std::vector<DspFloat> output;
+    std::vector<float> output;
 
     for (size_t i = 0; i < loop_count; ++i)
     {
@@ -100,13 +100,13 @@ TEST(LinearDelaylineTests, TapOut)
 
     for (size_t i = 0; i < loop_count; ++i)
     {
-        DspFloat tap = line.TapOut(i);
+        float tap = line.TapOut(i);
         ASSERT_EQ(tap, loop_count - i - 1);
     }
 
     // When asking to tap out a sample past the current delay the
     // function should simply return the last sample available
-    DspFloat tap_out_of_bound = line.TapOut(delay + 1);
+    float tap_out_of_bound = line.TapOut(delay + 1);
     ASSERT_EQ(tap_out_of_bound, line.TapOut(delay));
 }
 
@@ -129,13 +129,13 @@ TEST(LinearDelaylineTests, TapOutInterpolation)
 
     for (float i = 0; i < loop_count - 1; i += 0.25f)
     {
-        DspFloat tap = line.TapOut(i);
+        float tap = line.TapOut(i);
         ASSERT_EQ(tap, loop_count - i - 1);
     }
 
     // When asking to tap out a sample past the current delay the
     // function should simply return the last sample available
-    DspFloat tap_out_of_bound = line.TapOut(delay + 0.5f);
+    float tap_out_of_bound = line.TapOut(delay + 0.5f);
     ASSERT_EQ(tap_out_of_bound, line.TapOut(delay));
 }
 
@@ -154,7 +154,7 @@ TEST(LinearDelaylineTests, TapIn)
     for (size_t i = 0; i < loop_count; ++i)
     {
         line.TapIn(i, i);
-        DspFloat tap = line.TapOut(i);
+        float tap = line.TapOut(i);
         ASSERT_EQ(tap, i);
     }
 }
@@ -171,11 +171,11 @@ TEST(LinearDelaylineTests, TapInTick)
     {
         // If we tap in a sample at `delay-1`, we expect the next Tick()
         // to return that same sample.
-        const DspFloat SAMPLE = 0.1234f * i;
+        const float SAMPLE = 0.1234f * i;
         line.TapIn(delay - 1, SAMPLE);
 
-        constexpr DspFloat TICK_SAMPLE = 1.f;
-        DspFloat out = line.Tick(TICK_SAMPLE);
+        constexpr float TICK_SAMPLE = 1.f;
+        float out = line.Tick(TICK_SAMPLE);
         ASSERT_THAT(out, ::testing::Eq(SAMPLE));
     }
 }

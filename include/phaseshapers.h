@@ -34,7 +34,7 @@ class Phaseshaper
     Phaseshaper() = default;
     ~Phaseshaper() = default;
 
-    void Init(DspFloat sampleRate)
+    void Init(float sampleRate)
     {
         m_sampleRate = sampleRate;
         m_phase = 0.f;
@@ -43,37 +43,37 @@ class Phaseshaper
         m_period = m_sampleRate / m_freq;
     }
 
-    void SetWaveform(DspFloat wave)
+    void SetWaveform(float wave)
     {
         m_waveform = wave;
     }
 
-    void SetFreq(DspFloat freq)
+    void SetFreq(float freq)
     {
         m_freq = freq;
         m_phaseIncrement = m_freq / m_sampleRate;
         m_period = m_sampleRate / m_freq;
     }
 
-    void SetMod(DspFloat mod)
+    void SetMod(float mod)
     {
         m_mod = mod;
     }
 
-    DspFloat Process();
+    float Process();
 
   private:
-    DspFloat ProcessWaveSlice();
-    DspFloat ProcessHardSync();
-    DspFloat ProcessSoftSync();
-    DspFloat ProcessTriMod();
-    DspFloat ProcessSupersaw();
-    DspFloat ProcessVarSlope();
-    DspFloat ProcessVarTri();
+    float ProcessWaveSlice();
+    float ProcessHardSync();
+    float ProcessSoftSync();
+    float ProcessTriMod();
+    float ProcessSupersaw();
+    float ProcessVarSlope();
+    float ProcessVarTri();
 
-    inline DspFloat ProcessWave(Waveform wave)
+    inline float ProcessWave(Waveform wave)
     {
-        DspFloat out = 0.f;
+        float out = 0.f;
         switch (wave)
         {
         case Waveform::VARIABLE_SLOPE:
@@ -101,13 +101,13 @@ class Phaseshaper
     }
 
   private:
-    DspFloat m_sampleRate = 0.f;
-    DspFloat m_freq = 220.f;
-    DspFloat m_phaseIncrement = 0.f;
-    DspFloat m_phase = 0.f;
-    DspFloat m_period = 0.f;
-    DspFloat m_waveform = static_cast<DspFloat>(Waveform::WAVESLICE);
+    float m_sampleRate = 0.f;
+    float m_freq = 220.f;
+    float m_phaseIncrement = 0.f;
+    float m_phase = 0.f;
+    float m_period = 0.f;
+    float m_waveform = static_cast<float>(Waveform::WAVESLICE);
 
-    DspFloat m_mod = 0.f;
+    float m_mod = 0.f;
 };
 } // namespace dsp

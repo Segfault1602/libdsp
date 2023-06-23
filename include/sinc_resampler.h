@@ -7,8 +7,8 @@
 
 #include <stdlib.h>
 
-#include "dsp_base.h"
 #include "circular_buffer.h"
+#include "dsp_base.h"
 #include "sinc_table.h"
 
 namespace dsp
@@ -19,40 +19,40 @@ namespace dsp
 /// @param ratio
 /// @param out
 /// @param out_size
-void sinc_resample(const DspFloat* in, size_t input_size, DspFloat ratio, DspFloat* out, size_t& out_size)
+void sinc_resample(const float* in, size_t input_size, float ratio, float* out, size_t& out_size)
 {
     constexpr size_t filter_length = sizeof(sinc_table) / sizeof(sinc_table[0]);
-    DspFloat time_step = 1.0 / ratio;
-    DspFloat filter_scale = (ratio < 1.0) ? ratio : 1.0;
-    DspFloat filter_step = SAMPLES_PER_CROSSING * filter_scale;
+    float time_step = 1.0 / ratio;
+    float filter_scale = (ratio < 1.0) ? ratio : 1.0;
+    float filter_step = SAMPLES_PER_CROSSING * filter_scale;
 
     size_t out_idx = 0;
-    DspFloat t = 0.0;
+    float t = 0.0;
     while (t < input_size)
     {
 
         size_t idx_integer = static_cast<size_t>(t);
-        DspFloat fractional_part = t - idx_integer;
+        float fractional_part = t - idx_integer;
 
         // Left wing
-        DspFloat left = 0.0;
-        DspFloat filter_offset = filter_step * fractional_part;
+        float left = 0.0;
+        float filter_offset = filter_step * fractional_part;
 
         size_t left_coeff_count = static_cast<size_t>((filter_length - filter_offset) / filter_step);
         left_coeff_count = std::min(idx_integer, left_coeff_count);
         for (int32_t i = left_coeff_count; i >= 0; --i)
         {
-            DspFloat filter_idx = filter_offset + filter_step * i;
+            float filter_idx = filter_offset + filter_step * i;
             size_t filter_idx_int = static_cast<size_t>(filter_idx);
-            DspFloat fraction = filter_idx - filter_idx_int;
+            float fraction = filter_idx - filter_idx_int;
 
-            DspFloat weight =
+            float weight =
                 sinc_table[filter_idx_int] + fraction * (sinc_table[filter_idx_int + 1] - sinc_table[filter_idx_int]);
             left += in[idx_integer - i] * weight;
         }
 
         // Right wing
-        DspFloat right = 0.0;
+        float right = 0.0;
         fractional_part = 1 - fractional_part;
         filter_offset = filter_step * fractional_part;
 
@@ -60,11 +60,11 @@ void sinc_resample(const DspFloat* in, size_t input_size, DspFloat ratio, DspFlo
         right_coeff_count = std::min(input_size - idx_integer - 1, right_coeff_count);
         for (size_t i = 0; i < right_coeff_count; ++i)
         {
-            DspFloat filter_idx = filter_offset + filter_step * i;
+            float filter_idx = filter_offset + filter_step * i;
             size_t filter_idx_int = static_cast<size_t>(filter_idx);
-            DspFloat fraction = filter_idx - filter_idx_int;
+            float fraction = filter_idx - filter_idx_int;
 
-            DspFloat weight =
+            float weight =
                 sinc_table[filter_idx_int] + fraction * (sinc_table[filter_idx_int + 1] - sinc_table[filter_idx_int]);
             right += in[idx_integer + 1 + i] * weight;
         }

@@ -7,7 +7,6 @@
 #include "junction.h"
 #include "termination.h"
 
-
 namespace dsp
 {
 
@@ -17,83 +16,108 @@ template <size_t MAX_SIZE>
 class Waveguide
 {
   public:
-    Waveguide()
-    {
-        SetDelay(MAX_SIZE - 1);
-        SetJunction(0);
-    }
+    Waveguide();
+    ~Waveguide() = default;
 
-    void SetDelay(DspFloat delay)
-    {
-        if ((delay + 1) > MAX_SIZE)
-        {
-            delay = MAX_SIZE - 1;
-        }
+    void SetDelay(float delay);
 
-        right_traveling_line_.SetDelay(delay);
-        left_traveling_line_.SetDelay(delay);
-        current_delay_ = delay;
-    }
+    float GetDelay() const;
 
-    DspFloat GetDelay() const
-    {
-        return current_delay_;
-    }
+    void SetJunction(float pos);
 
-    void SetJunction(DspFloat pos)
-    {
-        junction_.SetDelay(pos);
-    }
+    void Tick();
 
-    void Tick()
-    {
-        DspFloat right = right_traveling_line_.NextOut();
-        DspFloat left = left_traveling_line_.NextOut();
-        right = RightTermination.Tick(right);
-        left = LeftTermination.Tick(left);
-        right_traveling_line_.Tick(left);
-        left_traveling_line_.Tick(right);
-    }
+    void TapIn(float delay, float input);
 
-    void TapIn(DspFloat delay, DspFloat input)
-    {
-        assert(delay < MAX_SIZE);
-        if (delay >= current_delay_)
-        {
-            delay = current_delay_;
-        }
+    float TapOut(float delay);
 
-        right_traveling_line_.TapIn(delay, input);
-        left_traveling_line_.TapIn(current_delay_ - delay - 1, input);
-    }
-
-    DspFloat TapOut(DspFloat delay)
-    {
-        DspFloat right, left;
-        TapOut(delay, right, left);
-        return right + left;
-    }
-
-    void TapOut(DspFloat delay, DspFloat& right_out, DspFloat& left_out)
-    {
-        assert(delay < MAX_SIZE);
-        if (delay >= current_delay_)
-        {
-            delay = current_delay_;
-        }
-
-        right_out = right_traveling_line_.TapOut(delay);
-        left_out = left_traveling_line_.TapOut(current_delay_ - delay - 1);
-    }
+    void TapOut(float delay, float& right_out, float& left_out);
 
     Termination LeftTermination;
     Termination RightTermination;
 
   private:
-    DspFloat current_delay_ = MAX_SIZE;
+    float current_delay_ = MAX_SIZE;
     LinearDelayline<MAX_SIZE> right_traveling_line_;
     LinearDelayline<MAX_SIZE> left_traveling_line_;
 
     Junction junction_;
 };
+
+template <size_t MAX_SIZE>
+Waveguide<MAX_SIZE>::Waveguide()
+{
+    SetDelay(MAX_SIZE - 1);
+    SetJunction(0);
+}
+
+template <size_t MAX_SIZE>
+void Waveguide<MAX_SIZE>::SetDelay(float delay)
+{
+    if ((delay + 1) > MAX_SIZE)
+    {
+        delay = MAX_SIZE - 1;
+    }
+
+    right_traveling_line_.SetDelay(delay);
+    left_traveling_line_.SetDelay(delay);
+    current_delay_ = delay;
+}
+
+template <size_t MAX_SIZE>
+float Waveguide<MAX_SIZE>::GetDelay() const
+{
+    return current_delay_;
+}
+
+template <size_t MAX_SIZE>
+void Waveguide<MAX_SIZE>::SetJunction(float pos)
+{
+    junction_.SetDelay(pos);
+}
+
+template <size_t MAX_SIZE>
+void Waveguide<MAX_SIZE>::Tick()
+{
+    float right = right_traveling_line_.NextOut();
+    float left = left_traveling_line_.NextOut();
+    right = RightTermination.Tick(right);
+    left = LeftTermination.Tick(left);
+    right_traveling_line_.Tick(left);
+    left_traveling_line_.Tick(right);
+}
+
+template <size_t MAX_SIZE>
+void Waveguide<MAX_SIZE>::TapIn(float delay, float input)
+{
+    assert(delay < MAX_SIZE);
+    if (delay >= current_delay_)
+    {
+        delay = current_delay_;
+    }
+
+    right_traveling_line_.TapIn(delay, input);
+    left_traveling_line_.TapIn(current_delay_ - delay - 1, input);
+}
+
+template <size_t MAX_SIZE>
+float Waveguide<MAX_SIZE>::TapOut(float delay)
+{
+    float right, left;
+    TapOut(delay, right, left);
+    return right + left;
+}
+
+template <size_t MAX_SIZE>
+void Waveguide<MAX_SIZE>::TapOut(float delay, float& right_out, float& left_out)
+{
+    assert(delay < MAX_SIZE);
+    if (delay >= current_delay_)
+    {
+        delay = current_delay_;
+    }
+
+    right_out = right_traveling_line_.TapOut(delay);
+    left_out = left_traveling_line_.TapOut(current_delay_ - delay - 1);
+}
 } // namespace dsp

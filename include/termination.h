@@ -14,7 +14,7 @@ class Termination
     Termination() = default;
     virtual ~Termination() = default;
 
-    virtual void SetGain(DspFloat gain)
+    virtual void SetGain(float gain)
     {
         gain_ = gain;
     }
@@ -24,7 +24,7 @@ class Termination
         filter_ = filter;
     }
 
-    virtual DspFloat Tick(DspFloat in)
+    virtual float Tick(float in)
     {
         if (filter_)
         {
@@ -35,7 +35,7 @@ class Termination
     }
 
   protected:
-    DspFloat gain_ = -1.f;
+    float gain_ = -1.f;
     Filter* filter_ = nullptr;
 };
 } // namespace dsp
