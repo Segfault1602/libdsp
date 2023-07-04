@@ -172,11 +172,6 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
             g_bowed_string->SetForce(control.force + control.force_change_rate);
         }
 
-        if (control.bow_down)
-        {
-            g_bowed_string->Excite();
-        }
-
         float sample = g_bowed_string->Tick() * 0.1f;
         assert(sample < 1.f && sample > -1.f);
 

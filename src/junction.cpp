@@ -29,6 +29,6 @@ void Junction::Tick(Delayline& left_traveling_line, Delayline& right_traveling_l
     right_traveling_line.TapIn(delay_ - 1, d * gain_ - a);
 
     // Do the other side of the loop
-    left_traveling_line.TapIn(d_ptr, a * gain_ - d);
+    left_traveling_line.TapIn(d_ptr, -d);
 }
 } // namespace dsp

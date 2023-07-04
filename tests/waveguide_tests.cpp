@@ -2,6 +2,7 @@
 #include "gtest/gtest.h"
 
 #include "waveguide.h"
+#include "termination.h"
 
 template <size_t size>
 void PrintWaveguide(dsp::Waveguide<size>& wave, size_t delay_size)
@@ -36,9 +37,14 @@ TEST(WaveguideTests, EmptyWaveguide)
 
     constexpr size_t LOOP_SIZE = WAVEGUIDE_SIZE * 10;
 
+    dsp::Termination left_termination(-1.f);
+    dsp::Termination right_termination(-1.f);
+
     for (size_t i = 0; i < LOOP_SIZE; ++i)
     {
-        wave.Tick();
+        float right, left;
+        wave.NextOut(right, left);
+        wave.Tick(right_termination.Tick(right), left_termination.Tick(left));
         float sample = wave.TapOut(WAVEGUIDE_SIZE / 2);
         ASSERT_THAT(0.f, ::testing::FloatEq(sample));
     }
@@ -49,8 +55,8 @@ TEST(WaveguideTests, StabilityTestInteger)
     constexpr size_t WAVEGUIDE_SIZE = 128;
     dsp::Waveguide<WAVEGUIDE_SIZE> wave;
 
-    wave.LeftTermination.SetGain(-1.f);
-    wave.RightTermination.SetGain(-1.f);
+    dsp::Termination left_termination(-1.f);
+    dsp::Termination right_termination(-1.f);
 
     constexpr size_t LOOP_SIZE = WAVEGUIDE_SIZE * 100;
     constexpr size_t tap_in_pos = WAVEGUIDE_SIZE / 3;
@@ -58,7 +64,9 @@ TEST(WaveguideTests, StabilityTestInteger)
     for (size_t i = 0; i < LOOP_SIZE; ++i)
     {
         wave.TapIn(tap_in_pos, 1.f);
-        wave.Tick();
+        float right, left;
+        wave.NextOut(right, left);
+        wave.Tick(right_termination.Tick(right), left_termination.Tick(left));
 
         float sample = wave.TapOut(tap_out_pos);
         ASSERT_THAT(std::fabs(sample), ::testing::Le(1.f));
@@ -73,8 +81,8 @@ TEST(WaveguideTests, StabilityTestFrac)
     constexpr size_t DELAY_SIZE = WAVEGUIDE_SIZE - 1;
     wave.SetDelay(DELAY_SIZE);
 
-    wave.LeftTermination.SetGain(-1.f);
-    wave.RightTermination.SetGain(-1.f);
+    dsp::Termination left_termination(-1.f);
+    dsp::Termination right_termination(-1.f);
 
     constexpr size_t LOOP_SIZE = DELAY_SIZE * 2;
 
@@ -85,7 +93,9 @@ TEST(WaveguideTests, StabilityTestFrac)
         wave.TapIn(tap_in_pos, 1.f);
         printf("iter #%zu\n", i);
         PrintWaveguide(wave, DELAY_SIZE);
-        wave.Tick();
+        float right, left;
+        wave.NextOut(right, left);
+        wave.Tick(right_termination.Tick(right), left_termination.Tick(left));
 
         printf("After tick:\n");
         PrintWaveguide(wave, DELAY_SIZE);
@@ -123,9 +133,6 @@ TEST(WaveguideTests, TapInTapOut2)
     constexpr size_t DELAY_SIZE = WAVEGUIDE_SIZE - 1;
     wave.SetDelay(DELAY_SIZE);
 
-    // Set the gain to -1 so we can check that no energy is lost.
-    wave.RightTermination.SetGain(-1);
-
     constexpr float input[DELAY_SIZE] = {1, 2, 3, 4, 5, 6};
     for (size_t i = 0; i < DELAY_SIZE; ++i)
     {
@@ -158,7 +165,8 @@ TEST(WaveguideTests, GainTest)
     wave.SetDelay(DELAY_SIZE);
 
     // Set the gain to -1 so we can check that no energy is lost.
-    wave.RightTermination.SetGain(-1);
+    dsp::Termination left_termination(-1.f);
+    dsp::Termination right_termination(-1.f);
 
     constexpr float input[DELAY_SIZE] = {1, 2, 3, 4, 5, 6};
     for (size_t i = 0; i < DELAY_SIZE; ++i)
@@ -175,7 +183,9 @@ TEST(WaveguideTests, GainTest)
 
     for (size_t i = 0; i < DELAY_SIZE; ++i)
     {
-        wave.Tick();
+        float right, left;
+        wave.NextOut(right, left);
+        wave.Tick(right_termination.Tick(right), left_termination.Tick(left));
     }
 
     // Waveguide should now look like this:
@@ -191,7 +201,9 @@ TEST(WaveguideTests, GainTest)
 
     for (size_t i = 0; i < DELAY_SIZE; ++i)
     {
-        wave.Tick();
+        float right, left;
+        wave.NextOut(right, left);
+        wave.Tick(right_termination.Tick(right), left_termination.Tick(left));
     }
 
     // Waveguide should now be back to initial state:
@@ -215,7 +227,8 @@ TEST(WaveguideTests, JunctionTest)
     wave.SetDelay(DELAY_SIZE);
 
     // Set the gain to -1 so we can check that no energy is lost.
-    wave.RightTermination.SetGain(-1);
+    dsp::Termination left_termination(-1.f);
+    dsp::Termination right_termination(-1.f);
 
     constexpr float input[DELAY_SIZE] = {1, 2, 3, 4, 5, 6};
     for (size_t i = 0; i < DELAY_SIZE; ++i)
@@ -232,11 +245,13 @@ TEST(WaveguideTests, JunctionTest)
 
     PrintWaveguide(wave, DELAY_SIZE);
 
-    wave.SetJunction(5);
+    wave.SetJunction(3);
 
     for (size_t i = 0; i < DELAY_SIZE; ++i)
     {
-        wave.Tick();
+        float right, left;
+        wave.NextOut(right, left);
+        wave.Tick(right_termination.Tick(right), left_termination.Tick(left));
         printf("iter #%zu\n", i);
         PrintWaveguide(wave, DELAY_SIZE);
     }

@@ -11,7 +11,10 @@ namespace dsp
 class Termination
 {
   public:
-    Termination() = default;
+    Termination(float gain = -1.f)
+        : gain_(gain)
+    {
+    }
     virtual ~Termination() = default;
 
     virtual void SetGain(float gain)

@@ -23,19 +23,10 @@ void WaveguideTester::Init(size_t samplerate)
 {
     string_.Init(static_cast<float>(samplerate));
     string_.SetFrequency(220);
-    string_.Excite();
 }
 
 float WaveguideTester::Tick()
 {
-    static size_t excite_counter = 0;
-
-    if (excite_counter < 40000)
-    {
-        string_.Excite();
-        ++excite_counter;
-    }
-
     return string_.Tick();
 }
 

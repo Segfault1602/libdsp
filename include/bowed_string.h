@@ -35,9 +35,6 @@ class BowedString
     /// @param f The force of the bow
     void SetForce(float f);
 
-    /// @brief Excite the string
-    void Excite();
-
     void Strike();
 
     float Tick();
@@ -59,13 +56,20 @@ class BowedString
     }
 
     Waveguide<4096> waveguide_;
+    Waveguide<4096> nut_to_bow_;
+    Waveguide<4096> bow_to_bridge_;
+
+    Termination nut_;
+    Termination bridge_;
+
+    bool bow_on_ = true;
+
     OnePoleFilter reflection_filter_;
     Biquad body_filters_[6];
     float samplerate_;
-    float output_pickup_;
     float freq_;
     float offset_ = 0.001f;
-    float velocity_ = 0.25f;
+    float velocity_ = 0.6f;
     float force_ = 3.f;
 };
 } // namespace dsp

@@ -11,8 +11,8 @@ void BowedString::Init(float samplerate)
     reflection_filter_.SetGain(0.95f);
     reflection_filter_.SetPole(0.75f - (0.2f * 22050.0f / samplerate_));
 
-    waveguide_.RightTermination.SetGain(-1.f);
-    waveguide_.RightTermination.SetFilter(&reflection_filter_);
+    bridge_.SetGain(-1.f);
+    bridge_.SetFilter(&reflection_filter_);
 
     // Body filter provided by Esteban Maestre (cascade of second-order sections)
     // https://github.com/thestk/stk/blob/cc2dd22e9752bf5fd94f0799e01d19d5e8399058/src/Bowed.cpp#L62
@@ -27,10 +27,14 @@ void BowedString::Init(float samplerate)
 void BowedString::SetFrequency(float f)
 {
     freq_ = f;
-    float new_delay = (samplerate_ / freq_) * 0.5f;
-    waveguide_.SetDelay(new_delay);
-    // waveguide_.SetJunction(waveguide_.GetDelay() - new_delay);
-    output_pickup_ = new_delay - 10.f;
+    // Todo: fix this with relay delay length
+    // nut_to_bow_.SetDelay(100.f);
+    nut_to_bow_.SetJunction(3896.f);
+    bow_to_bridge_.SetDelay(40.f);
+    // float new_delay = (samplerate_ / freq_) * 0.5f;
+    // waveguide_.SetDelay(new_delay);
+    // // waveguide_.SetJunction(waveguide_.GetDelay() - new_delay);
+    // output_pickup_ = new_delay - 10.f;
 }
 
 float BowedString::GetVelocity() const
@@ -53,17 +57,6 @@ void BowedString::SetForce(float f)
     force_ = f;
 }
 
-void BowedString::Excite()
-{
-    float bow_velocity = velocity_ * 0.01f;
-
-    constexpr float relative_position = 0.75f;
-    float pos = waveguide_.GetDelay() * relative_position;
-    float out = waveguide_.TapOut(pos);
-    float deltaVelovity = bow_velocity - out;
-    waveguide_.TapIn(pos, ComputeBowOutput(deltaVelovity));
-}
-
 void BowedString::Strike()
 {
     constexpr float relative_position = 0.75f;
@@ -73,14 +66,24 @@ void BowedString::Strike()
 
 float BowedString::Tick()
 {
-    waveguide_.Tick();
-    constexpr float relative_position = 0.90f;
-    float pos = waveguide_.GetDelay() * relative_position;
-    float right, left;
-    waveguide_.TapOut(pos, right, left);
+    float nut_into_bow, bow_into_nut;
+    nut_to_bow_.NextOut(nut_into_bow, bow_into_nut);
+
+    float bow_into_bridge, bridge_into_bow;
+    bow_to_bridge_.NextOut(bow_into_bridge, bridge_into_bow);
+
+    float bow_output = 0.f;
+    if (bow_on_)
+    {
+        float velocity_delta = velocity_ - (nut_into_bow + bridge_into_bow);
+        bow_output = velocity_delta * ComputeBowOutput(velocity_delta);
+    }
+
+    nut_to_bow_.Tick(bow_output + bridge_into_bow, nut_.Tick(bow_into_nut));
+    bow_to_bridge_.Tick(bridge_.Tick(bow_into_bridge), bow_output + nut_into_bow);
 
     float out = 0.1248f * body_filters_[5].Tick(body_filters_[4].Tick(body_filters_[3].Tick(
-                              body_filters_[2].Tick(body_filters_[1].Tick(body_filters_[0].Tick(right))))));
+                              body_filters_[2].Tick(body_filters_[1].Tick(body_filters_[0].Tick(bow_into_bridge))))));
     return out;
 }
 } // namespace dsp

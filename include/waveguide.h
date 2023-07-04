@@ -5,7 +5,6 @@
 #include "delayline_linear.h"
 #include "dsp_base.h"
 #include "junction.h"
-#include "termination.h"
 
 namespace dsp
 {
@@ -25,16 +24,15 @@ class Waveguide
 
     void SetJunction(float pos);
 
-    void Tick();
+    void NextOut(float& right, float& left);
+
+    void Tick(float right, float left);
 
     void TapIn(float delay, float input);
 
     float TapOut(float delay);
 
     void TapOut(float delay, float& right_out, float& left_out);
-
-    Termination LeftTermination;
-    Termination RightTermination;
 
   private:
     float current_delay_ = MAX_SIZE;
@@ -77,12 +75,16 @@ void Waveguide<MAX_SIZE>::SetJunction(float pos)
 }
 
 template <size_t MAX_SIZE>
-void Waveguide<MAX_SIZE>::Tick()
+void Waveguide<MAX_SIZE>::NextOut(float& right, float& left)
 {
-    float right = right_traveling_line_.NextOut();
-    float left = left_traveling_line_.NextOut();
-    right = RightTermination.Tick(right);
-    left = LeftTermination.Tick(left);
+    right = right_traveling_line_.NextOut();
+    left = left_traveling_line_.NextOut();
+}
+
+template <size_t MAX_SIZE>
+void Waveguide<MAX_SIZE>::Tick(float right, float left)
+{
+    junction_.Tick(left_traveling_line_, right_traveling_line_);
     right_traveling_line_.Tick(left);
     left_traveling_line_.Tick(right);
 }
