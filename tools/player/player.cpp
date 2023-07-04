@@ -8,6 +8,7 @@
 #include <RtAudio.h>
 
 #include "gamepad.h"
+#include "midi_controller.h"
 #include <bowed_string.h>
 #include <dsp_base.h>
 
@@ -19,6 +20,7 @@ size_t g_period_microseconds = DEFAULT_BUFFER_FRAMES * 1000000 / DEFAULT_SAMPLE_
 std::atomic_bool g_exit = false;
 std::unique_ptr<Gamepad> g_gamepad;
 std::unique_ptr<dsp::BowedString> g_bowed_string;
+MidiController g_midi_controller;
 
 struct InstrumentControl
 {
@@ -56,6 +58,12 @@ int main(int argc, char** argv)
         printf("Exiting...\n");
         g_exit.store(true);
     });
+
+    if (!g_midi_controller.Init())
+    {
+        printf("Failed to initialize MIDI controller!\n");
+        return -1;
+    }
 
     g_gamepad = std::make_unique<Gamepad>();
     g_bowed_string = std::make_unique<dsp::BowedString>();
@@ -138,41 +146,56 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
         std::cout << "Stream underflow detected!" << std::endl;
     }
 
-    InstrumentControl control;
+    // For bigger buffer sizes we might want to move this code inside the for loop and poll every x frames where
+    // x < nBufferFrames.
+    constexpr size_t MAX_MIDI_POLL = 10;
+    MidiMessage message;
+    bool more_messages = true;
+    size_t midi_poll = 0;
+    while (more_messages && midi_poll < MAX_MIDI_POLL)
     {
-        std::lock_guard<std::mutex> lock(g_instrument_control_mutex);
-        control = g_instrument_control;
+        more_messages = g_midi_controller.GetMessage(message);
+        if (more_messages)
+        {
+            switch (message.type)
+            {
+            case MidiType::NoteOff:
+            {
+                g_bowed_string->BowOn(false);
+                break;
+            }
+            case MidiType::NoteOn:
+            {
+                g_bowed_string->SetFrequency(dsp::midi_to_freq[message.byte1]);
+                g_bowed_string->BowOn(true);
+            }
+            break;
+            case MidiType::ControllerChange:
+            {
+                float normalized_value = static_cast<float>(message.byte2) / 127.f;
+                if (message.byte1 == 0x05)
+                {
+                    g_bowed_string->SetVelocity(0.3f * normalized_value);
+                }
+                else if (message.byte1 == 0x23)
+                {
+                    g_bowed_string->SetForce(5.f - (4.f * normalized_value));
+                }
+            }
+            default:
+                break;
+            }
+        }
 
-        // Find a better way to do this:
-        g_instrument_control.strike = false;
+        ++midi_poll;
     }
 
     auto* output = static_cast<float*>(outputBuffer);
 
-    if (control.strike)
-    {
-        g_bowed_string->Strike();
-    }
-
     // Write interleaved audio data.
     for (size_t i = 0; i < nBufferFrames; i++)
     {
-        float current_velocity = g_bowed_string->GetVelocity();
-
-        if ((control.velocity_change_rate < 0.f && current_velocity > control.velocity) ||
-            (control.velocity_change_rate > 0.f && current_velocity < control.velocity))
-        {
-            g_bowed_string->SetVelocity(current_velocity + control.velocity_change_rate);
-        }
-
-        float current_force = g_bowed_string->GetForce();
-        if ((control.force_change_rate < 0.f && current_force > control.force) ||
-            (control.force_change_rate > 0.f && current_force < control.force))
-        {
-            g_bowed_string->SetForce(control.force + control.force_change_rate);
-        }
-
-        float sample = g_bowed_string->Tick() * 0.1f;
+        float sample = g_bowed_string->Tick() * 0.7f;
         assert(sample < 1.f && sample > -1.f);
 
         for (size_t j = 0; j < 2; j++)

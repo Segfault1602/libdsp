@@ -1,6 +1,6 @@
-set(PLAYER_SRC player.cpp)
+set(PLAYER_SRC player.cpp midi_controller.cpp)
 
-set(PLAYER_LIBS dsp rtaudio)
+set(PLAYER_LIBS dsp rtaudio rtmidi)
 
 if(WIN32)
   set(PLAYER_SRC ${PLAYER_SRC} gamepad_xinput.cpp)

@@ -29,6 +29,9 @@ add_subdirectory(tools)
 
 set(CMAKE_WARN_DEPRECATED OFF CACHE BOOL "" FORCE)
 add_subdirectory(externals/rtaudio)
+set(RTMIDI_BUILD_TESTING OFF CACHE BOOL "" FORCE)
+set(RTMIDI_TARGETNAME_UNINSTALL "rtmidi_uninstall" CACHE STRING "" FORCE)
+add_subdirectory(externals/rtmidi)
 add_subdirectory(externals/libsamplerate)
 
 # Link to libsndfile

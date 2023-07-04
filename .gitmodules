@@ -13,3 +13,6 @@
 [submodule "externals/libsamplerate"]
 	path = externals/libsamplerate
 	url = https://github.com/libsndfile/libsamplerate.git
+[submodule "externals/rtmidi"]
+	path = externals/rtmidi
+	url = https://github.com/thestk/rtmidi.git

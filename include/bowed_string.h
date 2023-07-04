@@ -37,6 +37,8 @@ class BowedString
 
     void Strike();
 
+    void BowOn(bool on);
+
     float Tick();
 
   private:
@@ -62,7 +64,7 @@ class BowedString
     Termination nut_;
     Termination bridge_;
 
-    bool bow_on_ = true;
+    bool bow_on_ = false;
 
     OnePoleFilter reflection_filter_;
     Biquad body_filters_[6];

@@ -27,10 +27,12 @@ void BowedString::Init(float samplerate)
 void BowedString::SetFrequency(float f)
 {
     freq_ = f;
+    float total_delay = (samplerate_ / freq_) * 0.5f;
+    constexpr float bow_pos_ratio = 0.10f;
     // Todo: fix this with relay delay length
     // nut_to_bow_.SetDelay(100.f);
-    nut_to_bow_.SetJunction(3896.f);
-    bow_to_bridge_.SetDelay(40.f);
+    nut_to_bow_.SetJunction(4096.f - (total_delay * (1.f - bow_pos_ratio)));
+    bow_to_bridge_.SetDelay(total_delay * bow_pos_ratio);
     // float new_delay = (samplerate_ / freq_) * 0.5f;
     // waveguide_.SetDelay(new_delay);
     // // waveguide_.SetJunction(waveguide_.GetDelay() - new_delay);
@@ -62,6 +64,11 @@ void BowedString::Strike()
     constexpr float relative_position = 0.75f;
     float pos = std::floor(waveguide_.GetDelay() * relative_position);
     waveguide_.TapIn(pos, 0.95f);
+}
+
+void BowedString::BowOn(bool on)
+{
+    bow_on_ = on;
 }
 
 float BowedString::Tick()
