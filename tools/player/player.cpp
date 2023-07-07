@@ -2,7 +2,6 @@
 #include <chrono>
 #include <csignal>
 #include <cstdio>
-#include <mutex>
 #include <thread>
 
 #include <RtAudio.h>
@@ -11,6 +10,7 @@
 #include "midi_controller.h"
 #include <bowed_string.h>
 #include <dsp_base.h>
+#include <excitation_models.h>
 
 constexpr size_t DEFAULT_SAMPLE_RATE = 44100;
 constexpr size_t DEFAULT_BUFFER_FRAMES = 255;
@@ -20,6 +20,7 @@ size_t g_period_microseconds = DEFAULT_BUFFER_FRAMES * 1000000 / DEFAULT_SAMPLE_
 std::atomic_bool g_exit = false;
 std::unique_ptr<Gamepad> g_gamepad;
 std::unique_ptr<dsp::BowedString> g_bowed_string;
+std::unique_ptr<dsp::BowTable> g_bow_table;
 MidiController g_midi_controller;
 
 struct InstrumentControl
@@ -31,8 +32,6 @@ struct InstrumentControl
     bool bow_down = false;
     bool strike = false;
 } g_instrument_control;
-
-std::mutex g_instrument_control_mutex;
 
 int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBufferFrames, double /*streamTime*/,
                      RtAudioStreamStatus /*status*/, void* data);
@@ -69,6 +68,8 @@ int main(int argc, char** argv)
     g_bowed_string = std::make_unique<dsp::BowedString>();
     g_bowed_string->Init(DEFAULT_SAMPLE_RATE);
 
+    g_bow_table = std::make_unique<dsp::BowTable>();
+
     RtAudioWrapper dac_wrapper;
     std::vector<unsigned int> deviceIds = dac_wrapper.dac.getDeviceIds();
     if (deviceIds.empty())
@@ -101,32 +102,9 @@ int main(int argc, char** argv)
         printf("rtaudio::startStream failed with error %u!", rtError);
     }
 
-    // Control loop will run at ~60Hz
-    constexpr auto control_loop_period = std::chrono::milliseconds(15);
-
-    // We will interpolate control values between control loop iterations
-    const float dt = (control_loop_period.count() / 1000.f) * DEFAULT_SAMPLE_RATE;
-
     while (!g_exit)
     {
-        GamepadState state;
-        bool update = g_gamepad->Poll(state);
-        if (update)
-        {
-
-            g_instrument_control.bow_down = state.left_trigger > 0.f;
-
-            std::lock_guard<std::mutex> lock(g_instrument_control_mutex);
-            g_instrument_control.strike = state.a;
-            g_instrument_control.velocity = 0.03f + (0.2f * state.left_trigger);
-            g_instrument_control.force = 5.f - (4.f * state.right_trigger);
-
-            g_instrument_control.velocity_change_rate =
-                (g_instrument_control.velocity - g_bowed_string->GetVelocity()) / dt;
-            g_instrument_control.force_change_rate = (g_instrument_control.force - g_bowed_string->GetForce()) / dt;
-        }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(control_loop_period));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
     printf("Stopping stream...\n");
@@ -152,6 +130,8 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
     MidiMessage message;
     bool more_messages = true;
     size_t midi_poll = 0;
+
+    dsp::ExcitationModel* excitation = nullptr;
     while (more_messages && midi_poll < MAX_MIDI_POLL)
     {
         more_messages = g_midi_controller.GetMessage(message);
@@ -161,15 +141,15 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
             {
             case MidiType::NoteOff:
             {
-                g_bowed_string->BowOn(false);
+                excitation = nullptr;
                 break;
             }
             case MidiType::NoteOn:
             {
                 g_bowed_string->SetFrequency(dsp::midi_to_freq[message.byte1]);
-                g_bowed_string->BowOn(true);
+                excitation = g_bow_table.get();
+                break;
             }
-            break;
             case MidiType::ControllerChange:
             {
                 float normalized_value = static_cast<float>(message.byte2) / 127.f;
@@ -179,7 +159,7 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
                 }
                 else if (message.byte1 == 0x23)
                 {
-                    g_bowed_string->SetForce(5.f - (4.f * normalized_value));
+                    g_bow_table->SetForce(5.f - (4.f * normalized_value));
                 }
             }
             default:
@@ -195,7 +175,7 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
     // Write interleaved audio data.
     for (size_t i = 0; i < nBufferFrames; i++)
     {
-        float sample = g_bowed_string->Tick() * 0.7f;
+        float sample = g_bowed_string->Tick(excitation) * 0.7f;
         assert(sample < 1.f && sample > -1.f);
 
         for (size_t j = 0; j < 2; j++)

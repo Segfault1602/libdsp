@@ -3,9 +3,13 @@
 class Gamepad::Impl
 {
   public:
-    Impl(){}
+    Impl()
+    {
+    }
 
-    ~Impl(){}
+    ~Impl()
+    {
+    }
 
     bool Poll(GamepadState& state)
     {

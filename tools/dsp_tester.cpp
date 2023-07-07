@@ -27,7 +27,7 @@ void WaveguideTester::Init(size_t samplerate)
 
 float WaveguideTester::Tick()
 {
-    return string_.Tick();
+    return string_.Tick(&bow_table_);
 }
 
 float WaveguideTester::Tick(float)

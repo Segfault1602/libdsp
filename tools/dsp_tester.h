@@ -42,4 +42,5 @@ class WaveguideTester : public DspTester
 
   private:
     dsp::BowedString string_;
+    dsp::BowTable bow_table_;
 };

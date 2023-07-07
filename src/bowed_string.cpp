@@ -49,16 +49,6 @@ void BowedString::SetVelocity(float v)
     velocity_ = v;
 }
 
-float BowedString::GetForce() const
-{
-    return force_;
-}
-
-void BowedString::SetForce(float f)
-{
-    force_ = f;
-}
-
 void BowedString::Strike()
 {
     constexpr float relative_position = 0.75f;
@@ -66,12 +56,7 @@ void BowedString::Strike()
     waveguide_.TapIn(pos, 0.95f);
 }
 
-void BowedString::BowOn(bool on)
-{
-    bow_on_ = on;
-}
-
-float BowedString::Tick()
+float BowedString::Tick(const ExcitationModel* excitation_model)
 {
     float nut_into_bow, bow_into_nut;
     nut_to_bow_.NextOut(nut_into_bow, bow_into_nut);
@@ -80,10 +65,10 @@ float BowedString::Tick()
     bow_to_bridge_.NextOut(bow_into_bridge, bridge_into_bow);
 
     float bow_output = 0.f;
-    if (bow_on_)
+    if (excitation_model)
     {
         float velocity_delta = velocity_ - (nut_into_bow + bridge_into_bow);
-        bow_output = velocity_delta * ComputeBowOutput(velocity_delta);
+        bow_output = velocity_delta * excitation_model->Tick(velocity_delta);
     }
 
     nut_to_bow_.Tick(bow_output + bridge_into_bow, nut_.Tick(bow_into_nut));
