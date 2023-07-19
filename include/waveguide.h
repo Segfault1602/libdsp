@@ -29,6 +29,7 @@ class Waveguide
     void Tick(float right, float left);
 
     void TapIn(float delay, float input);
+    void TapIn(float delay, float right, float left);
 
     float TapOut(float delay);
 
@@ -100,6 +101,19 @@ void Waveguide<MAX_SIZE>::TapIn(float delay, float input)
 
     right_traveling_line_.TapIn(delay, input);
     left_traveling_line_.TapIn(current_delay_ - delay - 1, input);
+}
+
+template <size_t MAX_SIZE>
+void Waveguide<MAX_SIZE>::TapIn(float delay, float right, float left)
+{
+    assert(delay < MAX_SIZE);
+    if (delay >= current_delay_)
+    {
+        delay = current_delay_;
+    }
+
+    right_traveling_line_.TapIn(delay, right);
+    left_traveling_line_.TapIn(current_delay_ - delay - 1, left);
 }
 
 template <size_t MAX_SIZE>

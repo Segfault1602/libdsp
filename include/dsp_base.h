@@ -21,7 +21,11 @@ class DspBase
     virtual float Tick(float in) = 0;
 };
 
+float MidiToFreq(float midi_note);
+float FreqToMidi(float freq);
+
 // Midi note to frequency table precomputed with f(n) = 440 * 2 ^ ((n - 69) / 12)
+// Can be used to convert exact midi notes to frequencies efficiently.
 constexpr float midi_to_freq[128] = {
     8.17579891564f, 8.66195721803f, 9.17702399742f, 9.72271824132f, 10.3008611535f, 10.9133822323f, 11.5623257097f,
     12.2498573744f, 12.9782717994f, 13.75f,         14.5676175474f, 15.4338531643f, 16.3515978313f, 17.3239144361f,

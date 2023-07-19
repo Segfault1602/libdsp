@@ -9,7 +9,10 @@
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/tools/player/player.exe",
-            "args": [],
+            "args": [
+                "-m",
+                "1"
+            ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
@@ -33,12 +36,12 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/tests/libdsp_tests.exe",
             "args": [
-                "--gtest_filter=*"
+                "--gtest_filter=*JunctionTest"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
-            "console": "internalConsole"
+            "console": "externalTerminal"
         },
         {
             "name": "Debug Resampler.exe",

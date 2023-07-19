@@ -3,7 +3,12 @@
 #include <cassert>
 #include <vector>
 
-bool MidiController::Init()
+uint16_t GetPitchBendValue(const MidiMessage& message)
+{
+    return (message.byte2 << 7) | message.byte1;
+}
+
+bool MidiController::Init(uint8_t port)
 {
     try
     {
@@ -15,16 +20,22 @@ bool MidiController::Init()
         return false;
     }
 
-    for (size_t i = 0; i < midi_in_->getPortCount(); ++i)
+    if (port >= midi_in_->getPortCount())
     {
-        printf("Port %zu: %s\n", i, midi_in_->getPortName(i).c_str());
+        printf("Invalid port number!\n");
+        return false;
     }
 
-    midi_in_->openPort(0);
+    for (size_t i = 0; i < midi_in_->getPortCount(); ++i)
+    {
+        printf("Port %zu: %s %s\n", i, midi_in_->getPortName(i).c_str(), (port == i) ? "(selected)" : "");
+    }
+
+    midi_in_->openPort(port);
     return true;
 }
 
-bool MidiController::GetMessage(MidiMessage& message)
+bool MidiController::GetMidiMessage(MidiMessage& message)
 {
     std::vector<unsigned char> data;
     try
@@ -48,6 +59,12 @@ bool MidiController::GetMessage(MidiMessage& message)
         case 0xB0:
             message.type = MidiType::ControllerChange;
             break;
+        case 0xD0:
+            message.type = MidiType::ChannelAftertouch;
+            break;
+        case 0xE0:
+            message.type = MidiType::PitchBend;
+            break;
         default:
             message.type = MidiType::Unknown;
             break;
@@ -55,10 +72,13 @@ bool MidiController::GetMessage(MidiMessage& message)
 
         message.channel = data[0] & 0x0F;
 
-        if (message.type == MidiType::NoteOff || message.type == MidiType::NoteOn ||
-            message.type == MidiType::ControllerChange)
+        if (data.size() == 2)
         {
-            assert(data.size() == 3);
+            message.byte1 = data[1] & 0x7F;
+            message.byte2 = 0;
+        }
+        else if (data.size() == 3)
+        {
             message.byte1 = data[1] & 0x7F;
             message.byte2 = data[2] & 0x7F;
         }

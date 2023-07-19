@@ -23,6 +23,10 @@ class BowedString
     /// @brief Set the frequency of the string
     /// @param f
     void SetFrequency(float f);
+    float GetFrequency() const;
+
+    void SetLastMidiNote(float midi_note);
+    float GetLastMidiNote() const;
 
     float GetVelocity() const;
 
@@ -36,8 +40,9 @@ class BowedString
 
   private:
     Waveguide<4096> waveguide_;
-    Waveguide<4096> nut_to_bow_;
-    Waveguide<4096> bow_to_bridge_;
+
+    float bow_position_ = 0.f;
+    float last_midi_note_ = 0.f;
 
     Termination nut_;
     Termination bridge_;
@@ -46,6 +51,6 @@ class BowedString
     Biquad body_filters_[6];
     float samplerate_;
     float freq_;
-    float velocity_ = 0.6f;
+    float velocity_ = 0.5f;
 };
 } // namespace dsp

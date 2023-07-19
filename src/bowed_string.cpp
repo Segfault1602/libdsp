@@ -28,15 +28,25 @@ void BowedString::SetFrequency(float f)
 {
     freq_ = f;
     float total_delay = (samplerate_ / freq_) * 0.5f;
-    constexpr float bow_pos_ratio = 0.10f;
-    // Todo: fix this with relay delay length
-    // nut_to_bow_.SetDelay(100.f);
-    nut_to_bow_.SetJunction(4096.f - (total_delay * (1.f - bow_pos_ratio)));
-    bow_to_bridge_.SetDelay(total_delay * bow_pos_ratio);
-    // float new_delay = (samplerate_ / freq_) * 0.5f;
-    // waveguide_.SetDelay(new_delay);
-    // // waveguide_.SetJunction(waveguide_.GetDelay() - new_delay);
-    // output_pickup_ = new_delay - 10.f;
+    constexpr float bow_pos_ratio = 0.50f;
+    float junction_pos = waveguide_.GetDelay() - total_delay;
+    waveguide_.SetJunction(junction_pos);
+    bow_position_ = waveguide_.GetDelay() - (total_delay * bow_pos_ratio);
+}
+
+float BowedString::GetFrequency() const
+{
+    return freq_;
+}
+
+void BowedString::SetLastMidiNote(float midi_note)
+{
+    last_midi_note_ = midi_note;
+}
+
+float BowedString::GetLastMidiNote() const
+{
+    return last_midi_note_;
 }
 
 float BowedString::GetVelocity() const
@@ -58,24 +68,26 @@ void BowedString::Strike()
 
 float BowedString::Tick(const ExcitationModel* excitation_model)
 {
-    float nut_into_bow, bow_into_nut;
-    nut_to_bow_.NextOut(nut_into_bow, bow_into_nut);
+    float bridge, nut;
+    waveguide_.NextOut(bridge, nut);
 
-    float bow_into_bridge, bridge_into_bow;
-    bow_to_bridge_.NextOut(bow_into_bridge, bridge_into_bow);
+    float vsl_plus, vsl_min;
+    waveguide_.TapOut(bow_position_, vsl_plus, vsl_min);
+    float vsr_plus, vsr_min;
+    waveguide_.TapOut(bow_position_ + 1, vsr_plus, vsr_min);
 
     float bow_output = 0.f;
     if (excitation_model)
     {
-        float velocity_delta = velocity_ - (nut_into_bow + bridge_into_bow);
+        float velocity_delta = velocity_ - (vsl_plus + vsr_plus);
         bow_output = velocity_delta * excitation_model->Tick(velocity_delta);
     }
 
-    nut_to_bow_.Tick(bow_output + bridge_into_bow, nut_.Tick(bow_into_nut));
-    bow_to_bridge_.Tick(bridge_.Tick(bow_into_bridge), bow_output + nut_into_bow);
+    waveguide_.TapIn(bow_position_, bow_output);
+    waveguide_.Tick(bridge_.Tick(bridge), nut_.Tick(nut));
 
     float out = 0.1248f * body_filters_[5].Tick(body_filters_[4].Tick(body_filters_[3].Tick(
-                              body_filters_[2].Tick(body_filters_[1].Tick(body_filters_[0].Tick(bow_into_bridge))))));
+                              body_filters_[2].Tick(body_filters_[1].Tick(body_filters_[0].Tick(bridge))))));
     return out;
 }
 } // namespace dsp

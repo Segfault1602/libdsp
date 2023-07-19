@@ -1,5 +1,5 @@
-set(LIB_SOURCES excitation_models.cpp bowed_string.cpp delayline.cpp filter.cpp
-                junction.cpp phaseshapers.cpp)
+set(LIB_SOURCES dsp_base.cpp excitation_models.cpp bowed_string.cpp delayline.cpp filter.cpp
+                junction.cpp line.cpp phaseshapers.cpp)
 
 add_library(dsp STATIC ${LIB_SOURCES})
 

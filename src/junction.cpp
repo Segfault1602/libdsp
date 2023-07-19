@@ -6,7 +6,14 @@ namespace dsp
 {
 void Junction::SetDelay(float delay)
 {
-    delay_ = std::round(delay);
+    if (delay >= 0)
+    {
+        delay_ = delay;
+    }
+    else
+    {
+        delay_ = 0;
+    }
 }
 
 void Junction::Tick(Delayline& left_traveling_line, Delayline& right_traveling_line)
@@ -25,10 +32,9 @@ void Junction::Tick(Delayline& left_traveling_line, Delayline& right_traveling_l
     float d_ptr = left_traveling_line.GetDelay() - delay_ - 1;
     float d = left_traveling_line.TapOut(d_ptr);
     float a = right_traveling_line.TapOut(delay_ - 1);
-    // printf("Taking %f and moving it to %f\n", d, a);
-    right_traveling_line.TapIn(delay_ - 1, d * gain_ - a);
+    right_traveling_line.TapIn(std::ceil(delay_ - 1), d * gain_ - a);
 
     // Do the other side of the loop
-    left_traveling_line.TapIn(d_ptr, -d);
+    left_traveling_line.TapIn(std::ceil(d_ptr), -d);
 }
 } // namespace dsp

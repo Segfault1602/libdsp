@@ -1,8 +1,8 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "waveguide.h"
 #include "termination.h"
+#include "waveguide.h"
 
 template <size_t size>
 void PrintWaveguide(dsp::Waveguide<size>& wave, size_t delay_size)
@@ -220,17 +220,17 @@ TEST(WaveguideTests, GainTest)
 
 TEST(WaveguideTests, JunctionTest)
 {
-    constexpr size_t WAVEGUIDE_SIZE = 7;
+    constexpr size_t WAVEGUIDE_SIZE = 10;
     dsp::Waveguide<WAVEGUIDE_SIZE> wave;
 
-    constexpr size_t DELAY_SIZE = 6;
+    constexpr size_t DELAY_SIZE = 9;
     wave.SetDelay(DELAY_SIZE);
 
     // Set the gain to -1 so we can check that no energy is lost.
     dsp::Termination left_termination(-1.f);
     dsp::Termination right_termination(-1.f);
 
-    constexpr float input[DELAY_SIZE] = {1, 2, 3, 4, 5, 6};
+    constexpr float input[DELAY_SIZE] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     for (size_t i = 0; i < DELAY_SIZE; ++i)
     {
         wave.TapIn(i, input[i]);
@@ -254,5 +254,6 @@ TEST(WaveguideTests, JunctionTest)
         wave.Tick(right_termination.Tick(right), left_termination.Tick(left));
         printf("iter #%zu\n", i);
         PrintWaveguide(wave, DELAY_SIZE);
+        printf("Next out: %f %f\n", left, right);
     }
 }
