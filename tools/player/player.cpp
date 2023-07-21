@@ -196,7 +196,8 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
                 auto pitchbend_value = static_cast<float>(GetPitchBendValue(message));
 
                 // This will give us a normalize value between -2 and 2.
-                float normalized_value = (pitchbend_value - 8192.f) / 4096.f;
+                constexpr float PITCHBEND_RANGE = 0.5f;
+                float normalized_value = (pitchbend_value - 8192.f) / 8192.f * PITCHBEND_RANGE;
 
                 float new_midi_pitch = g_bowed_string->GetLastMidiNote() + normalized_value;
                 float new_freq = dsp::MidiToFreq(new_midi_pitch);

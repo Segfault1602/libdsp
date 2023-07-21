@@ -44,7 +44,7 @@ class Waveguide
 };
 
 template <size_t MAX_SIZE>
-Waveguide<MAX_SIZE>::Waveguide()
+Waveguide<MAX_SIZE>::Waveguide() : right_traveling_line_(false), left_traveling_line_(true)
 {
     SetDelay(MAX_SIZE - 1);
     SetJunction(0);
@@ -100,7 +100,7 @@ void Waveguide<MAX_SIZE>::TapIn(float delay, float input)
     }
 
     right_traveling_line_.TapIn(delay, input);
-    left_traveling_line_.TapIn(current_delay_ - delay - 1, input);
+    left_traveling_line_.TapIn(delay, input);
 }
 
 template <size_t MAX_SIZE>
@@ -113,7 +113,7 @@ void Waveguide<MAX_SIZE>::TapIn(float delay, float right, float left)
     }
 
     right_traveling_line_.TapIn(delay, right);
-    left_traveling_line_.TapIn(current_delay_ - delay - 1, left);
+    left_traveling_line_.TapIn(delay, left);
 }
 
 template <size_t MAX_SIZE>
@@ -134,6 +134,6 @@ void Waveguide<MAX_SIZE>::TapOut(float delay, float& right_out, float& left_out)
     }
 
     right_out = right_traveling_line_.TapOut(delay);
-    left_out = left_traveling_line_.TapOut(current_delay_ - delay - 1);
+    left_out = left_traveling_line_.TapOut(delay);
 }
 } // namespace dsp

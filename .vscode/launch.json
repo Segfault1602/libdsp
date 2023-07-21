@@ -19,6 +19,21 @@
             "console": "internalConsole"
         },
         {
+            "name": "(lldb) Instrument Player",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/tools/player/player",
+            "args": [
+                "-m",
+                "0"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        },
+        {
             "name": "(lldb) Tests",
             "type": "cppdbg",
             "request": "launch",

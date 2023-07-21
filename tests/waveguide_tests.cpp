@@ -176,6 +176,8 @@ TEST(WaveguideTests, GainTest)
         ASSERT_THAT(input[i] * 2, ::testing::Eq(out));
     }
 
+    PrintWaveguide(wave, DELAY_SIZE);
+
     // Waveguide should now look like this:
     //    ▶  1  2  3  4  5  6   ▼
     // Left                    Right
@@ -186,7 +188,12 @@ TEST(WaveguideTests, GainTest)
         float right, left;
         wave.NextOut(right, left);
         wave.Tick(right_termination.Tick(right), left_termination.Tick(left));
+        printf("iter #%zu\n", i);
+        PrintWaveguide(wave, DELAY_SIZE);
+        printf("Next out: %f %f\n", left, right);
     }
+
+    PrintWaveguide(wave, DELAY_SIZE);
 
     // Waveguide should now look like this:
     //    ▶  -6 -5 -4 -3 -2 -1  ▼
@@ -230,7 +237,7 @@ TEST(WaveguideTests, JunctionTest)
     dsp::Termination left_termination(-1.f);
     dsp::Termination right_termination(-1.f);
 
-    constexpr float input[DELAY_SIZE] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    constexpr float input[DELAY_SIZE] = {0, 0, 0, 0, 0, 0, 1, 0, 0};
     for (size_t i = 0; i < DELAY_SIZE; ++i)
     {
         wave.TapIn(i, input[i]);
@@ -245,7 +252,7 @@ TEST(WaveguideTests, JunctionTest)
 
     PrintWaveguide(wave, DELAY_SIZE);
 
-    wave.SetJunction(3);
+    wave.SetJunction(2.25);
 
     for (size_t i = 0; i < DELAY_SIZE; ++i)
     {

@@ -6,7 +6,8 @@ namespace dsp
 {
 void Junction::SetDelay(float delay)
 {
-    if (delay >= 0)
+    // There is a minimum delay of 2 samples to perform the linear interpolation
+    if (delay >= 2)
     {
         delay_ = delay;
     }
@@ -23,18 +24,36 @@ void Junction::Tick(Delayline& left_traveling_line, Delayline& right_traveling_l
         return;
     }
 
-    // Assuming a junction point of 3 before DelayLine::Tick() is called:
-    //    ▶  1  2  a | b  5  6   ▼
-    // Left          |         Right
-    //    ▲  1  2  c | d  5  6   ◀
-    // d needs to move to a and a is move to d
+    // The following is based on the following paper:
+    // Karjalainen, M., & Laine, U. K. (1991). A model for real-time sound synthesis of guitar on a floating-point
+    // signal processor. [Proceedings] ICASSP 91: 1991 International Conference on Acoustics, Speech, and Signal
+    // Processing. doi:10.1109/icassp.1991.151066 
 
-    float d_ptr = left_traveling_line.GetDelay() - delay_ - 1;
-    float d = left_traveling_line.TapOut(d_ptr);
-    float a = right_traveling_line.TapOut(delay_ - 1);
-    right_traveling_line.TapIn(std::ceil(delay_ - 1), d * gain_ - a);
+    float x = delay_ - std::floor(delay_);
+    size_t n = static_cast<size_t>(delay_);
 
-    // Do the other side of the loop
-    left_traveling_line.TapIn(std::ceil(d_ptr), -d);
+    if (x < 0.5f)
+    {
+        float read_ptr = n + 2 * x;
+        float sample = left_traveling_line.TapOut(read_ptr);
+        sample *= gain_;
+
+        right_traveling_line.TapIn(n - 1, sample);
+
+        // Assume full reflection at the junction
+        left_traveling_line.SetIn(std::floor(read_ptr) - 1, 0.f);
+    }
+    else
+    {
+        float read_ptr = n + 1;
+        float sample = left_traveling_line.TapOut(read_ptr);
+        sample *= gain_;
+
+        float write_ptr = n + 2 * (x - 0.5f);
+        right_traveling_line.TapIn(write_ptr, sample);
+
+        // Assume full reflection at the junction
+        left_traveling_line.SetIn(std::floor(read_ptr) - 1, 0.f);
+    }
 }
 } // namespace dsp

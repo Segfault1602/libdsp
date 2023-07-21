@@ -17,7 +17,7 @@ template <size_t MAX_DELAY>
 class LinearDelayline : public Delayline
 {
   public:
-    LinearDelayline();
+    LinearDelayline(bool reverse = false);
     ~LinearDelayline() override = default;
 
     float NextOut() override;
@@ -29,6 +29,7 @@ class LinearDelayline : public Delayline
     float TapOut(float delay) const override;
 
     void TapIn(float delay, float input) override;
+    void SetIn(float delay, float input) override;
 
   private:
     bool do_next_out_ = true;
@@ -39,7 +40,7 @@ class LinearDelayline : public Delayline
 };
 
 template <size_t MAX_DELAY>
-LinearDelayline<MAX_DELAY>::LinearDelayline() : Delayline(MAX_DELAY)
+LinearDelayline<MAX_DELAY>::LinearDelayline(bool reverse) : Delayline(MAX_DELAY, reverse)
 {
     line_.fill(0.f);
 }
@@ -79,6 +80,16 @@ float LinearDelayline<MAX_DELAY>::LastOut() const
 template <size_t MAX_DELAY>
 float LinearDelayline<MAX_DELAY>::TapOut(float delay) const
 {
+    if (delay >= delay_)
+    {
+        delay = delay_;
+    }
+
+    if (reverse_)
+    {
+        delay = delay_ - delay - 1;
+    }
+
     int32_t delay_integer = static_cast<uint32_t>(delay);
     float frac = delay - static_cast<float>(delay_integer);
 
@@ -91,11 +102,31 @@ float LinearDelayline<MAX_DELAY>::TapOut(float delay) const
 template <size_t MAX_DELAY>
 void LinearDelayline<MAX_DELAY>::TapIn(float delay, float input)
 {
+    if (reverse_)
+    {
+        delay = delay_ - delay - 1;
+    }
+
     int32_t delay_integer = static_cast<uint32_t>(delay);
     float frac = delay - static_cast<float>(delay_integer);
 
     line_[(write_ptr_ + delay_integer + 1) % MAX_DELAY] += input * (1.f - frac);
     line_[(write_ptr_ + delay_integer + 2) % MAX_DELAY] += input * frac;
+}
+
+template <size_t MAX_DELAY>
+void LinearDelayline<MAX_DELAY>::SetIn(float delay, float input)
+{
+    if (reverse_)
+    {
+        delay = delay_ - delay - 1;
+    }
+
+    int32_t delay_integer = static_cast<uint32_t>(delay);
+    float frac = delay - static_cast<float>(delay_integer);
+
+    line_[(write_ptr_ + delay_integer + 1) % MAX_DELAY] = input * (1.f - frac);
+    line_[(write_ptr_ + delay_integer + 2) % MAX_DELAY] = input * frac;
 }
 
 } // namespace dsp

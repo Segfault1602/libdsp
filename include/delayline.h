@@ -12,7 +12,7 @@ namespace dsp
 class Delayline
 {
   public:
-    Delayline(size_t max_delay);
+    Delayline(size_t max_delay, bool reverse);
 
     virtual ~Delayline() = default;
 
@@ -24,6 +24,7 @@ class Delayline
     virtual float Tick(float input) = 0;
     virtual float TapOut(float delay) const = 0;
     virtual void TapIn(float delay, float input) = 0;
+    virtual void SetIn(float delay, float input) = 0;
     virtual float LastOut() const = 0;
 
   protected:
@@ -32,6 +33,7 @@ class Delayline
     size_t delay_ = 0;
     float frac_ = 0.f;
     float inv_frac_ = 0.f;
+    bool reverse_ = false;
 
     const size_t max_delay_ = 0;
 };

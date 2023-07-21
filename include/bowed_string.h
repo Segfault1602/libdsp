@@ -39,7 +39,7 @@ class BowedString
     float Tick(const ExcitationModel* excitation_model);
 
   private:
-    Waveguide<4096> waveguide_;
+    Waveguide<1024> waveguide_;
 
     float bow_position_ = 0.f;
     float last_midi_note_ = 0.f;

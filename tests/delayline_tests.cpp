@@ -7,7 +7,7 @@
 TEST(LinearDelaylineTests, NoInterpolation)
 {
     constexpr size_t max_delay_size = 100;
-    dsp::LinearDelayline<max_delay_size> line;
+    dsp::LinearDelayline<max_delay_size> line(true);
 
     constexpr size_t delay = 10;
     line.SetDelay(delay);
@@ -35,7 +35,7 @@ TEST(LinearDelaylineTests, NoInterpolation)
 TEST(LinearDelaylineTests, WithInterpolation)
 {
     constexpr size_t max_delay_size = 100;
-    dsp::LinearDelayline<max_delay_size> line;
+    dsp::LinearDelayline<max_delay_size> line(true);
 
     constexpr float delay = 10.5f;
     line.SetDelay(delay);
@@ -83,7 +83,7 @@ TEST(LinearDelaylineTests, WithInterpolation2)
 TEST(LinearDelaylineTests, TapOut)
 {
     constexpr size_t max_delay_size = 100;
-    dsp::LinearDelayline<max_delay_size> line;
+    dsp::LinearDelayline<max_delay_size> line(false);
 
     constexpr float delay = 10;
     line.SetDelay(delay);
@@ -102,6 +102,36 @@ TEST(LinearDelaylineTests, TapOut)
     {
         float tap = line.TapOut(i);
         ASSERT_EQ(tap, loop_count - i - 1);
+    }
+
+    // When asking to tap out a sample past the current delay the
+    // function should simply return the last sample available
+    float tap_out_of_bound = line.TapOut(delay + 1);
+    ASSERT_EQ(tap_out_of_bound, line.TapOut(delay));
+}
+
+TEST(LinearDelaylineTests, TapOutReverse)
+{
+    constexpr size_t max_delay_size = 100;
+    dsp::LinearDelayline<max_delay_size> line(true);
+
+    constexpr float delay = 10;
+    line.SetDelay(delay);
+
+    constexpr size_t loop_count = delay;
+
+    // This will give us a delay line that looks like
+    // read->[0 1 2 3 4 5 6 7 8 9]<-write
+    for (size_t i = 0; i < loop_count; ++i)
+    {
+        line.Tick(i);
+        ASSERT_THAT(line.TapOut(0), ::testing::FloatEq(0));
+    }
+
+    for (size_t i = 0; i < loop_count; ++i)
+    {
+        float tap = line.TapOut(i);
+        ASSERT_EQ(tap, i);
     }
 
     // When asking to tap out a sample past the current delay the

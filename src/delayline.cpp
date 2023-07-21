@@ -4,7 +4,7 @@
 
 namespace dsp
 {
-Delayline::Delayline(size_t max_delay) : max_delay_(max_delay)
+Delayline::Delayline(size_t max_delay, bool reverse) : reverse_(reverse), max_delay_(max_delay)
 {
     SetDelay(static_cast<float>(max_delay_));
 }
