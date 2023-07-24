@@ -19,7 +19,7 @@ bool LoadWavFile(const std::string& filename, std::unique_ptr<T[]>& buffer, size
         return false;
     }
 
-    buffer = std::make_unique<T[]>(sf_info.frames);
+    buffer = std::make_unique<T[]>(static_cast<size_t>(sf_info.frames));
 
     sf_count_t count = 0;
 
@@ -34,7 +34,7 @@ bool LoadWavFile(const std::string& filename, std::unique_ptr<T[]>& buffer, size
     }
 
     assert(count == sf_info.frames);
-    buffer_size = count;
+    buffer_size = static_cast<size_t>(count);
 
     sf_close(file);
     return true;

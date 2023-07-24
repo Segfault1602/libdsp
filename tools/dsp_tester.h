@@ -15,7 +15,7 @@ class DspTester
     virtual float Tick() = 0;
     virtual float Tick(float input) = 0;
 
-    uint32_t GetSamplerate() const
+    size_t GetSamplerate() const
     {
         return samplerate_;
     }
@@ -26,7 +26,7 @@ class DspTester
     }
 
   protected:
-    uint32_t samplerate_ = 48000;
+    size_t samplerate_ = 48000;
     uint32_t frame_count_ = 0;
 };
 

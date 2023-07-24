@@ -35,9 +35,9 @@ class Chorus : public DspBase
         width_ = width;
         speed_ = speed;
 
-        float mod_period = samplerate / speed;
+        float mod_period = static_cast<float>(samplerate) / speed;
         mod_phase_dt_ = 1.f / mod_period;
-        delta_t_ = 1.f / samplerate_;
+        delta_t_ = 1.f / static_cast<float>(samplerate);
     }
 
     void Reset()

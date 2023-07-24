@@ -5,7 +5,7 @@
 
 uint16_t GetPitchBendValue(const MidiMessage& message)
 {
-    return (message.byte2 << 7) | message.byte1;
+    return static_cast<uint16_t>((message.byte2 << 7) | message.byte1);
 }
 
 bool MidiController::Init(uint8_t port)
@@ -26,9 +26,9 @@ bool MidiController::Init(uint8_t port)
         return false;
     }
 
-    for (size_t i = 0; i < midi_in_->getPortCount(); ++i)
+    for (uint32_t i = 0; i < midi_in_->getPortCount(); ++i)
     {
-        printf("Port %zu: %s %s\n", i, midi_in_->getPortName(i).c_str(), (port == i) ? "(selected)" : "");
+        printf("Port %u: %s %s\n", i, midi_in_->getPortName(i).c_str(), (port == i) ? "(selected)" : "");
     }
 
     midi_in_->openPort(port);

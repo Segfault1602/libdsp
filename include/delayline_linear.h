@@ -80,17 +80,17 @@ float LinearDelayline<MAX_DELAY>::LastOut() const
 template <size_t MAX_DELAY>
 float LinearDelayline<MAX_DELAY>::TapOut(float delay) const
 {
-    if (delay >= delay_)
+    if (delay >= static_cast<float>(delay_))
     {
-        delay = delay_;
+        delay = static_cast<float>(delay_);
     }
 
     if (reverse_)
     {
-        delay = delay_ - delay - 1;
+        delay = static_cast<float>(delay_) - delay - 1;
     }
 
-    int32_t delay_integer = static_cast<uint32_t>(delay);
+    uint32_t delay_integer = static_cast<uint32_t>(delay);
     float frac = delay - static_cast<float>(delay_integer);
 
     float a = line_[(write_ptr_ + delay_integer + 1) % MAX_DELAY];
@@ -104,10 +104,10 @@ void LinearDelayline<MAX_DELAY>::TapIn(float delay, float input)
 {
     if (reverse_)
     {
-        delay = delay_ - delay - 1;
+        delay = static_cast<float>(delay_) - delay - 1;
     }
 
-    int32_t delay_integer = static_cast<uint32_t>(delay);
+    uint32_t delay_integer = static_cast<uint32_t>(delay);
     float frac = delay - static_cast<float>(delay_integer);
 
     line_[(write_ptr_ + delay_integer + 1) % MAX_DELAY] += input * (1.f - frac);
@@ -119,10 +119,10 @@ void LinearDelayline<MAX_DELAY>::SetIn(float delay, float input)
 {
     if (reverse_)
     {
-        delay = delay_ - delay - 1;
+        delay = static_cast<float>(delay_) - delay - 1;
     }
 
-    int32_t delay_integer = static_cast<uint32_t>(delay);
+    uint32_t delay_integer = static_cast<uint32_t>(delay);
     float frac = delay - static_cast<float>(delay_integer);
 
     line_[(write_ptr_ + delay_integer + 1) % MAX_DELAY] = input * (1.f - frac);

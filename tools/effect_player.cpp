@@ -83,8 +83,8 @@ int main(int argc, char** argv)
         // For now I'm only working in mono
         assert(g_sf_info.channels == 1);
 
-        samplerate = g_sf_info.samplerate;
-        frame_count = g_sf_info.frames;
+        samplerate = static_cast<uint32_t>(g_sf_info.samplerate);
+        frame_count = static_cast<uint32_t>(g_sf_info.frames);
         g_use_input_file = true;
     }
 
@@ -163,8 +163,9 @@ int ProcessWithRTAudio(DspTester* dsp)
     context.dsp = dsp;
 
     uint32_t bufferFrames = 256;
-    auto rtError = dac_wrapper.dac.openStream(&oParams, nullptr, RTAUDIO_FLOAT32, dsp->GetSamplerate(), &bufferFrames,
-                                              &RtOutputCallback, static_cast<void*>(&context));
+    auto rtError =
+        dac_wrapper.dac.openStream(&oParams, nullptr, RTAUDIO_FLOAT32, static_cast<uint32_t>(dsp->GetSamplerate()),
+                                   &bufferFrames, &RtOutputCallback, static_cast<void*>(&context));
 
     if (rtError != RTAUDIO_NO_ERROR)
     {

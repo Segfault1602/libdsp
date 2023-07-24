@@ -15,7 +15,7 @@ target_link_libraries(player PUBLIC ${PLAYER_LIBS})
 set_target_properties(player PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
 
 if(NOT MSVC)
-  target_compile_options(player PRIVATE -Wall -Wpedantic -Werror)
+  target_compile_options(player PRIVATE ${CLANG_COMPILER_OPTION})
 else()
   target_compile_options(dsp PRIVATE /W4 /WX)
 endif()

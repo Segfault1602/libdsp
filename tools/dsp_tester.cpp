@@ -6,7 +6,7 @@ void ChorusTester::Init(size_t samplerate, uint32_t frame_count)
 {
     samplerate_ = samplerate;
     frame_count_ = frame_count;
-    chorus_.Init(samplerate, CHORUS_BASE_DELAY);
+    chorus_.Init(static_cast<uint32_t>(samplerate), CHORUS_BASE_DELAY);
 }
 
 float ChorusTester::Tick()

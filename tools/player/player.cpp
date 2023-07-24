@@ -75,7 +75,7 @@ int main(int argc, char** argv)
                 printf("Missing midi port number!\n");
                 return -1;
             }
-            midi_port = std::stoi(args[i + 1]);
+            midi_port = static_cast<uint8_t>(std::stoi(args[i + 1]));
         }
     }
 

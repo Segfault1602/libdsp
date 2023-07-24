@@ -34,6 +34,6 @@ class BowTable : public ExcitationModel
 
   private:
     float force_ = 3.f;
-    float offset_ = 0.001;
+    float offset_ = 0.001f;
 };
 } // namespace dsp

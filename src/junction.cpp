@@ -30,7 +30,7 @@ void Junction::Tick(Delayline& left_traveling_line, Delayline& right_traveling_l
     // Processing. doi:10.1109/icassp.1991.151066 
 
     float x = delay_ - std::floor(delay_);
-    size_t n = static_cast<size_t>(delay_);
+    float n = std::floor(delay_);
 
     float delayline_size = left_traveling_line.GetDelay();
 

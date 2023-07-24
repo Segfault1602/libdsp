@@ -11,18 +11,18 @@ Delayline::Delayline(size_t max_delay, bool reverse) : reverse_(reverse), max_de
 
 void Delayline::SetDelay(float delay)
 {
-    if (delay >= max_delay_)
+    if (delay >= static_cast<const float>(max_delay_))
     {
         delay = static_cast<float>(max_delay_ - 1);
     }
 
-    int32_t delay_integer = static_cast<uint32_t>(delay);
+    uint32_t delay_integer = static_cast<uint32_t>(delay);
     frac_ = delay - static_cast<float>(delay_integer);
     delay_ = delay_integer;
 }
 
 float Delayline::GetDelay() const
 {
-    return delay_ + frac_;
+    return static_cast<const float>(delay_) + frac_;
 }
 } // namespace dsp
