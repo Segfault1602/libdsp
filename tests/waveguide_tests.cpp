@@ -230,14 +230,14 @@ TEST(WaveguideTests, JunctionTest)
     constexpr size_t WAVEGUIDE_SIZE = 10;
     dsp::Waveguide<WAVEGUIDE_SIZE> wave;
 
-    constexpr size_t DELAY_SIZE = 9;
+    constexpr size_t DELAY_SIZE = 8;
     wave.SetDelay(DELAY_SIZE);
 
     // Set the gain to -1 so we can check that no energy is lost.
     dsp::Termination left_termination(-1.f);
     dsp::Termination right_termination(-1.f);
 
-    constexpr float input[DELAY_SIZE] = {0, 0, 0, 0, 0, 0, 1, 0, 0};
+    constexpr float input[DELAY_SIZE] = {0, 0, 0, 0, 0, 0, 1, 0};
     for (size_t i = 0; i < DELAY_SIZE; ++i)
     {
         wave.TapIn(i, input[i]);
@@ -252,7 +252,7 @@ TEST(WaveguideTests, JunctionTest)
 
     PrintWaveguide(wave, DELAY_SIZE);
 
-    wave.SetJunction(2.25);
+    wave.SetJunction(3.25);
 
     for (size_t i = 0; i < DELAY_SIZE; ++i)
     {

@@ -37,6 +37,11 @@ bool MidiController::Init(uint8_t port)
 
 bool MidiController::GetMidiMessage(MidiMessage& message)
 {
+    if (midi_in_ == nullptr)
+    {
+        return false;
+    }
+
     std::vector<unsigned char> data;
     try
     {

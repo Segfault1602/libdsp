@@ -11,9 +11,23 @@ class DspTester
     DspTester() = default;
     virtual ~DspTester() = default;
 
-    virtual void Init(size_t samplerate) = 0;
+    virtual void Init(size_t samplerate, uint32_t frame_count) = 0;
     virtual float Tick() = 0;
     virtual float Tick(float input) = 0;
+
+    uint32_t GetSamplerate() const
+    {
+        return samplerate_;
+    }
+
+    uint32_t GetFrameCount() const
+    {
+        return frame_count_;
+    }
+
+  protected:
+    uint32_t samplerate_ = 48000;
+    uint32_t frame_count_ = 0;
 };
 
 class ChorusTester : public DspTester
@@ -22,7 +36,7 @@ class ChorusTester : public DspTester
     ChorusTester() = default;
     ~ChorusTester() override = default;
 
-    void Init(size_t samplerate) override;
+    void Init(size_t samplerate, uint32_t frame_count) override;
     float Tick() override;
     float Tick(float input) override;
 
@@ -36,11 +50,16 @@ class WaveguideTester : public DspTester
     WaveguideTester() = default;
     ~WaveguideTester() override = default;
 
-    void Init(size_t samplerate) override;
+    void Init(size_t samplerate, uint32_t frame_count) override;
     float Tick() override;
     float Tick(float input) override;
 
   private:
     dsp::BowedString string_;
     dsp::BowTable bow_table_;
+
+    float delay_ = 0.f;
+    uint32_t sample_per_delay_ = 0;
+    float delay_increment_ = 0.01f;
+    uint32_t counter_ = 0;
 };

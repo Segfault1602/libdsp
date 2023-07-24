@@ -90,5 +90,17 @@
             "environment": [],
             "console": "externalTerminal"
         }
+        {
+            "name": "(lldb) effect_player",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/tools/effect_player",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        }
     ]
 }

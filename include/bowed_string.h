@@ -25,6 +25,8 @@ class BowedString
     void SetFrequency(float f);
     float GetFrequency() const;
 
+    void SetDelay(float delay);
+
     void SetLastMidiNote(float midi_note);
     float GetLastMidiNote() const;
 

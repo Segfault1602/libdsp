@@ -27,11 +27,19 @@ void BowedString::Init(float samplerate)
 void BowedString::SetFrequency(float f)
 {
     freq_ = f;
-    float total_delay = (samplerate_ / freq_) * 0.5f;
-    constexpr float bow_pos_ratio = 0.50f;
-    float junction_pos = waveguide_.GetDelay() - total_delay;
-    waveguide_.SetJunction(junction_pos);
-    bow_position_ = waveguide_.GetDelay() - (total_delay * bow_pos_ratio);
+    float delay = (samplerate_ / freq_) * 0.5f;
+    constexpr float bow_pos_ratio = 0.70f;
+    waveguide_.SetJunction(delay);
+    bow_position_ = waveguide_.GetDelay() - (delay * bow_pos_ratio);
+}
+
+void BowedString::SetDelay(float delay)
+{
+    constexpr float bow_pos_ratio = 0.70f;
+    waveguide_.SetJunction(delay);
+    bow_position_ = waveguide_.GetDelay() - (delay * bow_pos_ratio);
+
+    freq_ = samplerate_ / (delay * 2);
 }
 
 float BowedString::GetFrequency() const

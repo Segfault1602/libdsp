@@ -5,6 +5,7 @@
 #include <thread>
 
 #include <RtAudio.h>
+#include <sndfile.h>
 
 #include "bowed_string.h"
 #include "dsp_base.h"
@@ -23,6 +24,7 @@ std::unique_ptr<Gamepad> g_gamepad;
 std::unique_ptr<dsp::BowedString> g_bowed_string;
 std::unique_ptr<dsp::BowTable> g_bow_table;
 MidiController g_midi_controller;
+bool g_save_wav = false;
 
 struct InstrumentControl
 {
@@ -85,7 +87,6 @@ int main(int argc, char** argv)
     if (!g_midi_controller.Init(midi_port))
     {
         printf("Failed to initialize MIDI controller!\n");
-        return -1;
     }
 
     g_gamepad = std::make_unique<Gamepad>();
@@ -177,6 +178,9 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
                 g_bowed_string->SetLastMidiNote(message.byte1);
                 g_bowed_string->SetFrequency(dsp::midi_to_freq[message.byte1]);
                 audio_context->excitation = g_bow_table.get();
+
+                float velocity = static_cast<float>(message.byte2) / 127.f;
+                g_bowed_string->SetVelocity(0.3f * velocity);
                 break;
             }
             case MidiType::ControllerChange:
@@ -190,6 +194,12 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
                 {
                     g_bow_table->SetForce(5.f - (4.f * normalized_value));
                 }
+            }
+            case MidiType::ChannelAftertouch:
+            {
+                float normalized_value = static_cast<float>(message.byte1) / 127.f;
+                g_bow_table->SetForce(5.f - (4.f * normalized_value));
+                break;
             }
             case MidiType::PitchBend:
             {

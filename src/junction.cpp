@@ -32,28 +32,30 @@ void Junction::Tick(Delayline& left_traveling_line, Delayline& right_traveling_l
     float x = delay_ - std::floor(delay_);
     size_t n = static_cast<size_t>(delay_);
 
+    float delayline_size = left_traveling_line.GetDelay();
+
     if (x < 0.5f)
     {
         float read_ptr = n + 2 * x;
-        float sample = left_traveling_line.TapOut(read_ptr);
+        float sample = left_traveling_line.TapOut(delayline_size - read_ptr);
         sample *= gain_;
 
-        right_traveling_line.TapIn(n - 1, sample);
+        right_traveling_line.TapIn(delayline_size - n - 1, sample);
 
         // Assume full reflection at the junction
-        left_traveling_line.SetIn(std::floor(read_ptr) - 1, 0.f);
+        left_traveling_line.SetIn(delayline_size - std::floor(read_ptr) - 1, 0.f);
     }
     else
     {
         float read_ptr = n + 1;
-        float sample = left_traveling_line.TapOut(read_ptr);
+        float sample = left_traveling_line.TapOut(delayline_size - read_ptr);
         sample *= gain_;
 
         float write_ptr = n + 2 * (x - 0.5f);
-        right_traveling_line.TapIn(write_ptr, sample);
+        right_traveling_line.TapIn(delayline_size - write_ptr - 1, sample);
 
         // Assume full reflection at the junction
-        left_traveling_line.SetIn(std::floor(read_ptr) - 1, 0.f);
+        left_traveling_line.SetIn(delayline_size - std::floor(read_ptr) - 1, 0.f);
     }
 }
 } // namespace dsp
