@@ -11,6 +11,10 @@ float MidiToFreq(float midi_note)
     {
         return 0;
     }
+    else if (midi_note > 127.f)
+    {
+        return 127.f;
+    }
 
     return (8.17579891564f * exp(.0577622650f * midi_note));
 }

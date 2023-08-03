@@ -28,7 +28,8 @@ void BowedString::SetFrequency(float f)
 {
     freq_ = f;
     float delay = (samplerate_ / freq_) * 0.5f;
-    constexpr float bow_pos_ratio = 0.70f;
+    delay -= 1.f; // brigde delay
+    constexpr float bow_pos_ratio = 0.87f;
     waveguide_.SetJunction(delay);
     bow_position_ = waveguide_.GetDelay() - (delay * bow_pos_ratio);
 }
@@ -94,8 +95,8 @@ float BowedString::Tick(const ExcitationModel* excitation_model)
     waveguide_.TapIn(bow_position_, bow_output);
     waveguide_.Tick(bridge_.Tick(bridge), nut_.Tick(nut));
 
-    float out = 0.1248f * body_filters_[5].Tick(body_filters_[4].Tick(body_filters_[3].Tick(
-                              body_filters_[2].Tick(body_filters_[1].Tick(body_filters_[0].Tick(bridge))))));
-    return out;
+    // float out = 0.1248f * body_filters_[5].Tick(body_filters_[4].Tick(body_filters_[3].Tick(
+    //                           body_filters_[2].Tick(body_filters_[1].Tick(body_filters_[0].Tick(bridge))))));
+    return bridge;
 }
 } // namespace dsp
