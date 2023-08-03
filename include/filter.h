@@ -34,8 +34,8 @@ class Filter
 
   protected:
     float gain_ = 1.f;
-    std::array<float, 3> b_ = {0.f};
-    std::array<float, 3> a_ = {0.f};
+    std::array<float, 3> b_ = {0.f, 0.f, 0.f};
+    std::array<float, 3> a_ = {1.f, 0.f, 0.f};
     std::array<float, 3> outputs_ = {0.f};
     std::array<float, 3> inputs_ = {0.f};
 };

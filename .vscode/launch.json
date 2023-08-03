@@ -6,7 +6,8 @@
     "configurations": [
         {
             "name": "Instrument Player",
-            "type": "cppvsdbg",
+            "type": "cppdbg",
+            "MIMode": "lldb",
             "request": "launch",
             "program": "${workspaceFolder}/build/tools/player/player.exe",
             "args": [
@@ -16,7 +17,15 @@
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
-            "console": "internalConsole"
+            "console": "internalConsole",
+            "windows": {
+                "type": "cppvsdbg"
+            },
+            "osx": {
+                "type": "cppdbg",
+                "externalConsole": false,
+                "MIMode": "lldb"
+            }
         },
         {
             "name": "(lldb) Instrument Player",
