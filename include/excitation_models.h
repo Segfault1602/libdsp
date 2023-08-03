@@ -18,7 +18,7 @@ class BowTable : public ExcitationModel
 {
   public:
     BowTable() = default;
-    ~BowTable() = default;
+    ~BowTable() override = default;
 
     void SetForce(float f)
     {

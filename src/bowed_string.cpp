@@ -94,8 +94,8 @@ float BowedString::Tick(const ExcitationModel* excitation_model)
     waveguide_.TapIn(bow_position_, bow_output);
     waveguide_.Tick(bridge_.Tick(bridge), nut_.Tick(nut));
 
-    float out = 0.1248f * body_filters_[5].Tick(body_filters_[4].Tick(body_filters_[3].Tick(
-                              body_filters_[2].Tick(body_filters_[1].Tick(body_filters_[0].Tick(bridge))))));
-    return out;
+    // float out = 0.1248f * body_filters_[5].Tick(body_filters_[4].Tick(body_filters_[3].Tick(
+    //                           body_filters_[2].Tick(body_filters_[1].Tick(body_filters_[0].Tick(bridge))))));
+    return bridge;
 }
 } // namespace dsp
