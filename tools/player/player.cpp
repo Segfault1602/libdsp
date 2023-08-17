@@ -9,7 +9,6 @@
 
 #include "bowed_string.h"
 #include "dsp_base.h"
-#include "excitation_models.h"
 #include "gamepad.h"
 #include "line.h"
 #include "midi_controller.h"
@@ -38,7 +37,7 @@ struct InstrumentControl
 
 struct AudioContext
 {
-    dsp::ExcitationModel* excitation = nullptr;
+    bool note_on = false;
     bool do_pitch_bend = false;
 };
 
@@ -92,8 +91,6 @@ int main(int argc, char** argv)
     g_gamepad = std::make_unique<Gamepad>();
     g_bowed_string = std::make_unique<dsp::BowedString>();
     g_bowed_string->Init(DEFAULT_SAMPLE_RATE);
-
-    g_bow_table = std::make_unique<dsp::BowTable>();
 
     AudioContext audio_context;
 
@@ -170,17 +167,17 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
             {
             case MidiType::NoteOff:
             {
-                audio_context->excitation = nullptr;
+                audio_context->note_on = false;
                 break;
             }
             case MidiType::NoteOn:
             {
                 g_bowed_string->SetLastMidiNote(message.byte1);
                 g_bowed_string->SetFrequency(dsp::midi_to_freq[message.byte1]);
-                audio_context->excitation = g_bow_table.get();
+                audio_context->note_on = true;
 
                 float velocity = static_cast<float>(message.byte2) / 127.f;
-                g_bowed_string->SetVelocity(0.3f * velocity);
+                g_bowed_string->SetVelocity(velocity);
                 break;
             }
             case MidiType::ControllerChange:
@@ -188,17 +185,17 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
                 float normalized_value = static_cast<float>(message.byte2) / 127.f;
                 if (message.byte1 == 0x05)
                 {
-                    g_bowed_string->SetVelocity(0.3f * normalized_value);
+                    g_bowed_string->SetVelocity(normalized_value);
                 }
                 else if (message.byte1 == 0x23)
                 {
-                    g_bow_table->SetForce(5.f - (4.f * normalized_value));
+                    g_bowed_string->SetForce(normalized_value);
                 }
             }
             case MidiType::ChannelAftertouch:
             {
                 float normalized_value = static_cast<float>(message.byte1) / 127.f;
-                g_bow_table->SetForce(5.f - (4.f * normalized_value));
+                g_bowed_string->SetForce(normalized_value);
                 break;
             }
             case MidiType::PitchBend:
@@ -233,7 +230,7 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
         {
             g_bowed_string->SetFrequency(pitch_bend.Tick());
         }
-        float sample = g_bowed_string->Tick(audio_context->excitation) * 0.7f;
+        float sample = g_bowed_string->Tick(audio_context->note_on) * 0.7f;
         assert(sample < 1.f && sample > -1.f);
 
         for (size_t j = 0; j < 2; j++)

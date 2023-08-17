@@ -8,7 +8,7 @@ void BowedString::Init(float samplerate)
     samplerate_ = samplerate;
     SetFrequency(220);
 
-    reflection_filter_.SetGain(0.95f);
+    reflection_filter_.SetGain(0.98f);
     reflection_filter_.SetPole(0.75f - (0.2f * 22050.0f / samplerate_));
 
     bridge_.SetGain(-1.f);
@@ -59,12 +59,18 @@ float BowedString::GetLastMidiNote() const
 
 float BowedString::GetVelocity() const
 {
-    return velocity_;
+    return (velocity_ - velocity_offset_) / max_velocity_;
 }
 
 void BowedString::SetVelocity(float v)
 {
-    velocity_ = v;
+    v = std::clamp(v, 0.f, 1.f);
+    velocity_ = max_velocity_ * (velocity_offset_ + v);
+}
+
+void BowedString::SetForce(float f)
+{
+    bow_table_.SetForce(f);
 }
 
 void BowedString::Strike()
@@ -74,7 +80,7 @@ void BowedString::Strike()
     waveguide_.TapIn(pos, 0.95f);
 }
 
-float BowedString::Tick(const ExcitationModel* excitation_model)
+float BowedString::Tick(bool note_on)
 {
     float bridge, nut;
     waveguide_.NextOut(bridge, nut);
@@ -85,17 +91,17 @@ float BowedString::Tick(const ExcitationModel* excitation_model)
     waveguide_.TapOut(bow_position_ + 1, vsr_min, vsr_plus);
 
     float bow_output = 0.f;
-    if (excitation_model)
+    if (note_on)
     {
         float velocity_delta = velocity_ - (vsl_plus + vsr_plus);
-        bow_output = velocity_delta * excitation_model->Tick(velocity_delta);
+        bow_output = velocity_delta * bow_table_.Tick(velocity_delta);
     }
 
     waveguide_.TapIn(bow_position_, bow_output);
     waveguide_.Tick(bridge_.Tick(bridge), nut_.Tick(nut));
 
-    // float out = 0.1248f * body_filters_[5].Tick(body_filters_[4].Tick(body_filters_[3].Tick(
-    //                           body_filters_[2].Tick(body_filters_[1].Tick(body_filters_[0].Tick(bridge))))));
-    return bridge;
+    float out = 0.1248f * body_filters_[5].Tick(body_filters_[4].Tick(body_filters_[3].Tick(
+                              body_filters_[2].Tick(body_filters_[1].Tick(body_filters_[0].Tick(bridge))))));
+    return out;
 }
 } // namespace dsp

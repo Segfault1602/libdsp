@@ -2,27 +2,17 @@
 
 namespace dsp
 {
-
-class ExcitationModel
-{
-  public:
-    ExcitationModel() = default;
-    virtual ~ExcitationModel() = default;
-
-    virtual float Tick(float input) const = 0;
-};
-
 /// @brief Simple bowed string non-linear function taken from the STK.
 /// https://github.com/thestk/stk/blob/master/include/BowTable.h
-class BowTable : public ExcitationModel
+class BowTable
 {
   public:
     BowTable() = default;
-    ~BowTable() override = default;
+    ~BowTable() = default;
 
     void SetForce(float f)
     {
-        force_ = f;
+        force_ = 5.f - (4.f * f);
     }
 
     void SetOffset(float o)
@@ -30,7 +20,7 @@ class BowTable : public ExcitationModel
         offset_ = o;
     }
 
-    float Tick(float input) const override;
+    float Tick(float input) const;
 
   private:
     float force_ = 3.f;

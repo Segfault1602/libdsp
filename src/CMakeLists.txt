@@ -1,6 +1,6 @@
 set(LIB_SOURCES
     dsp_base.cpp
-    excitation_models.cpp
+    bow_table.cpp
     bowed_string.cpp
     delayline.cpp
     filter.cpp

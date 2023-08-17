@@ -1,7 +1,7 @@
 #pragma once
 
+#include "bow_table.h"
 #include "dsp_base.h"
-#include "excitation_models.h"
 #include "filter.h"
 #include "termination.h"
 #include "waveguide.h"
@@ -32,13 +32,15 @@ class BowedString
 
     float GetVelocity() const;
 
+    void SetForce(float f);
+
     /// @brief Set the velocity of the bow
     /// @param v The velocity of the bow
     void SetVelocity(float v);
 
     void Strike();
 
-    float Tick(const ExcitationModel* excitation_model);
+    float Tick(bool note_on);
 
   private:
     Waveguide<1024> waveguide_;
@@ -48,11 +50,15 @@ class BowedString
 
     Termination nut_;
     Termination bridge_;
+    BowTable bow_table_;
 
     OnePoleFilter reflection_filter_;
     Biquad body_filters_[6];
     float samplerate_;
     float freq_;
-    float velocity_ = 0.5f;
+    float velocity_ = 0.f;
+
+    constexpr static float max_velocity_ = 0.3f;
+    constexpr static float velocity_offset_ = 0.03f;
 };
 } // namespace dsp

@@ -1,4 +1,4 @@
-#include "excitation_models.h"
+#include "bow_table.h"
 
 #include <algorithm>
 #include <cmath>

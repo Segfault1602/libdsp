@@ -41,7 +41,7 @@ float WaveguideTester::Tick()
         string_.SetDelay(delay_);
         counter_ = 0;
     }
-    return string_.Tick(&bow_table_);
+    return string_.Tick(true);
 }
 
 float WaveguideTester::Tick(float)
