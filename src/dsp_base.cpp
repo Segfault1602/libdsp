@@ -16,7 +16,7 @@ float MidiToFreq(float midi_note)
         return 127.f;
     }
 
-    return (8.17579891564f * exp(.0577622650f * midi_note));
+    return (8.17579891564f * expf(.0577622650f * midi_note));
 }
 
 float FreqToMidi(float freq)
@@ -26,6 +26,6 @@ float FreqToMidi(float freq)
         return 0;
     }
 
-    return (17.3123405046f * log(.12231220585f * freq));
+    return (17.3123405046f * logf(.12231220585f * freq));
 }
 } // namespace dsp
