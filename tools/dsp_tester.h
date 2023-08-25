@@ -33,7 +33,7 @@ class DspTester
 class ChorusTester : public DspTester
 {
   public:
-    ChorusTester() = default;
+    ChorusTester();
     ~ChorusTester() override = default;
 
     void Init(size_t samplerate, uint32_t frame_count) override;
@@ -41,7 +41,7 @@ class ChorusTester : public DspTester
     float Tick(float input) override;
 
   private:
-    dsp::Chorus<4096> chorus_;
+    dsp::Chorus chorus_;
 };
 
 class WaveguideTester : public DspTester

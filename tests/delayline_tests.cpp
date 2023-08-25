@@ -1,13 +1,13 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "delayline_linear.h"
+#include "delayline.h"
 #include "test_resources.h"
 
 TEST(LinearDelaylineTests, NoInterpolation)
 {
     constexpr size_t max_delay_size = 100;
-    dsp::LinearDelayline<max_delay_size> line(true);
+    dsp::Delayline line(max_delay_size, false);
 
     constexpr size_t delay = 10;
     line.SetDelay(delay);
@@ -35,7 +35,7 @@ TEST(LinearDelaylineTests, NoInterpolation)
 TEST(LinearDelaylineTests, WithInterpolation)
 {
     constexpr size_t max_delay_size = 100;
-    dsp::LinearDelayline<max_delay_size> line(true);
+    dsp::Delayline line(max_delay_size, true);
 
     constexpr float delay = 10.5f;
     line.SetDelay(delay);
@@ -59,7 +59,7 @@ TEST(LinearDelaylineTests, WithInterpolation)
 TEST(LinearDelaylineTests, WithInterpolation2)
 {
     constexpr size_t max_delay_size = 100;
-    dsp::LinearDelayline<max_delay_size> line;
+    dsp::Delayline line(max_delay_size);
 
     constexpr float delay = 10.75f;
     line.SetDelay(delay);
@@ -83,7 +83,7 @@ TEST(LinearDelaylineTests, WithInterpolation2)
 TEST(LinearDelaylineTests, TapOut)
 {
     constexpr size_t max_delay_size = 100;
-    dsp::LinearDelayline<max_delay_size> line(false);
+    dsp::Delayline line(max_delay_size, false);
 
     constexpr float delay = 10;
     line.SetDelay(delay);
@@ -95,12 +95,12 @@ TEST(LinearDelaylineTests, TapOut)
     for (size_t i = 0; i < loop_count; ++i)
     {
         line.Tick(i);
-        ASSERT_THAT(line.TapOut(0), ::testing::FloatEq(i));
+        ASSERT_THAT(line.TapOut(1), ::testing::FloatEq(i));
     }
 
     for (size_t i = 0; i < loop_count; ++i)
     {
-        float tap = line.TapOut(i);
+        float tap = line.TapOut(i + 1);
         ASSERT_EQ(tap, loop_count - i - 1);
     }
 
@@ -113,22 +113,19 @@ TEST(LinearDelaylineTests, TapOut)
 TEST(LinearDelaylineTests, TapOutReverse)
 {
     constexpr size_t max_delay_size = 100;
-    dsp::LinearDelayline<max_delay_size> line(true);
+    dsp::Delayline line(max_delay_size, true);
 
     constexpr float delay = 10;
     line.SetDelay(delay);
 
-    constexpr size_t loop_count = delay;
-
     // This will give us a delay line that looks like
-    // read->[0 1 2 3 4 5 6 7 8 9]<-write
-    for (size_t i = 0; i < loop_count; ++i)
+    // read->[1 2 3 4 5 6 7 8 9 10]<-write
+    for (size_t i = 1; i <= delay; ++i)
     {
         line.Tick(i);
-        ASSERT_THAT(line.TapOut(0), ::testing::FloatEq(0));
     }
 
-    for (size_t i = 0; i < loop_count; ++i)
+    for (size_t i = 1; i <= delay; ++i)
     {
         float tap = line.TapOut(i);
         ASSERT_EQ(tap, i);
@@ -143,7 +140,7 @@ TEST(LinearDelaylineTests, TapOutReverse)
 TEST(LinearDelaylineTests, TapOutInterpolation)
 {
     constexpr size_t max_delay_size = 100;
-    dsp::LinearDelayline<max_delay_size> line;
+    dsp::Delayline line(max_delay_size);
 
     constexpr float delay = 10;
     line.SetDelay(delay);
@@ -157,10 +154,10 @@ TEST(LinearDelaylineTests, TapOutInterpolation)
         line.Tick(i);
     }
 
-    for (float i = 0; i < loop_count - 1; i += 0.25f)
+    for (float i = 1; i < loop_count; i += 0.25f)
     {
         float tap = line.TapOut(i);
-        ASSERT_EQ(tap, loop_count - i - 1);
+        ASSERT_EQ(tap, loop_count - i);
     }
 
     // When asking to tap out a sample past the current delay the
@@ -172,7 +169,7 @@ TEST(LinearDelaylineTests, TapOutInterpolation)
 TEST(LinearDelaylineTests, TapIn)
 {
     constexpr size_t max_delay_size = 100;
-    dsp::LinearDelayline<max_delay_size> line;
+    dsp::Delayline line(max_delay_size);
 
     constexpr float delay = 10;
     line.SetDelay(delay);
@@ -181,7 +178,7 @@ TEST(LinearDelaylineTests, TapIn)
 
     // This will give us a delay line that looks like
     // read->[0 1 2 3 4 5 6 7 8 9]<-write
-    for (size_t i = 0; i < loop_count; ++i)
+    for (size_t i = 1; i < loop_count; ++i)
     {
         line.TapIn(i, i);
         float tap = line.TapOut(i);
@@ -189,20 +186,36 @@ TEST(LinearDelaylineTests, TapIn)
     }
 }
 
+TEST(LinearDelaylineTests, TapIn2)
+{
+    constexpr size_t max_delay_size = 7;
+    constexpr float delay = max_delay_size - 1;
+    dsp::Delayline line(max_delay_size);
+    line.SetDelay(delay);
+    constexpr float input[max_delay_size] = {1, 2, 3, 4, 5, 6};
+
+    for (size_t i = 1; i <= delay; ++i)
+    {
+        line.TapIn(i, input[i - 1]);
+        float out = line.TapOut(i);
+        ASSERT_THAT(input[i - 1], ::testing::Eq(out));
+    }
+}
+
 TEST(LinearDelaylineTests, TapInTick)
 {
     constexpr size_t max_delay_size = 100;
-    dsp::LinearDelayline<max_delay_size> line;
+    dsp::Delayline line(max_delay_size);
 
     constexpr float delay = max_delay_size - 1;
     line.SetDelay(delay);
 
     for (size_t i = 0; i < delay; ++i)
     {
-        // If we tap in a sample at `delay-1`, we expect the next Tick()
+        // If we tap in a sample at `delay`, we expect the next Tick()
         // to return that same sample.
         const float SAMPLE = 0.1234f * i;
-        line.TapIn(delay - 1, SAMPLE);
+        line.TapIn(delay, SAMPLE);
 
         constexpr float TICK_SAMPLE = 1.f;
         float out = line.Tick(TICK_SAMPLE);
@@ -213,7 +226,7 @@ TEST(LinearDelaylineTests, TapInTick)
 TEST(LinearDelaylineTests, TapInFrac)
 {
     constexpr size_t max_delay_size = 100;
-    dsp::LinearDelayline<max_delay_size> line;
+    dsp::Delayline line(max_delay_size);
 
     constexpr float delay = max_delay_size - 1;
     line.SetDelay(delay);

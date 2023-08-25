@@ -2,6 +2,10 @@
 
 constexpr float CHORUS_BASE_DELAY = 20.f;
 
+ChorusTester::ChorusTester() : chorus_(4096)
+{
+}
+
 void ChorusTester::Init(size_t samplerate, uint32_t frame_count)
 {
     samplerate_ = samplerate;

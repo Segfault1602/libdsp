@@ -7,7 +7,7 @@
 #define CHORUS_LINEAR_DELAY
 
 #ifdef CHORUS_LINEAR_DELAY
-#include "delayline_linear.h"
+#include "delayline.h"
 #else
 #include "delayline_sinc.h"
 #endif
@@ -17,12 +17,12 @@
 namespace dsp
 {
 /// @brief Simple chorus effect.
-/// @tparam MAX_DELAY_SIZE
-template <size_t MAX_DELAY_SIZE>
 class Chorus : public DspBase
 {
   public:
-    Chorus() = default;
+    Chorus(size_t max_delay_size) : delay_(max_delay_size)
+    {
+    }
 
     ~Chorus() override = default;
     Chorus(const Chorus& c) = delete;
@@ -71,7 +71,7 @@ class Chorus : public DspBase
         if (speed_ != speed)
         {
             speed_ = speed;
-            float mod_period = samplerate_ / speed;
+            float mod_period = static_cast<float>(samplerate_) / speed;
             mod_phase_dt_ = 1.f / mod_period;
         }
     }
@@ -100,12 +100,12 @@ class Chorus : public DspBase
 
   private:
     uint32_t samplerate_ = 48000;
-    float samples_per_ms_ = samplerate_ / 1000.f;
+    float samples_per_ms_ = static_cast<float>(samplerate_) / 1000.f;
 
     float base_delay_ms_ = 0.f;
     float base_delay_ = 0.f;
 #ifdef CHORUS_LINEAR_DELAY
-    LinearDelayline<MAX_DELAY_SIZE> delay_;
+    Delayline delay_;
 #else
     DelaySinc<MAX_DELAY_SIZE> delay_;
 #endif
@@ -114,14 +114,10 @@ class Chorus : public DspBase
 
     float mod_phase_dt_ = 0.f;
     float mod_phase_ = 0.f;
-    float t_ = 0;
     float delta_t_ = 0.f;
 
     float chorus_mix_ = 0.5f;
     float input_mix_ = 0.5f;
-
-    float last_frame_ = 0.f;
-    float feedback_ = 0.0f;
 
   private:
     float Sine(float phase)

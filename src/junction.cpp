@@ -37,10 +37,10 @@ void Junction::Tick(Delayline& left_traveling_line, Delayline& right_traveling_l
     if (x < 0.5f)
     {
         float read_ptr = n + 2 * x;
-        float sample = left_traveling_line.TapOut(delayline_size - read_ptr);
+        float sample = left_traveling_line.TapOut(delayline_size - read_ptr + 1);
         sample *= gain_;
 
-        right_traveling_line.TapIn(delayline_size - n - 1, sample);
+        right_traveling_line.TapIn(delayline_size - n, sample);
 
         // Assume full reflection at the junction
         left_traveling_line.SetIn(delayline_size - std::floor(read_ptr) - 1, 0.f);

@@ -1,10 +1,11 @@
 #pragma once
 
-#include <array>
 #include <cassert>
 #include <cstddef>
+#include <memory>
 
 #include "dsp_base.h"
+#include "interpolation_strategy.h"
 
 namespace dsp
 {
@@ -12,29 +13,32 @@ namespace dsp
 class Delayline
 {
   public:
-    Delayline(size_t max_delay, bool reverse);
+    Delayline(size_t max_size, bool reverse = false);
 
     virtual ~Delayline() = default;
 
     void SetDelay(float delay);
-
     float GetDelay() const;
-
-    virtual float NextOut() = 0;
-    virtual float Tick(float input) = 0;
-    virtual float TapOut(float delay) const = 0;
-    virtual void TapIn(float delay, float input) = 0;
-    virtual void SetIn(float delay, float input) = 0;
-    virtual float LastOut() const = 0;
+    void Reset();
+    float NextOut();
+    float LastOut() const;
+    float Tick(float input);
+    float TapOut(float delay) const;
+    void TapIn(float delay, float input);
+    void SetIn(float delay, float input);
 
   protected:
-    size_t write_ptr_ = 0;
-    size_t read_ptr_ = 0;
-    size_t delay_ = 0;
-    float frac_ = 0.f;
-    float inv_frac_ = 0.f;
-    bool reverse_ = false;
+    const size_t max_size_ = 0;
+    const bool reverse_ = false;
 
-    const size_t max_delay_ = 0;
+    bool do_next_out_ = true;
+    float next_out_ = 0.f;
+    float last_out_ = 0.f;
+
+    size_t write_ptr_ = 0;
+    float delay_ = 0;
+
+    std::unique_ptr<InterpolationStrategy> interpolation_strategy_;
+    std::unique_ptr<float[]> line_;
 };
 } // namespace dsp

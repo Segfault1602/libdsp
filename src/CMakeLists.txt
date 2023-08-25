@@ -4,9 +4,11 @@ set(LIB_SOURCES
     bowed_string.cpp
     delayline.cpp
     filter.cpp
+    interpolation_strategy.cpp
     junction.cpp
     line.cpp
-    phaseshapers.cpp)
+    phaseshapers.cpp
+    waveguide.cpp)
 
 add_library(dsp STATIC ${LIB_SOURCES})
 

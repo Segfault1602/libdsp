@@ -15,7 +15,7 @@ namespace dsp
 class BowedString
 {
   public:
-    BowedString() = default;
+    BowedString();
     ~BowedString() = default;
 
     void Init(float samplerate);
@@ -43,7 +43,7 @@ class BowedString
     float Tick(bool note_on);
 
   private:
-    Waveguide<1024> waveguide_;
+    Waveguide waveguide_;
 
     float bow_position_ = 0.f;
     float last_midi_note_ = 0.f;

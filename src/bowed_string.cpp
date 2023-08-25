@@ -1,7 +1,13 @@
 #include "bowed_string.h"
 
+#include <cmath>
+
 namespace dsp
 {
+
+BowedString::BowedString() : waveguide_(1024)
+{
+}
 
 void BowedString::Init(float samplerate)
 {
