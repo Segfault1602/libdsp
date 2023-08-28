@@ -5,10 +5,25 @@
 
 namespace dsp
 {
-Delayline::Delayline(size_t max_size, bool reverse) : max_size_(max_size), reverse_(reverse)
+Delayline::Delayline(size_t max_size, bool reverse, InterpolationType interpolation_type)
+    : max_size_(max_size), reverse_(reverse)
 {
+    switch (interpolation_type)
+    {
+    case InterpolationType::None:
+        interpolation_strategy_ = std::make_unique<NoInterpolation>();
+        break;
+    case InterpolationType::Linear:
+        interpolation_strategy_ = std::make_unique<LinearInterpolation>();
+        break;
+    case InterpolationType::Allpass:
+        interpolation_strategy_ = std::make_unique<AllpassInterpolation>();
+        break;
+    default:
+        assert(false);
+    }
+
     line_ = std::make_unique<float[]>(max_size_);
-    interpolation_strategy_ = std::make_unique<LinearInterpolation>();
     std::fill(line_.get(), line_.get() + max_size_, 0.f);
     SetDelay(static_cast<float>(max_size_));
 }
@@ -79,7 +94,7 @@ void Delayline::TapIn(float delay, float input)
 {
     if (reverse_)
     {
-        delay = delay_ - delay+1;
+        delay = delay_ - delay + 1;
     }
 
     interpolation_strategy_->TapIn(line_.get(), max_size_, write_ptr_, delay, input);

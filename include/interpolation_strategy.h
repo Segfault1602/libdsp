@@ -4,6 +4,14 @@
 
 namespace dsp
 {
+
+enum class InterpolationType
+{
+    None,
+    Linear,
+    Allpass
+};
+
 class InterpolationStrategy
 {
   public:
@@ -12,6 +20,16 @@ class InterpolationStrategy
 
     virtual float TapOut(float* buffer, size_t max_size, size_t write_ptr, float delay) = 0;
     virtual void TapIn(float* buffer, size_t max_size, size_t write_ptr, float delay, float input) = 0;
+};
+
+class NoInterpolation : public InterpolationStrategy
+{
+  public:
+    NoInterpolation() = default;
+    ~NoInterpolation() override = default;
+
+    float TapOut(float* buffer, size_t max_size, size_t write_ptr, float delay) override;
+    void TapIn(float* buffer, size_t max_size, size_t write_ptr, float delay, float input) override;
 };
 
 class LinearInterpolation : public InterpolationStrategy
@@ -32,5 +50,14 @@ class AllpassInterpolation : public InterpolationStrategy
 
     float TapOut(float* buffer, size_t max_size, size_t write_ptr, float delay) override;
     void TapIn(float* buffer, size_t max_size, size_t write_ptr, float delay, float input) override;
+
+  private:
+    void CalculateCoeff(float delay);
+
+    float delay_;
+    size_t allpass_delay_;
+    float coeff_;
+    float last_out_;
+    float allpass_input_;
 };
 } // namespace dsp

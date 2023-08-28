@@ -13,9 +13,8 @@ namespace dsp
 class Delayline
 {
   public:
-    Delayline(size_t max_size, bool reverse = false);
-
-    virtual ~Delayline() = default;
+    Delayline(size_t max_size, bool reverse = false, InterpolationType interpolation_type = InterpolationType::Linear);
+    ~Delayline() = default;
 
     void SetDelay(float delay);
     float GetDelay() const;

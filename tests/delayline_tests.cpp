@@ -1,15 +1,25 @@
+#include "gmock/gmock-matchers.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 #include "delayline.h"
+#include "interpolation_strategy.h"
 #include "test_resources.h"
 
-TEST(LinearDelaylineTests, NoInterpolation)
+class DelayInterpolationTest : public ::testing::TestWithParam<dsp::InterpolationType>
+{
+  public:
+    DelayInterpolationTest() = default;
+};
+
+TEST_P(DelayInterpolationTest, NoInterpolation)
 {
     constexpr size_t max_delay_size = 100;
-    dsp::Delayline line(max_delay_size, false);
-
     constexpr size_t delay = 10;
+
+    dsp::InterpolationType interpolation_type = GetParam();
+    dsp::Delayline line(max_delay_size, false, interpolation_type);
+
     line.SetDelay(delay);
 
     constexpr size_t loop_count = 100;
@@ -32,12 +42,14 @@ TEST(LinearDelaylineTests, NoInterpolation)
     }
 }
 
-TEST(LinearDelaylineTests, WithInterpolation)
+TEST_P(DelayInterpolationTest, WithInterpolation)
 {
     constexpr size_t max_delay_size = 100;
-    dsp::Delayline line(max_delay_size, true);
-
     constexpr float delay = 10.5f;
+
+    dsp::InterpolationType interpolation_type = GetParam();
+    dsp::Delayline line(max_delay_size, false, interpolation_type);
+
     line.SetDelay(delay);
 
     constexpr size_t loop_count = 100;
@@ -48,11 +60,27 @@ TEST(LinearDelaylineTests, WithInterpolation)
         output.push_back(line.Tick(i));
     }
 
-    ASSERT_EQ(output.size(), stkLinearInterpolationResult1.size());
+    const float* expected_result = nullptr;
+    size_t expected_result_size = 0;
+    switch (interpolation_type)
+    {
+    case dsp::InterpolationType::Linear:
+        expected_result = stkLinearInterpolationResult1.data();
+        expected_result_size = stkLinearInterpolationResult1.size();
+        break;
+    case dsp::InterpolationType::Allpass:
+        expected_result = stkAllpassInterpolationResult.data();
+        expected_result_size = stkAllpassInterpolationResult.size();
+        break;
+    default:
+        FAIL() << "Unknown interpolation type";
+    }
+
+    ASSERT_EQ(output.size(), expected_result_size);
 
     for (size_t i = 0; i < output.size(); ++i)
     {
-        ASSERT_EQ(output[i], stkLinearInterpolationResult1[i]);
+        ASSERT_THAT(output[i], ::testing::FloatNear(expected_result[i], 0.00001f));
     }
 }
 
@@ -235,3 +263,6 @@ TEST(LinearDelaylineTests, TapInFrac)
     ASSERT_THAT(line.TapOut(2), ::testing::FloatEq(0.5f));
     ASSERT_THAT(line.TapOut(3), ::testing::FloatEq(0.5f));
 }
+
+INSTANTIATE_TEST_SUITE_P(InterpolationTest, DelayInterpolationTest,
+                         ::testing::Values(dsp::InterpolationType::Linear, dsp::InterpolationType::Allpass));
