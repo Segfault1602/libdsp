@@ -3,8 +3,9 @@
 namespace dsp
 {
 
-Waveguide::Waveguide(size_t max_size)
-    : max_size_(max_size), right_traveling_line_(max_size, false), left_traveling_line_(max_size, true)
+Waveguide::Waveguide(size_t max_size, InterpolationType interpolation_type)
+    : max_size_(max_size), right_traveling_line_(max_size, false, interpolation_type),
+      left_traveling_line_(max_size, true, interpolation_type)
 {
     SetDelay(max_size - 1);
     SetJunction(0);

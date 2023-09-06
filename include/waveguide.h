@@ -12,7 +12,7 @@ namespace dsp
 class Waveguide
 {
   public:
-    Waveguide(size_t max_size);
+    Waveguide(size_t max_size, InterpolationType interpolation_type = InterpolationType::Linear);
     ~Waveguide() = default;
 
     void SetDelay(float delay);

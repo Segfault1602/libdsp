@@ -38,7 +38,7 @@ class BowedString
     /// @param v The velocity of the bow
     void SetVelocity(float v);
 
-    void Strike();
+    void Pluck();
 
     float Tick(bool note_on);
 

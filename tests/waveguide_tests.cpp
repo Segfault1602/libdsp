@@ -3,6 +3,7 @@
 
 #include "termination.h"
 #include "waveguide.h"
+#include "window_functions.h"
 
 void PrintWaveguide(dsp::Waveguide& wave, size_t delay_size)
 {
@@ -17,7 +18,7 @@ void PrintWaveguide(dsp::Waveguide& wave, size_t delay_size)
 
     for (auto sample : right_samples)
     {
-        printf("%5.1f ", sample);
+        printf("%5.5f, ", sample);
     }
     printf("\n");
 
@@ -262,4 +263,20 @@ TEST(WaveguideTests, JunctionTest)
         PrintWaveguide(wave, DELAY_SIZE);
         printf("Next out: %f %f\n", left, right);
     }
+}
+
+TEST(WaveguideTests, Pluck)
+{
+    constexpr size_t WAVEGUIDE_SIZE = 501;
+    dsp::Waveguide wave(WAVEGUIDE_SIZE, dsp::InterpolationType::Allpass);
+
+    constexpr size_t DELAY_SIZE = 500;
+    wave.SetDelay(DELAY_SIZE);
+
+    for (size_t i = 1; i <= DELAY_SIZE; ++i)
+    {
+        wave.TapIn(i, dsp::Hann(i - 1, DELAY_SIZE));
+    }
+
+    PrintWaveguide(wave, DELAY_SIZE);
 }

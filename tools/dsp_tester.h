@@ -58,7 +58,4 @@ class WaveguideTester : public DspTester
     dsp::BowedString string_;
 
     float delay_ = 0.f;
-    uint32_t sample_per_delay_ = 0;
-    float delay_increment_ = 0.01f;
-    uint32_t counter_ = 0;
 };

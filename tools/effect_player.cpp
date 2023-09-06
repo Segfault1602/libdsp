@@ -71,7 +71,7 @@ int main(int argc, char** argv)
     }
 
     uint32_t samplerate = 48000;
-    uint32_t frame_count = samplerate * 4;
+    uint32_t frame_count = samplerate * 2;
 
     if (!input_file.empty())
     {
