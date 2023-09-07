@@ -10,7 +10,7 @@ namespace dsp
 /// @param i Index of the Hann window.
 /// @param size Size of the Hann window.
 /// @return float
-float Hann(size_t x, size_t L)
+float Hann(float x, float L)
 {
     return 0.5f * (1.f - std::cos((TWO_PI * x) / L));
 }

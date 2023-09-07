@@ -60,7 +60,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/tests/libdsp_tests.exe",
             "args": [
-                "--gtest_filter=*JunctionTest"
+                "--gtest_filter=WaveguideTests.Dirac"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

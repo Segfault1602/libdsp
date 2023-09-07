@@ -31,13 +31,16 @@ void WaveguideTester::Init(size_t samplerate, uint32_t frame_count)
     frame_count_ = frame_count;
     delay_ = 100;
     string_.Init(static_cast<float>(samplerate));
-    string_.SetFrequency(220.f);
-    string_.Pluck();
+    string_.SetFrequency(440.f);
+    // string_.SetDelay(10.5);
+    string_.SetForce(0.5f);
+    string_.SetVelocity(0.5f);
+    // string_.Pluck();
 }
 
 float WaveguideTester::Tick()
 {
-    return string_.Tick(false);
+    return string_.Tick(true);
 }
 
 float WaveguideTester::Tick(float)

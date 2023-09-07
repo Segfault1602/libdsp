@@ -1,6 +1,7 @@
 #include "delayline.h"
 
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 
 namespace dsp
@@ -94,7 +95,7 @@ void Delayline::TapIn(float delay, float input)
 {
     if (reverse_)
     {
-        delay = delay_ - delay + 1;
+        delay = std::floor(delay_) - delay + 1;
     }
 
     interpolation_strategy_->TapIn(line_.get(), max_size_, write_ptr_, delay, input);
@@ -104,7 +105,7 @@ void Delayline::SetIn(float delay, float input)
 {
     if (reverse_)
     {
-        delay = delay_ - delay - 1.f;
+        delay = std::floor(delay_) - delay - 1.f;
     }
 
     uint32_t delay_integer = static_cast<uint32_t>(delay);

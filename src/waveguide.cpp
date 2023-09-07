@@ -1,5 +1,7 @@
 #include "waveguide.h"
 
+#include <cmath>
+
 namespace dsp
 {
 
@@ -7,19 +9,23 @@ Waveguide::Waveguide(size_t max_size, InterpolationType interpolation_type)
     : max_size_(max_size), right_traveling_line_(max_size, false, interpolation_type),
       left_traveling_line_(max_size, true, interpolation_type)
 {
-    SetDelay(max_size - 1);
+    SetDelay(static_cast<float>(max_size - 1));
     SetJunction(0);
 }
 
 void Waveguide::SetDelay(float delay)
 {
-    if ((delay + 1) > max_size_)
+    if ((delay + 1) > static_cast<float>(max_size_))
     {
-        delay = max_size_ - 1;
+        delay = static_cast<float>(max_size_) - 1.f;
     }
 
-    right_traveling_line_.SetDelay(delay);
-    left_traveling_line_.SetDelay(delay);
+    // Consolidate the fractional part of the delay into the right traveling line
+    uint32_t delay_integer = static_cast<uint32_t>(delay);
+    float frac = delay - delay_integer;
+
+    right_traveling_line_.SetDelay(delay_integer + 2.f * frac);
+    left_traveling_line_.SetDelay(delay_integer);
     current_delay_ = delay;
 }
 
@@ -88,4 +94,5 @@ void Waveguide::TapOut(float delay, float& right_out, float& left_out)
     right_out = right_traveling_line_.TapOut(delay);
     left_out = left_traveling_line_.TapOut(delay);
 }
+
 } // namespace dsp

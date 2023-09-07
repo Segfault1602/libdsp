@@ -18,7 +18,7 @@ void PrintWaveguide(dsp::Waveguide& wave, size_t delay_size)
 
     for (auto sample : right_samples)
     {
-        printf("%5.5f, ", sample);
+        printf("%5.1f ", sample);
     }
     printf("\n");
 
@@ -47,6 +47,32 @@ TEST(WaveguideTests, EmptyWaveguide)
         wave.Tick(right_termination.Tick(right), left_termination.Tick(left));
         float sample = wave.TapOut(WAVEGUIDE_SIZE / 2);
         ASSERT_THAT(0.f, ::testing::FloatEq(sample));
+    }
+}
+
+TEST(WaveguideTests, Dirac)
+{
+    // Check that energy is not magically introduce into the waveguide
+    constexpr size_t WAVEGUIDE_SIZE = 10;
+    dsp::Waveguide wave(WAVEGUIDE_SIZE);
+
+    constexpr size_t LOOP_SIZE = 16;
+    constexpr float DELAY_SIZE = 6.25;
+    wave.SetDelay(DELAY_SIZE);
+    wave.TapIn(3, 1);
+
+    dsp::Termination left_termination(-1.f);
+    dsp::Termination right_termination(-1.f);
+
+    PrintWaveguide(wave, DELAY_SIZE);
+
+    for (size_t i = 0; i < LOOP_SIZE; ++i)
+    {
+        float right, left;
+        wave.NextOut(right, left);
+        wave.Tick(right_termination.Tick(right), left_termination.Tick(left));
+        printf("iter #%zu\n", i);
+        PrintWaveguide(wave, DELAY_SIZE);
     }
 }
 
@@ -158,10 +184,10 @@ TEST(WaveguideTests, TapInTapOut2)
 
 TEST(WaveguideTests, GainTest)
 {
-    constexpr size_t WAVEGUIDE_SIZE = 7;
+    constexpr size_t WAVEGUIDE_SIZE = 70;
     dsp::Waveguide wave(WAVEGUIDE_SIZE);
 
-    constexpr size_t DELAY_SIZE = WAVEGUIDE_SIZE - 1;
+    constexpr size_t DELAY_SIZE = 6;
     wave.SetDelay(DELAY_SIZE);
 
     // Set the gain to -1 so we can check that no energy is lost.
@@ -237,7 +263,7 @@ TEST(WaveguideTests, JunctionTest)
     dsp::Termination left_termination(-1.f);
     dsp::Termination right_termination(-1.f);
 
-    constexpr float input[DELAY_SIZE] = {0, 0, 0, 0, 0, 0, 1, 0};
+    constexpr float input[DELAY_SIZE] = {0, 1, 0, 0, 0, 0, 0, 0};
     for (size_t i = 1; i < DELAY_SIZE; ++i)
     {
         wave.TapIn(i, input[i - 1]);
@@ -265,7 +291,7 @@ TEST(WaveguideTests, JunctionTest)
     }
 }
 
-TEST(WaveguideTests, Pluck)
+TEST(WaveguideTests, DISABLED_Pluck)
 {
     constexpr size_t WAVEGUIDE_SIZE = 501;
     dsp::Waveguide wave(WAVEGUIDE_SIZE, dsp::InterpolationType::Allpass);

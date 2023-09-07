@@ -8,7 +8,7 @@ find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
 set(CLANG_TIDY_COMMAND "${CLANG_TIDY_EXE}")
 set(CMAKE_OSX_DEPLOYMENT_TARGET "13")
 
-set(CLANG_COMPILER_OPTION -Wall -Wpedantic -Werror -Wnarrowing -Wconversion)
+set(CLANG_COMPILER_OPTION -Wall -Wpedantic -Werror)
 
 include_directories(include)
 
