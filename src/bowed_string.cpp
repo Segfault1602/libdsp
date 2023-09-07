@@ -98,9 +98,9 @@ float BowedString::Tick(bool note_on)
     waveguide_.NextOut(nut, bridge);
 
     float vsl_plus, vsl_min;
-    waveguide_.TapOut(bow_position_, vsl_plus, vsl_min);
+    waveguide_.TapOut(bow_position_, vsl_plus, vsl_min, &bow_interpolation_strategy_);
     float vsr_plus, vsr_min;
-    waveguide_.TapOut(bow_position_ + 1, vsr_min, vsr_plus);
+    waveguide_.TapOut(bow_position_ + 1, vsr_min, vsr_plus, &bow_interpolation_strategy_);
 
     float bow_output = 0.f;
     if (note_on)
@@ -114,6 +114,6 @@ float BowedString::Tick(bool note_on)
 
     // float out = 0.1248f * body_filters_[5].Tick(body_filters_[4].Tick(body_filters_[3].Tick(
     //                           body_filters_[2].Tick(body_filters_[1].Tick(body_filters_[0].Tick(bridge))))));
-    return vsl_plus;
+    return bridge;
 }
 } // namespace dsp

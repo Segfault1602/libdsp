@@ -78,6 +78,11 @@ float Delayline::Tick(float input)
 
 float Delayline::TapOut(float delay) const
 {
+    return TapOut(delay, interpolation_strategy_.get());
+}
+
+float Delayline::TapOut(float delay, InterpolationStrategy* interpolation_strategy) const
+{
     if (delay >= delay_)
     {
         delay = delay_;
@@ -88,7 +93,7 @@ float Delayline::TapOut(float delay) const
         delay = delay_ - delay + 1;
     }
 
-    return interpolation_strategy_->TapOut(line_.get(), max_size_, write_ptr_, delay);
+    return interpolation_strategy->TapOut(line_.get(), max_size_, write_ptr_, delay);
 }
 
 void Delayline::TapIn(float delay, float input)

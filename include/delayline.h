@@ -23,6 +23,7 @@ class Delayline
     float LastOut() const;
     float Tick(float input);
     float TapOut(float delay) const;
+    float TapOut(float delay, InterpolationStrategy* interpolation_strategy) const;
     void TapIn(float delay, float input);
     void SetIn(float delay, float input);
 

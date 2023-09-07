@@ -83,6 +83,13 @@ float Waveguide::TapOut(float delay)
     return right + left;
 }
 
+float Waveguide::TapOut(float delay, InterpolationStrategy* interpolation_strategy)
+{
+    float right, left;
+    TapOut(delay, right, left, interpolation_strategy);
+    return right + left;
+}
+
 void Waveguide::TapOut(float delay, float& right_out, float& left_out)
 {
     assert(delay < max_size_);
@@ -93,6 +100,18 @@ void Waveguide::TapOut(float delay, float& right_out, float& left_out)
 
     right_out = right_traveling_line_.TapOut(delay);
     left_out = left_traveling_line_.TapOut(delay);
+}
+
+void Waveguide::TapOut(float delay, float& right_out, float& left_out, InterpolationStrategy* interpolation_strategy)
+{
+    assert(delay < max_size_);
+    if (delay >= current_delay_)
+    {
+        delay = current_delay_;
+    }
+
+    right_out = right_traveling_line_.TapOut(delay, interpolation_strategy);
+    left_out = left_traveling_line_.TapOut(delay, interpolation_strategy);
 }
 
 } // namespace dsp

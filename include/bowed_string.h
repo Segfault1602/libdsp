@@ -51,6 +51,7 @@ class BowedString
     Termination nut_;
     Termination bridge_;
     BowTable bow_table_;
+    LinearInterpolation bow_interpolation_strategy_;
 
     OnePoleFilter reflection_filter_;
     Biquad body_filters_[6];

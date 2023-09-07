@@ -4,6 +4,7 @@
 
 #include "delayline.h"
 #include "dsp_base.h"
+#include "interpolation_strategy.h"
 #include "junction.h"
 
 namespace dsp
@@ -29,8 +30,10 @@ class Waveguide
     void TapIn(float delay, float right, float left);
 
     float TapOut(float delay);
+    float TapOut(float delay, InterpolationStrategy* interpolation_strategy);
 
     void TapOut(float delay, float& right_out, float& left_out);
+    void TapOut(float delay, float& right_out, float& left_out, InterpolationStrategy* interpolation_strategy);
 
   private:
     const size_t max_size_ = 0;
