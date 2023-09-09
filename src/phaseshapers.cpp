@@ -6,12 +6,13 @@
 // "PHASESHAPING OSCILLATOR ALGORITHMS FOR MUSICAL SOUND SYNTHESIS",
 // SMC 2010, Barcelona, Spain, July 21-24, 2010.
 //
-// Adapted from python by:
+// Adapted from origianl python source by:
 // Alex St-Onge
 // =============================================================================
 
 #include "phaseshapers.h"
 
+#include <algorithm>
 #include <cmath>
 #include <stdint.h>
 
@@ -84,6 +85,21 @@ float polyBLEP(float phase, float phaseIncrement, float h = -1.f)
 namespace dsp
 {
 
+void Phaseshaper::Init(float sampleRate)
+{
+    m_sampleRate = sampleRate;
+    m_phase = 0.f;
+    m_freq = 220.f;
+    m_phaseIncrement = m_freq / m_sampleRate;
+    m_period = m_sampleRate / m_freq;
+}
+
+void Phaseshaper::SetMod(float mod)
+{
+    std::clamp(mod, 0.f, 1.f);
+    m_mod = mod;
+}
+
 float Phaseshaper::Process()
 {
     float wave1 = std::floor(m_waveform);
@@ -101,7 +117,7 @@ float Phaseshaper::Process()
     return out1 * w1 + out2 * w2;
 }
 
-float Phaseshaper::ProcessWaveSlice()
+float Phaseshaper::ProcessWaveSlice() const
 {
     float a1 = 0.25f + (1.f + m_mod) * 0.10f;
     float slicePhase = g_lin(m_phase, a1);
@@ -111,20 +127,20 @@ float Phaseshaper::ProcessWaveSlice()
     return trivial + blep;
 }
 
-float Phaseshaper::ProcessHardSync()
+float Phaseshaper::ProcessHardSync() const
 {
     float a1 = 2.5f + m_mod;
     return G_B(g_ramp(m_phase, a1));
 }
 
-float Phaseshaper::ProcessSoftSync()
+float Phaseshaper::ProcessSoftSync() const
 {
     float a1 = 1.25f + m_mod;
     float softPhase = g_tri(m_phase, a1);
     return G_B(s_tri(softPhase));
 }
 
-float Phaseshaper::ProcessTriMod()
+float Phaseshaper::ProcessTriMod() const
 {
     const float atm = 0.82f; // Roland JP-8000 triangle modulation offset parameter
     float mod = atm + m_mod * 0.15f;
@@ -132,7 +148,7 @@ float Phaseshaper::ProcessTriMod()
     return 2 * (trimodPhase - std::ceil(trimodPhase - 0.5f));
 }
 
-float Phaseshaper::ProcessSupersaw()
+float Phaseshaper::ProcessSupersaw() const
 {
     const float m1 = 0.5f + (m_mod * 0.25f);
     const float m2 = 0.88f;
@@ -143,7 +159,7 @@ float Phaseshaper::ProcessSupersaw()
     return G_B(std::sin(supersawPhase));
 }
 
-float Phaseshaper::ProcessVarSlope()
+float Phaseshaper::ProcessVarSlope() const
 {
     float width = 0.5f + m_mod * 0.25f;
 
@@ -151,4 +167,34 @@ float Phaseshaper::ProcessVarSlope()
     float vslope = 0.5f * m_phase * (1.0f - pulse) / width + pulse * (m_phase - width) / (1 - width);
     return std::sin(TWO_PI * vslope);
 }
+
+float Phaseshaper::ProcessWave(Waveform wave) const
+{
+    float out = 0.f;
+    switch (wave)
+    {
+    case Waveform::VARIABLE_SLOPE:
+        out = ProcessVarSlope();
+        break;
+    case Waveform::SOFTSYNC:
+        out = ProcessSoftSync();
+        break;
+    case Waveform::WAVESLICE:
+        out = ProcessWaveSlice();
+        break;
+    case Waveform::SUPERSAW:
+        out = ProcessSupersaw();
+        break;
+    case Waveform::HARDSYNC:
+        out = ProcessHardSync();
+        break;
+    case Waveform::TRIANGLE_MOD:
+        out = ProcessTriMod();
+        break;
+    default:
+        break;
+    }
+    return out;
+}
+
 } // namespace dsp

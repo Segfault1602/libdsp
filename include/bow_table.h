@@ -10,16 +10,26 @@ class BowTable
     BowTable() = default;
     ~BowTable() = default;
 
+    /// @brief Sets the force of the bow
+    /// @param f Force of the bow
     void SetForce(float f)
     {
         force_ = 5.f - (4.f * f);
     }
 
+    /// @brief Table offset value
+    /// @param o Offset value
+    /// @note From STK source: "The table offset is a bias which controls the
+    /// symmetry of the friction. If you want the friction to vary with direction,
+    /// use a non-zero value for the offset."
     void SetOffset(float o)
     {
         offset_ = o;
     }
 
+    /// @brief Tick the bow table
+    /// @param input The velocity delta of the bow and string
+    /// @return The output of the bow table
     float Tick(float input) const;
 
   private:

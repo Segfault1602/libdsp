@@ -8,6 +8,7 @@ set(LIB_SOURCES
     junction.cpp
     line.cpp
     phaseshapers.cpp
+    sinc_resampler.cpp
     waveguide.cpp)
 
 add_library(dsp STATIC ${LIB_SOURCES})

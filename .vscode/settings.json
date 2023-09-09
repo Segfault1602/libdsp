@@ -108,9 +108,11 @@
         "*.tcc": "cpp",
         "memory_resource": "cpp",
         "source_location": "cpp",
-        "shared_mutex": "cpp"
+        "shared_mutex": "cpp",
+        "regex": "cpp"
     },
     "vscode-nmake-tools.workspaceBuildDirectories": [
         "."
-    ]
+    ],
+    "dotnet.defaultSolution": "disable"
 }
