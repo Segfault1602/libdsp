@@ -3,6 +3,9 @@
 #include <algorithm>
 #include <cmath>
 
+/// @brief Simple bowed string non-linear function taken from the STK.
+/// https://github.com/thestk/stk/blob/master/include/BowTable.cpp
+
 using namespace dsp;
 
 float BowTable::Tick(float in) const

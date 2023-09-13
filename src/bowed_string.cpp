@@ -21,15 +21,6 @@ void BowedString::Init(float samplerate)
 
     bridge_.SetGain(-1.f);
     bridge_.SetFilter(&reflection_filter_);
-
-    // Body filter provided by Esteban Maestre (cascade of second-order sections)
-    // https://github.com/thestk/stk/blob/cc2dd22e9752bf5fd94f0799e01d19d5e8399058/src/Bowed.cpp#L62
-    body_filters_[0].SetCoefficients(1.0f, 1.5667f, 0.3133f, -0.5509f, -0.3925f);
-    body_filters_[1].SetCoefficients(1.0f, -1.9537f, 0.9542f, -1.6357f, 0.8697f);
-    body_filters_[2].SetCoefficients(1.0f, -1.6683f, 0.8852f, -1.7674f, 0.8735f);
-    body_filters_[3].SetCoefficients(1.0f, -1.8585f, 0.9653f, -1.8498f, 0.9516f);
-    body_filters_[4].SetCoefficients(1.0f, -1.9299f, 0.9621f, -1.9354f, 0.9590f);
-    body_filters_[5].SetCoefficients(1.0f, -1.9800f, 0.9888f, -1.9867f, 0.9923f);
 }
 
 void BowedString::SetFrequency(float f)
@@ -57,16 +48,6 @@ float BowedString::GetFrequency() const
     return freq_;
 }
 
-void BowedString::SetLastMidiNote(float midi_note)
-{
-    last_midi_note_ = midi_note;
-}
-
-float BowedString::GetLastMidiNote() const
-{
-    return last_midi_note_;
-}
-
 float BowedString::GetVelocity() const
 {
     return (velocity_ - velocity_offset_) / max_velocity_;
@@ -74,7 +55,7 @@ float BowedString::GetVelocity() const
 
 void BowedString::SetVelocity(float v)
 {
-    v = std::clamp(v, 0.f, 1.f);
+    v = std::clamp(v, -1.f, 1.f);
     velocity_ = max_velocity_ * (velocity_offset_ + v);
 }
 
@@ -112,8 +93,6 @@ float BowedString::Tick(bool note_on)
     waveguide_.TapIn(bow_position_, bow_output);
     waveguide_.Tick(nut_.Tick(nut), bridge_.Tick(bridge));
 
-    // float out = 0.1248f * body_filters_[5].Tick(body_filters_[4].Tick(body_filters_[3].Tick(
-    //                           body_filters_[2].Tick(body_filters_[1].Tick(body_filters_[0].Tick(bridge))))));
     return bridge;
 }
 } // namespace dsp

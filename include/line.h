@@ -8,15 +8,16 @@ namespace dsp
 class Line
 {
   public:
+    Line() = default;
     Line(float start, float end, uint32_t time_samples);
     ~Line() = default;
 
     float Tick();
 
   private:
-    float start_;
-    float end_;
-    float output_;
-    float increment_;
+    float start_ = 0.f;
+    float end_ = 0.f;
+    float output_ = 0.f;
+    float increment_ = 0.f;
 };
 } // namespace dsp

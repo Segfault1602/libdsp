@@ -37,6 +37,7 @@ struct InstrumentControl
 
 struct AudioContext
 {
+    uint32_t current_playing_midi_note = 0;
     bool note_on = false;
     bool do_pitch_bend = false;
 };
@@ -172,7 +173,7 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
             }
             case MidiType::NoteOn:
             {
-                g_bowed_string->SetLastMidiNote(message.byte1);
+                audio_context->current_playing_midi_note = message.byte1;
                 g_bowed_string->SetFrequency(dsp::midi_to_freq[message.byte1]);
                 audio_context->note_on = true;
 
@@ -206,7 +207,7 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
                 constexpr float PITCHBEND_RANGE = 0.5f;
                 float normalized_value = (pitchbend_value - 8192.f) / 8192.f * PITCHBEND_RANGE;
 
-                float new_midi_pitch = g_bowed_string->GetLastMidiNote() + normalized_value;
+                float new_midi_pitch = static_cast<float>(audio_context->current_playing_midi_note) + normalized_value;
                 float new_freq = dsp::MidiToFreq(new_midi_pitch);
                 float old_freq = g_bowed_string->GetFrequency();
                 pitch_bend = dsp::Line(old_freq, new_freq, nBufferFrames);

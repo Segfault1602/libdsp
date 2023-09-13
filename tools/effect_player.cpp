@@ -2,7 +2,6 @@
 #include <cassert>
 #include <chrono>
 #define _USE_MATH_DEFINES
-#include <chrono>
 #include <cmath>
 #include <cstdio>
 #include <cstring>
@@ -71,7 +70,7 @@ int main(int argc, char** argv)
     }
 
     uint32_t samplerate = 48000;
-    uint32_t frame_count = samplerate * 2;
+    uint32_t frame_count = 0;
 
     if (!input_file.empty())
     {
@@ -83,13 +82,20 @@ int main(int argc, char** argv)
         // For now I'm only working in mono
         assert(g_sf_info.channels == 1);
 
+        // When using an input file, we need to match the samplerate and frame count
         samplerate = static_cast<uint32_t>(g_sf_info.samplerate);
         frame_count = static_cast<uint32_t>(g_sf_info.frames);
         g_use_input_file = true;
     }
 
-    auto dsp_test = std::make_unique<WaveguideTester>();
-    dsp_test->Init(samplerate, frame_count);
+    auto dsp_test = std::make_unique<OscVelocityBowedStringTester>();
+    dsp_test->Init(samplerate);
+
+    if (frame_count != 0)
+    {
+        dsp_test->SetFrameCount(frame_count);
+    }
+
     int ret = 0;
     if (realtime)
     {

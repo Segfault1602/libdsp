@@ -4,6 +4,10 @@
 
 #include "bowed_string.h"
 #include "chorus.h"
+#include "line.h"
+
+#define DEFAULT_SAMPLERATE (48000u)
+#define DEFAULT_FRAME_COUNT_RATIO (2u)
 
 class DspTester
 {
@@ -11,7 +15,7 @@ class DspTester
     DspTester() = default;
     virtual ~DspTester() = default;
 
-    virtual void Init(size_t samplerate, uint32_t frame_count) = 0;
+    virtual void Init(size_t samplerate) = 0;
     virtual float Tick() = 0;
     virtual float Tick(float input) = 0;
 
@@ -20,14 +24,18 @@ class DspTester
         return samplerate_;
     }
 
-    uint32_t GetFrameCount() const
-    {
-        return frame_count_;
-    }
+    /// @brief Set the number of frames to process
+    /// @param frame_count
+    void SetFrameCount(uint32_t frame_count);
+
+    /// @brief Get the number of frames to process
+    /// @return The number of frames to process
+    /// @note Defaults to 2 seconds of audio
+    uint32_t GetFrameCount() const;
 
   protected:
-    size_t samplerate_ = 48000;
-    uint32_t frame_count_ = 0;
+    size_t samplerate_ = DEFAULT_SAMPLERATE;
+    uint32_t frame_count_ = DEFAULT_FRAME_COUNT_RATIO * DEFAULT_SAMPLERATE;
 };
 
 class ChorusTester : public DspTester
@@ -36,7 +44,7 @@ class ChorusTester : public DspTester
     ChorusTester();
     ~ChorusTester() override = default;
 
-    void Init(size_t samplerate, uint32_t frame_count) override;
+    void Init(size_t samplerate) override;
     float Tick() override;
     float Tick(float input) override;
 
@@ -44,18 +52,41 @@ class ChorusTester : public DspTester
     dsp::Chorus chorus_;
 };
 
-class WaveguideTester : public DspTester
+class SimpleBowedStringTester : public DspTester
 {
   public:
-    WaveguideTester() = default;
-    ~WaveguideTester() override = default;
+    SimpleBowedStringTester() = default;
+    ~SimpleBowedStringTester() override = default;
 
-    void Init(size_t samplerate, uint32_t frame_count) override;
+    void Init(size_t samplerate) override;
     float Tick() override;
     float Tick(float input) override;
 
   private:
     dsp::BowedString string_;
 
-    float delay_ = 0.f;
+    size_t midway_frame_ = 0;
+    size_t current_frame_ = 0;
+
+    float current_velocity_ = 0.f;
+    float current_force_ = 0.f;
+    float param_delta_ = 0.f;
+    dsp::Line param_value_;
+};
+
+class OscVelocityBowedStringTester : public DspTester
+{
+  public:
+    OscVelocityBowedStringTester() = default;
+    ~OscVelocityBowedStringTester() override = default;
+
+    void Init(size_t samplerate) override;
+    float Tick() override;
+    float Tick(float input) override;
+
+  private:
+    dsp::BowedString string_;
+    const float kFrequency = 5.f;
+    float phase_dt_ = 0.f;
+    float phase_ = 0.f;
 };

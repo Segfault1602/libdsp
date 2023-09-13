@@ -253,7 +253,7 @@ TEST(WaveguideTests, GainTest)
 
 TEST(WaveguideTests, JunctionTest)
 {
-    constexpr size_t WAVEGUIDE_SIZE = 10;
+    constexpr size_t WAVEGUIDE_SIZE = 9;
     dsp::Waveguide wave(WAVEGUIDE_SIZE);
 
     constexpr size_t DELAY_SIZE = 8;
@@ -278,7 +278,7 @@ TEST(WaveguideTests, JunctionTest)
 
     PrintWaveguide(wave, DELAY_SIZE);
 
-    wave.SetJunction(3.25f);
+    wave.SetJunction(3.f);
 
     for (size_t i = 0; i < DELAY_SIZE * 2; ++i)
     {

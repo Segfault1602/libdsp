@@ -27,9 +27,6 @@ class BowedString
 
     void SetDelay(float delay);
 
-    void SetLastMidiNote(float midi_note);
-    float GetLastMidiNote() const;
-
     float GetVelocity() const;
 
     void SetForce(float f);
@@ -46,7 +43,6 @@ class BowedString
     Waveguide waveguide_;
 
     float bow_position_ = 0.f;
-    float last_midi_note_ = 0.f;
 
     Termination nut_;
     Termination bridge_;
@@ -54,7 +50,6 @@ class BowedString
     LinearInterpolation bow_interpolation_strategy_;
 
     OnePoleFilter reflection_filter_;
-    Biquad body_filters_[6];
     float samplerate_;
     float freq_;
     float velocity_ = 0.f;

@@ -1,6 +1,7 @@
 set(LIB_SOURCES
-    dsp_base.cpp
+    basic_oscillators.cpp
     bow_table.cpp
+    dsp_base.cpp
     bowed_string.cpp
     delayline.cpp
     filter.cpp

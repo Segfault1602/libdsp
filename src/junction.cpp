@@ -24,6 +24,9 @@ void Junction::Tick(Delayline& left_traveling_line, Delayline& right_traveling_l
         return;
     }
 
+    // full reflection at the junction
+    constexpr float k = -1.f;
+
     // The following is based on the following paper:
     // Karjalainen, M., & Laine, U. K. (1991). A model for real-time sound synthesis of guitar on a floating-point
     // signal processor. [Proceedings] ICASSP 91: 1991 International Conference on Acoustics, Speech, and Signal
@@ -38,10 +41,11 @@ void Junction::Tick(Delayline& left_traveling_line, Delayline& right_traveling_l
         float sample = right_traveling_line.TapOut(read_ptr);
         sample *= gain_;
 
-        left_traveling_line.TapIn(n + 1, sample);
+        float left_sample = left_traveling_line.TapOut(n);
+        left_traveling_line.SetIn(n, sample * k + left_sample * (1.f - k));
 
         // Assume full reflection at the junction
-        right_traveling_line.SetIn(std::floor(read_ptr) + 1, 0.f);
+        right_traveling_line.SetIn(read_ptr, sample * (1 + k) + left_sample * (-k));
     }
     else
     {

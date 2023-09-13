@@ -20,6 +20,6 @@ class Junction
 
   private:
     float delay_ = 0;
-    float gain_ = -1.f;
+    float gain_ = 1.f;
 };
 } // namespace dsp
