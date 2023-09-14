@@ -116,8 +116,11 @@ void Delayline::SetIn(float delay, float input)
     uint32_t delay_integer = static_cast<uint32_t>(delay);
     float frac = delay - static_cast<float>(delay_integer);
 
-    line_[(write_ptr_ + delay_integer + 1) % max_size_] = input * (1.f - frac);
-    line_[(write_ptr_ + delay_integer + 2) % max_size_] = input * frac;
+    line_[(write_ptr_ + delay_integer) % max_size_] = input * (1.f - frac);
+    if (frac != 0.f)
+    {
+        line_[(write_ptr_ + delay_integer + 1) % max_size_] = input * frac;
+    }
 }
 
 } // namespace dsp

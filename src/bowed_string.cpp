@@ -7,7 +7,7 @@
 namespace dsp
 {
 
-BowedString::BowedString() : waveguide_(1024, InterpolationType::Allpass)
+BowedString::BowedString() : waveguide_(1024, InterpolationType::Linear)
 {
 }
 
@@ -20,6 +20,7 @@ void BowedString::Init(float samplerate)
     reflection_filter_.SetPole(0.75f - (0.2f * 22050.0f / samplerate_));
 
     bridge_.SetGain(-1.f);
+    waveguide_.SetDelay(1024);
     bridge_.SetFilter(&reflection_filter_);
 }
 
@@ -28,8 +29,8 @@ void BowedString::SetFrequency(float f)
     freq_ = f;
     float delay = (samplerate_ / freq_) * 0.5f;
     constexpr float bow_pos_ratio = 0.70f;
-    waveguide_.SetJunction(0.f);
-    waveguide_.SetDelay(delay);
+    waveguide_.SetJunction(delay);
+    // waveguide_.SetDelay(delay);
     bow_position_ = std::floor(delay * bow_pos_ratio);
 }
 
@@ -37,7 +38,7 @@ void BowedString::SetDelay(float delay)
 {
     constexpr float bow_pos_ratio = 0.70f;
     waveguide_.SetJunction(0.f);
-    waveguide_.SetDelay(delay);
+    // waveguide_.SetDelay(delay);
     bow_position_ = std::floor(delay * bow_pos_ratio);
 
     freq_ = samplerate_ / (delay * 2);

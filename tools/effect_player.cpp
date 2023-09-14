@@ -88,7 +88,7 @@ int main(int argc, char** argv)
         g_use_input_file = true;
     }
 
-    auto dsp_test = std::make_unique<OscVelocityBowedStringTester>();
+    auto dsp_test = std::make_unique<SimpleBowedStringTester>();
     dsp_test->Init(samplerate);
 
     if (frame_count != 0)

@@ -201,6 +201,10 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
             }
             case MidiType::PitchBend:
             {
+                if (audio_context->current_playing_midi_note == 0)
+                {
+                    break;
+                }
                 auto pitchbend_value = static_cast<float>(GetPitchBendValue(message));
 
                 // This will give us a normalize value between -2 and 2.

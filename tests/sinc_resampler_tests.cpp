@@ -1,9 +1,11 @@
 #include "gtest/gtest.h"
 
+#include <array>
+#include <numeric>
+
 #include "chorus.h"
 #include "dsp_base.h"
 #include "sinc_resampler.h"
-#include <numeric>
 
 TEST(SincInterpolateTest, NoOp)
 {

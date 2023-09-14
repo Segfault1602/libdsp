@@ -51,7 +51,7 @@ void SimpleBowedStringTester::Init(size_t samplerate)
     param_value_ = dsp::Line(0.f, 1.f, midway_frame_);
 
     string_.Init(static_cast<float>(samplerate));
-    string_.SetFrequency(440.f);
+    string_.SetFrequency(220.f);
     string_.SetForce(0.f);
     string_.SetVelocity(0.f);
 }

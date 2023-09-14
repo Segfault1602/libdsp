@@ -96,7 +96,7 @@ void Phaseshaper::Init(float sampleRate)
 
 void Phaseshaper::SetMod(float mod)
 {
-    std::clamp(mod, 0.f, 1.f);
+    mod = std::clamp(mod, 0.f, 1.f);
     m_mod = mod;
 }
 
