@@ -55,6 +55,7 @@ int main(int argc, char** argv)
 
     bool realtime = false;
     std::string input_file;
+    TesterType type = TesterType::SIMPLE_BOWEDSTRING;
 
     for (size_t i = 0; i < args.size(); ++i)
     {
@@ -66,6 +67,16 @@ int main(int argc, char** argv)
         else if (args[i] == "-r")
         {
             realtime = true;
+        }
+        else if (args[i] == "-t")
+        {
+            auto type_id = static_cast<uint8_t>(std::stoi(args[i + 1]));
+            if (type_id >= static_cast<uint8_t>(TesterType::TYPE_COUNT))
+            {
+                printf("Invalid tester type %u\n", type_id);
+                return -1;
+            }
+            type = static_cast<TesterType>(type_id);
         }
     }
 
@@ -88,7 +99,7 @@ int main(int argc, char** argv)
         g_use_input_file = true;
     }
 
-    auto dsp_test = std::make_unique<SimpleBowedStringTester>();
+    auto dsp_test = CreateTester(type);
     dsp_test->Init(samplerate);
 
     if (frame_count != 0)

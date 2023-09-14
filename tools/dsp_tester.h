@@ -2,12 +2,24 @@
 
 #include "dsp_base.h"
 
+#include <memory>
+
 #include "bowed_string.h"
 #include "chorus.h"
 #include "line.h"
 
 #define DEFAULT_SAMPLERATE (48000u)
 #define DEFAULT_FRAME_COUNT_RATIO (2u)
+
+enum class TesterType
+{
+    CHORUS = 0,
+    SIMPLE_BOWEDSTRING,
+    PITCHSLIDE_BOWEDSTRING,
+    OSCVELOCITY_BOWEDSTRING,
+    VIBRATO_BOWEDSTRING,
+    TYPE_COUNT
+};
 
 class DspTester
 {
@@ -37,6 +49,8 @@ class DspTester
     size_t samplerate_ = DEFAULT_SAMPLERATE;
     uint32_t frame_count_ = DEFAULT_FRAME_COUNT_RATIO * DEFAULT_SAMPLERATE;
 };
+
+std::unique_ptr<DspTester> CreateTester(TesterType type);
 
 class ChorusTester : public DspTester
 {
@@ -74,6 +88,21 @@ class SimpleBowedStringTester : public DspTester
     dsp::Line param_value_;
 };
 
+class PitchSlideBowedStringTester : public DspTester
+{
+  public:
+    PitchSlideBowedStringTester() = default;
+    ~PitchSlideBowedStringTester() override = default;
+
+    void Init(size_t samplerate) override;
+    float Tick() override;
+    float Tick(float input) override;
+
+  private:
+    dsp::BowedString string_;
+    dsp::Line param_value_;
+};
+
 class OscVelocityBowedStringTester : public DspTester
 {
   public:
@@ -87,6 +116,25 @@ class OscVelocityBowedStringTester : public DspTester
   private:
     dsp::BowedString string_;
     const float kFrequency = 5.f;
+    float phase_dt_ = 0.f;
+    float phase_ = 0.f;
+};
+
+class VibratoBowedStringTester : public DspTester
+{
+  public:
+    VibratoBowedStringTester() = default;
+    ~VibratoBowedStringTester() override = default;
+
+    void Init(size_t samplerate) override;
+    float Tick() override;
+    float Tick(float input) override;
+
+  private:
+    dsp::BowedString string_;
+    const float kFrequency = 440.f;
+    const float kVibratoFrequency = 5.f;
+    const float kVibratoDepth = 0.7f;
     float phase_dt_ = 0.f;
     float phase_ = 0.f;
 };

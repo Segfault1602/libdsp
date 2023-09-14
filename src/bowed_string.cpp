@@ -30,16 +30,15 @@ void BowedString::SetFrequency(float f)
     float delay = (samplerate_ / freq_) * 0.5f;
     constexpr float bow_pos_ratio = 0.70f;
     waveguide_.SetJunction(delay);
-    // waveguide_.SetDelay(delay);
-    bow_position_ = std::floor(delay * bow_pos_ratio);
+    bow_position_ = delay * bow_pos_ratio;
 }
 
 void BowedString::SetDelay(float delay)
 {
     constexpr float bow_pos_ratio = 0.70f;
-    waveguide_.SetJunction(0.f);
+    waveguide_.SetJunction(delay);
     // waveguide_.SetDelay(delay);
-    bow_position_ = std::floor(delay * bow_pos_ratio);
+    bow_position_ = delay * bow_pos_ratio;
 
     freq_ = samplerate_ / (delay * 2);
 }
@@ -80,9 +79,9 @@ float BowedString::Tick(bool note_on)
     waveguide_.NextOut(nut, bridge);
 
     float vsl_plus, vsl_min;
-    waveguide_.TapOut(bow_position_, vsl_plus, vsl_min, &bow_interpolation_strategy_);
+    waveguide_.TapOut(bow_position_, vsl_min, vsl_plus, &bow_interpolation_strategy_);
     float vsr_plus, vsr_min;
-    waveguide_.TapOut(bow_position_ + 1, vsr_min, vsr_plus, &bow_interpolation_strategy_);
+    waveguide_.TapOut(bow_position_ + 1, vsr_plus, vsr_min, &bow_interpolation_strategy_);
 
     float bow_output = 0.f;
     if (note_on)
