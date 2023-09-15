@@ -18,3 +18,6 @@ When including the library in another project you might want to disable certain 
 `LIBDSP_LIB_ONLY`: Set to 'ON' to only build the static library. This will avoid building all the external dependencies used by the tools. 'OFF' by default.
 
 `LIBDSP_BUILD_TESTS`: Set to 'OFF' to forgo building the /tests directory. 'ON' by default.
+
+
+![ci status](https://github.com/Segfault1602/libdsp/actions/workflows/ci.yml/badge.svg)
