@@ -64,6 +64,11 @@ void BowedString::SetForce(float f)
     bow_table_.SetForce(f);
 }
 
+float BowedString::GetForce() const
+{
+    return bow_table_.GetForce();
+}
+
 void BowedString::Pluck()
 {
     float L = waveguide_.GetDelay();

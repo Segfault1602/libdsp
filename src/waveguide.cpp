@@ -20,14 +20,8 @@ void Waveguide::SetDelay(float delay)
         delay = static_cast<float>(max_size_) - 1.f;
     }
 
-    // junction_.SetDelay(delay);
-
-    // Consolidate the fractional part of the delay into the right traveling line
-    uint32_t delay_integer = static_cast<uint32_t>(delay);
-    float frac = delay - delay_integer;
-
-    right_traveling_line_.SetDelay(delay_integer + 2.f * frac);
-    left_traveling_line_.SetDelay(delay_integer);
+    right_traveling_line_.SetDelay(delay);
+    left_traveling_line_.SetDelay(delay);
     current_delay_ = delay;
 }
 
@@ -49,7 +43,9 @@ void Waveguide::NextOut(float& right, float& left)
 
 void Waveguide::Tick(float right, float left)
 {
+    // Always tick the junction(s) first
     junction_.Tick(left_traveling_line_, right_traveling_line_);
+
     right_traveling_line_.Tick(left);
     left_traveling_line_.Tick(right);
 }

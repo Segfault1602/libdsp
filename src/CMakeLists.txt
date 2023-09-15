@@ -1,6 +1,7 @@
 set(LIB_SOURCES
     basic_oscillators.cpp
     bow_table.cpp
+    chorus.cpp
     dsp_base.cpp
     bowed_string.cpp
     delayline.cpp
@@ -10,6 +11,7 @@ set(LIB_SOURCES
     line.cpp
     phaseshapers.cpp
     sinc_resampler.cpp
+    termination.cpp
     waveguide.cpp)
 
 add_library(dsp STATIC ${LIB_SOURCES})

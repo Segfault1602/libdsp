@@ -18,10 +18,21 @@ class DspBase
     {
     }
 
+    /// @brief Tick the DSP object.
+    /// @param in Input sample
+    /// @return Output sample
     virtual float Tick(float in) = 0;
 };
 
+/// @brief Convert midi note to frequency.
+/// @param midi_note The midi note number. Valid range is 0 to 127.
+/// @return The frequency in Hz.
 float MidiToFreq(float midi_note);
+
+/// @brief Convert frequency to midi note.
+/// @param freq The frequency in Hz.
+/// @return The midi note number.
+/// @note This function can return a value outside the valid midi note range.
 float FreqToMidi(float freq);
 
 // Midi note to frequency table precomputed with f(n) = 440 * 2 ^ ((n - 69) / 12)

@@ -20,83 +20,46 @@ namespace dsp
 class Chorus : public DspBase
 {
   public:
-    Chorus(size_t max_delay_size) : delay_(max_delay_size)
-    {
-    }
+    /// @brief Constructor.
+    /// @param max_delay_size Maximum delay size in samples.
+    Chorus(size_t max_delay_size);
 
     ~Chorus() override = default;
     Chorus(const Chorus& c) = delete;
 
-    void Init(uint32_t samplerate, float delay_ms, float width = 100, float speed = .5f)
-    {
-        samplerate_ = samplerate;
-        SetDelay(delay_ms);
-        delay_.SetDelay(base_delay_);
-        width_ = width;
-        speed_ = speed;
+    /// @brief Initialize the chorus.
+    /// @param samplerate Samplerate in Hz.
+    /// @param delay_ms Delay in milliseconds.
+    /// @param width Width in samples.
+    /// @param speed Speed in Hz.
+    void Init(uint32_t samplerate, float delay_ms, float width = 100, float speed = .5f);
 
-        float mod_period = static_cast<float>(samplerate) / speed;
-        mod_phase_dt_ = 1.f / mod_period;
-        delta_t_ = 1.f / static_cast<float>(samplerate);
-    }
+    /// @brief Reset the chorus.
+    /// @note This will clear the delayline.
+    void Reset();
 
-    void Reset()
-    {
-        delay_.Reset();
-    }
+    /// @brief Set the delay in milliseconds.
+    /// @param delay_ms Delay in milliseconds.
+    void SetDelay(float delay_ms);
 
-    void SetDelay(float delay_ms)
-    {
-        // TODO: add max delay check here
-        if (base_delay_ms_ != delay_ms)
-        {
-            base_delay_ = delay_ms * samples_per_ms_;
-            base_delay_ms_ = delay_ms;
-        }
-    }
+    /// @brief Set the mix between the dry signal and the chorus.
+    /// @param mix The mix between the dry signal and the chorus.
+    void SetMix(float mix);
 
-    void SetMix(float mix)
-    {
-        chorus_mix_ = mix;
-        input_mix_ = 1.f - mix;
-    }
+    /// @brief Set the width in samples.
+    /// @param width Width in samples.
+    /// @note A bigger width will result in a more noticeable effect. Vibrato like sounds can be achieved by incresing
+    /// this value.
+    void SetWidth(float width);
 
-    void SetWidth(float width)
-    {
-        width_ = width;
-    }
+    /// @brief Set the speed in Hz.
+    /// @param speed Speed in Hz.
+    void SetSpeed(float speed);
 
-    void SetSpeed(float speed)
-    {
-        if (speed_ != speed)
-        {
-            speed_ = speed;
-            float mod_period = static_cast<float>(samplerate_) / speed;
-            mod_phase_dt_ = 1.f / mod_period;
-        }
-    }
-
-    float Tick(float in) override
-    {
-
-        float mod = Sine(mod_phase_) * width_;
-        mod_phase_ += mod_phase_dt_;
-        if (mod_phase_ >= 1.f)
-        {
-            mod_phase_ -= 1.f;
-        }
-
-        constexpr float FB = -0.7f;
-        constexpr float FF = 1.f;
-        constexpr float BL = 0.7f;
-
-        float feedback = delay_.TapOut(base_delay_) * FB;
-        float xn = in + feedback;
-
-        delay_.SetDelay(base_delay_ + mod);
-
-        return delay_.Tick(xn) * FF + BL * xn;
-    }
+    /// @brief Tick the chorus.
+    /// @param in audio sample
+    /// @return The processed audio sample.
+    float Tick(float in) override;
 
   private:
     uint32_t samplerate_ = 48000;
@@ -104,11 +67,8 @@ class Chorus : public DspBase
 
     float base_delay_ms_ = 0.f;
     float base_delay_ = 0.f;
-#ifdef CHORUS_LINEAR_DELAY
     Delayline delay_;
-#else
-    DelaySinc<MAX_DELAY_SIZE> delay_;
-#endif
+
     float width_ = 50.f;
     float speed_ = 5.f;
 
@@ -118,11 +78,5 @@ class Chorus : public DspBase
 
     float chorus_mix_ = 0.5f;
     float input_mix_ = 0.5f;
-
-  private:
-    float Sine(float phase)
-    {
-        return sinf(TWO_PI * phase);
-    }
 };
 } // namespace dsp

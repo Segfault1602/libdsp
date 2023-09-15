@@ -8,33 +8,28 @@
 namespace dsp
 {
 /// @brief Base class for termination points between two delaylines
+/// @note For now, a termination is simply a gain and a filter and the class mostly exists for readability.
 class Termination
 {
   public:
-    Termination(float gain = -1.f) : gain_(gain)
-    {
-    }
+    /// @brief Construct a new Termination object.
+    /// @param gain Gain of the termination. Defaults the -1.
+    Termination(float gain = -1.f);
     virtual ~Termination() = default;
 
-    virtual void SetGain(float gain)
-    {
-        gain_ = gain;
-    }
+    /// @brief Set the gain of the termination.
+    /// @param gain
+    virtual void SetGain(float gain);
 
-    virtual void SetFilter(Filter* filter)
-    {
-        filter_ = filter;
-    }
+    /// @brief Set the filter of the termination.
+    /// @param filter Filter to set.
+    virtual void SetFilter(Filter* filter);
 
-    virtual float Tick(float in)
-    {
-        if (filter_)
-        {
-            in = filter_->Tick(in);
-        }
-
-        return in * gain_;
-    }
+    /// @brief Tick the termination.
+    /// @param in Input sample.
+    /// @return Output sample.
+    /// @note If a filter is set, the input sample will be filtered before being multiplied by the gain.
+    virtual float Tick(float in);
 
   protected:
     float gain_ = -1.f;

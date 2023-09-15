@@ -76,11 +76,6 @@ float Delayline::Tick(float input)
     return last_out_;
 }
 
-float Delayline::TapOut(float delay) const
-{
-    return TapOut(delay, interpolation_strategy_.get());
-}
-
 float Delayline::TapOut(float delay, InterpolationStrategy* interpolation_strategy) const
 {
     if (delay >= delay_)
@@ -91,6 +86,12 @@ float Delayline::TapOut(float delay, InterpolationStrategy* interpolation_strate
     if (reverse_)
     {
         delay = delay_ - delay + 1;
+    }
+
+    if (interpolation_strategy == nullptr)
+    {
+        LinearInterpolation interpolation;
+        return interpolation.TapOut(line_.get(), max_size_, write_ptr_, delay);
     }
 
     return interpolation_strategy->TapOut(line_.get(), max_size_, write_ptr_, delay);

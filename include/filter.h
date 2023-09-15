@@ -24,12 +24,21 @@ class Filter
     Filter() = default;
     virtual ~Filter() = default;
 
+    /// @brief  Tick the filter.
+    /// @param in Input sample
+    /// @return Output sample
     virtual float Tick(float in) = 0;
 
+    /// @brief Set the gain of the filter.
+    /// @param gain
     void SetGain(float gain);
 
+    /// @brief Set the 'a' coefficients of the filter.
+    /// @param a Array of size COEFFICIENT_COUNT containing the 'a' coefficients.
     void SetA(const float (&a)[COEFFICIENT_COUNT]);
 
+    /// @brief Set the 'b' coefficients of the filter.
+    /// @param b Array of size COEFFICIENT_COUNT containing the 'b' coefficients.
     void SetB(const float (&b)[COEFFICIENT_COUNT]);
 
   protected:
@@ -47,6 +56,9 @@ class OnePoleFilter : public Filter
     OnePoleFilter() = default;
     ~OnePoleFilter() override = default;
 
+    /// @brief Set the pole of the filter.
+    /// @param pole The pole of the filter.
+    ///
     void SetPole(float pole);
 
     float Tick(float in) override;

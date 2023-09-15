@@ -17,6 +17,13 @@ class BowTable
         force_ = 5.f - (4.f * f);
     }
 
+    /// @brief Returns the force of the bow
+    /// @return the force of the bow
+    float GetForce() const
+    {
+        return force_;
+    }
+
     /// @brief Table offset value
     /// @param o Offset value
     /// @note From STK source: "The table offset is a bias which controls the

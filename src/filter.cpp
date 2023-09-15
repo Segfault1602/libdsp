@@ -25,17 +25,12 @@ void Filter::SetB(const float (&b)[COEFFICIENT_COUNT])
 
 void OnePoleFilter::SetPole(float pole)
 {
+    // https://ccrma.stanford.edu/~jos/fp/One_Pole.html
+    // If the filter has a pole at z = -a, then a_[1] will be -pole;
     assert(pole < 1.f && pole > -1.f);
 
-    if (pole > 0.f)
-    {
-        b_[0] = 1.f - pole;
-    }
-    else
-    {
-        b_[0] = 1.f + pole;
-    }
-
+    // Set the b value to 1 - |a| to get a peak gain of 1.
+    b_[0] = 1.f - std::abs(pole);
     a_[1] = -pole;
 }
 
