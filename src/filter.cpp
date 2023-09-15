@@ -1,5 +1,7 @@
 #include "filter.h"
 
+#include <cmath>
+
 namespace dsp
 {
 void Filter::SetGain(float gain)

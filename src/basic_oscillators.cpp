@@ -9,7 +9,7 @@ namespace dsp
 
 float Sine(float phase)
 {
-    return std::sinf(phase * TWO_PI);
+    return std::sin(phase * TWO_PI);
 }
 
 float Tri(float phase)
