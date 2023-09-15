@@ -1,0 +1,80 @@
+#pragma once
+
+#include "bow_table.h"
+#include "dsp_base.h"
+#include "filter.h"
+#include "termination.h"
+#include "waveguide.h"
+
+#include <algorithm>
+
+namespace dsp
+{
+
+/// @brief Implements a bowed string model using a waveguide composed of a right traveling wave and a left traveling
+/// wave.
+class BowedString
+{
+  public:
+    BowedString();
+    ~BowedString() = default;
+
+    void Init(float samplerate);
+
+    /// @brief Set the frequency of the string
+    /// @param f The frequency of the string in Hz
+    void SetFrequency(float f);
+
+    /// @brief Returns the frequency of the string in Hz
+    /// @return The frequency of the string in Hz
+    float GetFrequency() const;
+
+    /// @brief Set the length of the string in samples
+    /// @param delay The length of the string in samples
+    /// @note this method exists mostly to allow easy testing of the model with different delay values. Use
+    /// `SetFrequency()` to change the pitch of the string.
+    void SetDelay(float delay);
+
+    /// @brief Return the current bow velocity.
+    /// @return The current bow velocity.
+    float GetVelocity() const;
+
+    /// @brief Set the velocity of the bow
+    /// @param v The velocity of the bow. Value should be between 0 and 1.
+    void SetVelocity(float v);
+
+    /// @brief Set the force of the bow
+    /// @param f the force of the bow. Value should be between 0 and 1.
+    void SetForce(float f);
+
+    /// @brief Returns the force of the bow
+    /// @return The force of the bow
+    float GetForce() const;
+
+    /// @brief Pluck the string.
+    void Pluck();
+
+    /// @brief Tick the string.
+    /// @param note_on If true, the string is bowed, otherwise it is left to resonate.
+    /// @return The output sample at the bridge.
+    float Tick(bool note_on);
+
+  private:
+    Waveguide waveguide_;
+
+    float bow_position_ = 0.f;
+
+    Termination nut_;
+    Termination bridge_;
+    BowTable bow_table_;
+    LinearInterpolation bow_interpolation_strategy_;
+
+    OnePoleFilter reflection_filter_;
+    float samplerate_;
+    float freq_;
+    float velocity_ = 0.f;
+
+    constexpr static float max_velocity_ = 0.3f;
+    constexpr static float velocity_offset_ = 0.03f;
+};
+} // namespace dsp

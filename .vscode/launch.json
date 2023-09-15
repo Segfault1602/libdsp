@@ -1,0 +1,115 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Instrument Player",
+            "type": "cppdbg",
+            "MIMode": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/tools/player/player.exe",
+            "args": [
+                "-m",
+                "1"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "console": "internalConsole",
+            "windows": {
+                "type": "cppvsdbg"
+            },
+            "osx": {
+                "type": "cppdbg",
+                "externalConsole": false,
+                "MIMode": "lldb"
+            }
+        },
+        {
+            "name": "(lldb) Instrument Player",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/tools/player/player",
+            "args": [
+                "-m",
+                "0"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        },
+        {
+            "name": "(lldb) Tests",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/tests/libdsp_tests",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        },
+        {
+            "name": "Tests",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/tests/libdsp_tests.exe",
+            "args": [
+                "--gtest_filter=WaveguideTests.JunctionTest"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "console": "externalTerminal"
+        },
+        {
+            "name": "Debug Resampler.exe",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/tools/resampler.exe",
+            "args": [
+                "-f",
+                "${workspaceFolder}/waves/chirp.wav",
+                "-t",
+                "44100",
+                "-o",
+                "out.wav"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "console": "externalTerminal"
+        },
+        {
+            "name": "Debug Player.exe",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/tools/effect_player.exe",
+            "args": [
+                "-f",
+                "${workspaceFolder}/waves/piano.wav"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "console": "externalTerminal"
+        }
+        {
+            "name": "(lldb) effect_player",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/tools/effect_player",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        }
+    ]
+}
