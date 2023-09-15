@@ -9,6 +9,7 @@ set(CLANG_TIDY_COMMAND "${CLANG_TIDY_EXE}")
 set(CMAKE_OSX_DEPLOYMENT_TARGET "13")
 
 set(CLANG_COMPILER_OPTION -Wall -Wpedantic -Werror)
+set(MSVC_COMPILER_OPTION /W4 /WX /analyze)
 
 include_directories(include)
 
