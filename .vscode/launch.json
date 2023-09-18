@@ -104,7 +104,11 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/tools/effect_player",
-            "args": [],
+            "args": [
+                "-r",
+                "-t",
+                "5"
+            ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],

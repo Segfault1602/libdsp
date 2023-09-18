@@ -1,6 +1,7 @@
 #include "dsp_tester.h"
 
 #include "basic_oscillators.h"
+#include "dsp_base.h"
 
 constexpr float CHORUS_BASE_DELAY = 20.f;
 
@@ -18,6 +19,8 @@ std::unique_ptr<DspTester> CreateTester(TesterType type)
         return std::make_unique<OscVelocityBowedStringTester>();
     case TesterType::VIBRATO_BOWEDSTRING:
         return std::make_unique<VibratoBowedStringTester>();
+    case TesterType::SCALE_BOWEDSTRING:
+        return std::make_unique<ScaleBowedStringTester>();
     default:
         assert(false);
         return nullptr;
@@ -110,7 +113,8 @@ void OscVelocityBowedStringTester::Init(size_t samplerate)
 
 float OscVelocityBowedStringTester::Tick()
 {
-    float param = (dsp::Tri(phase_) + 1) * 0.5f;
+    float param = (dsp::Sine(phase_) + 1) * 2.f;
+    param = std::clamp(param, 0.f, 1.f);
     phase_ += phase_dt_;
     if (phase_ >= 1.f)
     {
@@ -131,19 +135,27 @@ void PitchSlideBowedStringTester::Init(size_t samplerate)
 {
     samplerate_ = samplerate;
 
-    frame_count_ = samplerate * 1;
-    param_value_ = dsp::Line(440.f, 880.f, frame_count_);
+    frame_count_ = samplerate * 4;
+    param_value_ = dsp::Line(440.f, 660.f, samplerate);
 
     string_.Init(static_cast<float>(samplerate));
-    string_.SetFrequency(20.f);
+    string_.SetFrequency(440.f);
     string_.SetForce(0.5f);
     string_.SetVelocity(0.5f);
+
+    current_frame_ = 0;
 }
 
 // Velocity and Force will gradually increase over the first 3 seconds and then decrease until the end.
 float PitchSlideBowedStringTester::Tick()
 {
-    string_.SetFrequency(param_value_.Tick());
+    // Stay on the first note for one second before the glissando
+    if (current_frame_ > samplerate_)
+    {
+        string_.SetFrequency(param_value_.Tick());
+    }
+    ++current_frame_;
+
     return string_.Tick(true);
 }
 
@@ -176,6 +188,76 @@ float VibratoBowedStringTester::Tick()
     }
 
     string_.SetFrequency(freq);
+    return string_.Tick(true);
+}
+
+float ScaleBowedStringTester::Tick(float)
+{
+    return Tick();
+}
+
+void ScaleBowedStringTester::Init(size_t samplerate)
+{
+    samplerate_ = samplerate;
+
+    vel_phase_dt_ = kVelSpeed / static_cast<float>(samplerate);
+    frame_per_note_ = static_cast<float>(samplerate_) / kVelSpeed;
+    vel_phase_ = 0.75f;
+
+    frame_count_ = samplerate * 6;
+    vib_phase_dt_ = kVibratoFrequency / static_cast<float>(samplerate);
+    vib_phase_ = 0.f;
+
+    string_.Init(static_cast<float>(samplerate));
+    string_.SetFrequency(dsp::midi_to_freq[60]);
+    string_.SetForce(0.5f);
+    string_.SetVelocity(0.5f);
+}
+
+// TODO: clean up this.
+uint8_t current_note[] = {60, 62, 64, 65, 67, 69, 71, 72};
+int32_t note_increment = 1;
+int32_t note_index = 0;
+
+// Velocity and Force will gradually increase over the first 3 seconds and then decrease until the end.
+float ScaleBowedStringTester::Tick()
+{
+    float vel_param = (dsp::Sine(vel_phase_) + 1) * 2.f;
+    vel_param = std::clamp(vel_param, 0.f, 1.f);
+    vel_phase_ += vel_phase_dt_;
+    if (vel_phase_ >= 1.f)
+    {
+        vel_phase_ -= 1.f;
+    }
+
+    string_.SetVelocity(vel_param);
+
+    float vibrato = (dsp::Sine(vib_phase_) * kVibratoDepth);
+    vib_phase_ += vib_phase_dt_;
+    if (vib_phase_ >= 1.f)
+    {
+        vib_phase_ -= 1.f;
+    }
+    (void)vibrato;
+
+    if (current_frame_ == frame_per_note_)
+    {
+        current_frame_ -= frame_per_note_;
+
+        note_index += note_increment;
+        if (note_index == sizeof(current_note) - 1)
+        {
+            note_increment = -1;
+        }
+        else if (note_index == 0)
+        {
+            note_increment = 1;
+        }
+        float freq = dsp::midi_to_freq[current_note[note_index]];
+        string_.SetFrequency(freq);
+    }
+
+    ++current_frame_;
     return string_.Tick(true);
 }
 

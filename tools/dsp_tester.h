@@ -18,6 +18,7 @@ enum class TesterType
     PITCHSLIDE_BOWEDSTRING,
     OSCVELOCITY_BOWEDSTRING,
     VIBRATO_BOWEDSTRING,
+    SCALE_BOWEDSTRING,
     TYPE_COUNT
 };
 
@@ -101,6 +102,7 @@ class PitchSlideBowedStringTester : public DspTester
   private:
     dsp::BowedString string_;
     dsp::Line param_value_;
+    size_t current_frame_;
 };
 
 class OscVelocityBowedStringTester : public DspTester
@@ -115,7 +117,7 @@ class OscVelocityBowedStringTester : public DspTester
 
   private:
     dsp::BowedString string_;
-    const float kFrequency = 5.f;
+    const float kFrequency = 7.f;
     float phase_dt_ = 0.f;
     float phase_ = 0.f;
 };
@@ -137,4 +139,29 @@ class VibratoBowedStringTester : public DspTester
     const float kVibratoDepth = 0.7f;
     float phase_dt_ = 0.f;
     float phase_ = 0.f;
+};
+
+class ScaleBowedStringTester : public DspTester
+{
+  public:
+    ScaleBowedStringTester() = default;
+    ~ScaleBowedStringTester() override = default;
+
+    void Init(size_t samplerate) override;
+    float Tick() override;
+    float Tick(float input) override;
+
+  private:
+    dsp::BowedString string_;
+    const float kVelSpeed = 8.f;
+    float vel_phase_dt_ = 0.f;
+    float vel_phase_ = 0.f;
+
+    float current_frame_ = 0.f;
+    float frame_per_note_ = 0.f;
+
+    const float kVibratoFrequency = 5.f;
+    const float kVibratoDepth = 1.2f;
+    float vib_phase_dt_ = 0.f;
+    float vib_phase_ = 0.f;
 };
