@@ -29,6 +29,11 @@ class DspBase
 /// @return The frequency in Hz.
 float MidiToFreq(float midi_note);
 
+/// @brief Convert midi note to frequency using a lookup table and linear interpolation.
+/// @param midi_note The midi note number.
+/// @return The frequency in Hz.
+float FastMidiToFreq(float midi_note);
+
 /// @brief Convert frequency to midi note.
 /// @param freq The frequency in Hz.
 /// @return The midi note number.

@@ -8,6 +8,8 @@
 #include "chorus.h"
 #include "line.h"
 
+#include "arpegiator.h"
+
 #define DEFAULT_SAMPLERATE (48000u)
 #define DEFAULT_FRAME_COUNT_RATIO (2u)
 
@@ -153,12 +155,13 @@ class ScaleBowedStringTester : public DspTester
 
   private:
     dsp::BowedString string_;
-    const float kVelSpeed = 8.f;
+    const float kVelSpeed = 7.f;
     float vel_phase_dt_ = 0.f;
     float vel_phase_ = 0.f;
 
     float current_frame_ = 0.f;
     float frame_per_note_ = 0.f;
+    Arpegiator arp_;
 
     const float kVibratoFrequency = 5.f;
     const float kVibratoDepth = 1.2f;
