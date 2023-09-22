@@ -41,8 +41,8 @@ set(ASFLAGS "${MCU} -Wall -fdata-sections -ffunction-sections")
 set(CFLAGS "${MCU} ${C_DEFS} ${C_INCLUDES} ${OPT} -Wall -Werror -fdata-sections -ffunction-sections")
 set(CPPFLAGS "${CFLAGS} -fno-exceptions -finline-functions")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CFLAGS}")
-set(CMAKE_CPP_FLAGS "${CMAKE_CXX_FLAGS} ${CPPFLAGS}")
+set(CMAKE_C_FLAGS_INIT  "${CFLAGS}")
+set(CMAKE_CXX_FLAGS_INIT  "${CPPFLAGS}")
 
 set(LIBDSP_LIB_ONLY ON)
 set(LIBDSP_BUILD_TESTS OFF)

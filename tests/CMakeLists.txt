@@ -10,9 +10,9 @@ set(SOURCES ${TEST_SOURCES})
 add_executable(libdsp_tests ${TEST_SOURCES})
 
 if(NOT MSVC)
-  target_compile_options(dsp PRIVATE -Wall -Wpedantic -Werror)
+  target_compile_options(libdsp_tests PRIVATE ${CLANG_COMPILER_OPTION})
 else()
-  target_compile_options(dsp PRIVATE /W4 /WX)
+  target_compile_options(libdsp_tests PRIVATE ${MSVC_COMPILER_OPTION})
 endif()
 
 add_test(NAME libdsp_tests COMMAND libdsp_tests)

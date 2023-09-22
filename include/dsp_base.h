@@ -3,7 +3,10 @@
 // =============================================================================
 #pragma once
 
+#ifndef PI_F
 #define PI_F 3.14159265358979323846f
+#endif
+
 #define TWO_PI (2.0f * PI_F)
 
 namespace dsp
