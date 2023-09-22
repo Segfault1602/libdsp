@@ -7,7 +7,7 @@ set(CMAKE_TRY_COMPILE_TARGET_TYPE   STATIC_LIBRARY)
 
 # which compilers to use for C and C++
 set(CMAKE_AR                        arm-none-eabi-ar)
-set(CMAKE_ASM_COMPILER              arm-none-eabi-gcc)
+set(CMAKE_ASM_COMPILER              arm-none-eabi-gcc -x assembler-with-cpp)
 set(CMAKE_C_COMPILER                arm-none-eabi-gcc)
 set(CMAKE_CXX_COMPILER              arm-none-eabi-g++)
 set(CMAKE_LINKER                    arm-none-eabi-ld)
@@ -29,4 +29,20 @@ set(CMAKE_STRIP                     arm-none-eabi-strip CACHE INTERNAL "")
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mcpu=cortex-m7 -mthumb -mfpu=fpv5-d16 -mfloat-abi=hard -O3 -Wall -Werror -fdata-sections -ffunction-sections")
+set(C_STD "-std=gnu11")
+set(CPP_STD "-std=gnu++20")
+set(CPU "-mcpu=cortex-m7")
+set(FPU "-mfpu=fpv5-d16")
+set(FLOAT_ABI "-mfloat-abi=hard")
+set(MCU "${CPU} -mthumb ${FPU} ${FLOAT_ABI}")
+set(C_DEFS "-DSTM32H750xx")
+
+set(ASFLAGS "${MCU} -Wall -fdata-sections -ffunction-sections")
+set(CFLAGS "${MCU} ${C_DEFS} ${C_INCLUDES} ${OPT} -Wall -Werror -fdata-sections -ffunction-sections")
+set(CPPFLAGS "${CFLAGS} -fno-exceptions -finline-functions")
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CFLAGS}")
+set(CMAKE_CPP_FLAGS "${CMAKE_CXX_FLAGS} ${CPPFLAGS}")
+
+set(LIBDSP_LIB_ONLY ON)
+set(LIBDSP_BUILD_TESTS OFF)
