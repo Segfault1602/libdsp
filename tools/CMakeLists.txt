@@ -9,8 +9,14 @@ if(NOT MSVC)
 endif()
 
 # effect player executable
-add_executable(effect_player arpegiator.cpp effect_player.cpp dsp_tester.cpp
-                             test_utils.cpp)
+add_executable(effect_player
+    arpegiator.cpp
+    bowedstring_tests.cpp
+    effect_player.cpp
+    dsp_tester.cpp
+    phaseshapers_tests.cpp
+    test_utils.cpp)
+
 target_link_libraries(effect_player PUBLIC dsp sndfile rtaudio)
 
 set_target_properties(effect_player PROPERTIES CXX_CLANG_TIDY

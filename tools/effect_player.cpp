@@ -13,10 +13,48 @@
 #include <sndfile.h>
 
 #include "bowed_string.h"
+#include "bowedstring_tests.h"
 #include "chorus.h"
 #include "dsp_base.h"
 #include "dsp_tester.h"
+#include "phaseshapers_tests.h"
 #include "test_utils.h"
+
+enum class TesterType
+{
+    CHORUS = 0,
+    SIMPLE_BOWEDSTRING,
+    PITCHSLIDE_BOWEDSTRING,
+    OSCVELOCITY_BOWEDSTRING,
+    VIBRATO_BOWEDSTRING,
+    SCALE_BOWEDSTRING,
+    PHASESHAPER,
+    TYPE_COUNT
+};
+
+std::unique_ptr<DspTester> CreateTester(TesterType type)
+{
+    switch (type)
+    {
+    case TesterType::CHORUS:
+        return std::make_unique<ChorusTester>();
+    case TesterType::SIMPLE_BOWEDSTRING:
+        return std::make_unique<SimpleBowedStringTester>();
+    case TesterType::PITCHSLIDE_BOWEDSTRING:
+        return std::make_unique<PitchSlideBowedStringTester>();
+    case TesterType::OSCVELOCITY_BOWEDSTRING:
+        return std::make_unique<OscVelocityBowedStringTester>();
+    case TesterType::VIBRATO_BOWEDSTRING:
+        return std::make_unique<VibratoBowedStringTester>();
+    case TesterType::SCALE_BOWEDSTRING:
+        return std::make_unique<ScaleBowedStringTester>();
+    case TesterType::PHASESHAPER:
+        return std::make_unique<PhaseShaperTest>();
+    default:
+        assert(false);
+        return nullptr;
+    }
+}
 
 int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBufferFrames, double /*streamTime*/,
                      RtAudioStreamStatus /*status*/, void* data);

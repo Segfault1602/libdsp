@@ -105,9 +105,8 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/tools/effect_player",
             "args": [
-                "-r",
                 "-t",
-                "5"
+                "6"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

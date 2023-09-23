@@ -3,26 +3,14 @@
 #include "dsp_base.h"
 
 #include <memory>
+#include <string>
 
 #include "bowed_string.h"
 #include "chorus.h"
 #include "line.h"
 
-#include "arpegiator.h"
-
 #define DEFAULT_SAMPLERATE (48000u)
 #define DEFAULT_FRAME_COUNT_RATIO (2u)
-
-enum class TesterType
-{
-    CHORUS = 0,
-    SIMPLE_BOWEDSTRING,
-    PITCHSLIDE_BOWEDSTRING,
-    OSCVELOCITY_BOWEDSTRING,
-    VIBRATO_BOWEDSTRING,
-    SCALE_BOWEDSTRING,
-    TYPE_COUNT
-};
 
 class DspTester
 {
@@ -33,6 +21,11 @@ class DspTester
     virtual void Init(size_t samplerate) = 0;
     virtual float Tick() = 0;
     virtual float Tick(float input) = 0;
+
+    const std::string& GetOutputFileName() const
+    {
+        return name_;
+    }
 
     size_t GetSamplerate() const
     {
@@ -51,9 +44,9 @@ class DspTester
   protected:
     size_t samplerate_ = DEFAULT_SAMPLERATE;
     uint32_t frame_count_ = DEFAULT_FRAME_COUNT_RATIO * DEFAULT_SAMPLERATE;
-};
 
-std::unique_ptr<DspTester> CreateTester(TesterType type);
+    std::string name_ = "output.wav";
+};
 
 class ChorusTester : public DspTester
 {
@@ -67,104 +60,4 @@ class ChorusTester : public DspTester
 
   private:
     dsp::Chorus chorus_;
-};
-
-class SimpleBowedStringTester : public DspTester
-{
-  public:
-    SimpleBowedStringTester() = default;
-    ~SimpleBowedStringTester() override = default;
-
-    void Init(size_t samplerate) override;
-    float Tick() override;
-    float Tick(float input) override;
-
-  private:
-    dsp::BowedString string_;
-
-    size_t midway_frame_ = 0;
-    size_t current_frame_ = 0;
-
-    float current_velocity_ = 0.f;
-    float current_force_ = 0.f;
-    float param_delta_ = 0.f;
-    dsp::Line param_value_;
-};
-
-class PitchSlideBowedStringTester : public DspTester
-{
-  public:
-    PitchSlideBowedStringTester() = default;
-    ~PitchSlideBowedStringTester() override = default;
-
-    void Init(size_t samplerate) override;
-    float Tick() override;
-    float Tick(float input) override;
-
-  private:
-    dsp::BowedString string_;
-    dsp::Line param_value_;
-    size_t current_frame_;
-};
-
-class OscVelocityBowedStringTester : public DspTester
-{
-  public:
-    OscVelocityBowedStringTester() = default;
-    ~OscVelocityBowedStringTester() override = default;
-
-    void Init(size_t samplerate) override;
-    float Tick() override;
-    float Tick(float input) override;
-
-  private:
-    dsp::BowedString string_;
-    const float kFrequency = 7.f;
-    float phase_dt_ = 0.f;
-    float phase_ = 0.f;
-};
-
-class VibratoBowedStringTester : public DspTester
-{
-  public:
-    VibratoBowedStringTester() = default;
-    ~VibratoBowedStringTester() override = default;
-
-    void Init(size_t samplerate) override;
-    float Tick() override;
-    float Tick(float input) override;
-
-  private:
-    dsp::BowedString string_;
-    const float kFrequency = 440.f;
-    const float kVibratoFrequency = 5.f;
-    const float kVibratoDepth = 0.7f;
-    float phase_dt_ = 0.f;
-    float phase_ = 0.f;
-};
-
-class ScaleBowedStringTester : public DspTester
-{
-  public:
-    ScaleBowedStringTester() = default;
-    ~ScaleBowedStringTester() override = default;
-
-    void Init(size_t samplerate) override;
-    float Tick() override;
-    float Tick(float input) override;
-
-  private:
-    dsp::BowedString string_;
-    const float kVelSpeed = 7.f;
-    float vel_phase_dt_ = 0.f;
-    float vel_phase_ = 0.f;
-
-    float current_frame_ = 0.f;
-    float frame_per_note_ = 0.f;
-    Arpegiator arp_;
-
-    const float kVibratoFrequency = 5.f;
-    const float kVibratoDepth = 1.2f;
-    float vib_phase_dt_ = 0.f;
-    float vib_phase_ = 0.f;
 };

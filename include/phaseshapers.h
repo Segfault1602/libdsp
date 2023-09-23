@@ -25,11 +25,13 @@ class Phaseshaper
     enum class Waveform : uint8_t
     {
         VARIABLE_SLOPE = 0,
+        VARIABLE_TRIANGLE,
         SOFTSYNC,
         WAVESLICE,
         SUPERSAW,
         HARDSYNC,
         TRIANGLE_MOD,
+        RIPPLE,
         NUM_WAVES,
     };
 
@@ -49,6 +51,8 @@ class Phaseshaper
         m_waveform = wave;
     }
 
+    /// @brief Sets the frequency
+    /// @param freq Frequency in Hz
     void SetFreq(float freq)
     {
         m_freq = freq;
@@ -62,6 +66,8 @@ class Phaseshaper
     /// For example, for Waveform::VARIABLE_SLOPE, the modulation parameter controls the width of the waveform.
     void SetMod(float mod);
 
+    /// @brief Processes the oscillator
+    /// @return
     float Process();
 
   private:
@@ -72,6 +78,7 @@ class Phaseshaper
     float ProcessSupersaw() const;
     float ProcessVarSlope() const;
     float ProcessVarTri() const;
+    float ProcessRipple() const;
 
     float ProcessWave(Waveform wave) const;
 

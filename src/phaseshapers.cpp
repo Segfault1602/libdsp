@@ -17,6 +17,8 @@
 #include <stdint.h>
 
 #define G_B(x) (2 * x - 1)
+#define MODM(x, m) (std::fmod(x, m))
+#define MOD1(x) (std::fmod(x, 1.f))
 
 // -- Linear transformations
 
@@ -37,13 +39,8 @@ inline float g_tri(float x, float a1 = 1, float a0 = 0)
 
 inline float g_pulse(float x, float phaseIncrement, float width = 0.5f, float period = 100.f)
 {
-    float d = width * period;
-    return x - std::fmod(x + phaseIncrement * d, 1.f) + width;
-}
-
-inline float g_pulse_trivial(float x, float width = 0.5f)
-{
-    return (x < width) ? 0.f : 1.f;
+    float d = std::floorf(width * period);
+    return x - std::fmod(x + phaseIncrement * d, 1.f) + (1 - width);
 }
 
 inline float s_tri(float x)
@@ -58,28 +55,60 @@ inline float s_tri(float x)
     }
 }
 
-float polyBLEP(float phase, float phaseIncrement, float h = -1.f)
+inline float s_vtri(float x, float phaseIncrement, float w = 0.5f, float P = 100)
 {
-    float out = 0.f;
-    float p = phase;
-    p -= floorf(p);
+    float d = std::ceilf(w * P + 0.5f);
+    float x1 = 2 * x - 1;
+    float xd = 2 * std::fmod(x + phaseIncrement * d, 1.f) - 1;
+    float xdiff = x1 * x1 - xd * xd;
+    float at = 1.f / (8.f * (w - w * w));
+    constexpr float bt = 0.5f;
+    float s = g_lin(xdiff, at, bt);
+    return s;
+}
 
-    if (p > (1 - phaseIncrement))
+inline float g_vtri(float x, float phaseIncrement, float w = 0.5f, float a1 = 1.f, float a0 = 0.f, float P = 100)
+{
+    float vtri = s_vtri(x, phaseIncrement, w, P);
+    return MOD1(g_lin(vtri, a1, a0));
+}
+
+inline float g_ripple(float x, float m = 0.0f)
+{
+    return G_B(x + MODM(x, m));
+}
+
+/// @brief
+/// @param x Signal
+/// @param T Phase increament
+/// @param h Transition height (negative for falling transition)
+/// @return
+float polyBLEP(float x, float T, float h = -1.f)
+{
+    float s = 0.f;
+    float p = x;
+    p -= floorf(p); // phase [0,1)
+
+    if (p > (1 - T))
     {
-        float t = (p - 1) / phaseIncrement;
+        float t = (p - 1) / T;
         float c = 0.5f * t * t + t * 0.5f;
         c *= h;
-        out = c;
+        s = x + c;
     }
-    else if (p < phaseIncrement)
+    else if (p < T)
     {
-        float t = p / phaseIncrement;
+        float t = p / T;
         float c = -0.5f * t * t + t - 0.5f;
         c *= h;
-        out = c;
+        s = x + c;
+    }
+    else
+    {
+        s = x;
     }
 
-    return out;
+    return s;
 }
 
 namespace dsp
@@ -123,8 +152,8 @@ float Phaseshaper::ProcessWaveSlice() const
     float slicePhase = g_lin(m_phase, a1);
     float trivial = G_B(std::sin(TWO_PI * slicePhase));
 
-    float blep = polyBLEP(m_phase, m_phaseIncrement, -2);
-    return trivial + blep;
+    float blep = polyBLEP(trivial, m_phaseIncrement, -2);
+    return blep;
 }
 
 float Phaseshaper::ProcessHardSync() const
@@ -168,6 +197,20 @@ float Phaseshaper::ProcessVarSlope() const
     return std::sin(TWO_PI * vslope);
 }
 
+float Phaseshaper::ProcessVarTri() const
+{
+    float a1 = 1.5;
+    float w3 = 0.75;
+    float vtri = g_vtri(m_phase, m_phaseIncrement, w3, a1, 0, m_period);
+    return std::sin(TWO_PI * vtri);
+}
+
+float Phaseshaper::ProcessRipple() const
+{
+    float ripple_amount = 0.05f;
+    return g_ripple(m_phase, ripple_amount);
+}
+
 float Phaseshaper::ProcessWave(Waveform wave) const
 {
     float out = 0.f;
@@ -175,6 +218,9 @@ float Phaseshaper::ProcessWave(Waveform wave) const
     {
     case Waveform::VARIABLE_SLOPE:
         out = ProcessVarSlope();
+        break;
+    case Waveform::VARIABLE_TRIANGLE:
+        out = ProcessVarTri();
         break;
     case Waveform::SOFTSYNC:
         out = ProcessSoftSync();
@@ -190,6 +236,9 @@ float Phaseshaper::ProcessWave(Waveform wave) const
         break;
     case Waveform::TRIANGLE_MOD:
         out = ProcessTriMod();
+        break;
+    case Waveform::RIPPLE:
+        out = ProcessRipple();
         break;
     default:
         break;
