@@ -83,16 +83,17 @@ inline float g_ripple(float x, float m = 0.0f)
 /// @param T Phase increament
 /// @param h Transition height (negative for falling transition)
 /// @return
-float polyBLEP(float x, float T, float h = -1.f)
+float polyBLEP(float x, float phase, float T, float h = -1.f)
 {
     float s = 0.f;
-    float p = x;
+    float p = phase;
     p -= floor(p); // phase [0,1)
 
     if (p > (1 - T))
     {
-        float t = (p - 1) / T;
-        float c = 0.5f * t * t + t * 0.5f;
+        float t = (p - 1.f);
+        t /= T;
+        float c = 0.5f * t * t + t + 0.5f;
         c *= h;
         s = x + c;
     }
@@ -152,7 +153,7 @@ float Phaseshaper::ProcessWaveSlice() const
     float slicePhase = g_lin(m_phase, a1);
     float trivial = G_B(std::sin(TWO_PI * slicePhase));
 
-    float blep = polyBLEP(trivial, m_phaseIncrement, -2);
+    float blep = polyBLEP(trivial, m_phase, m_phaseIncrement, -2);
     return blep;
 }
 
