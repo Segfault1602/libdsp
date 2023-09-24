@@ -39,7 +39,7 @@ inline float g_tri(float x, float a1 = 1, float a0 = 0)
 
 inline float g_pulse(float x, float phaseIncrement, float width = 0.5f, float period = 100.f)
 {
-    float d = std::floorf(width * period);
+    float d = std::floor(width * period);
     return x - std::fmod(x + phaseIncrement * d, 1.f) + (1 - width);
 }
 
@@ -57,7 +57,7 @@ inline float s_tri(float x)
 
 inline float s_vtri(float x, float phaseIncrement, float w = 0.5f, float P = 100)
 {
-    float d = std::ceilf(w * P + 0.5f);
+    float d = std::ceil(w * P + 0.5f);
     float x1 = 2 * x - 1;
     float xd = 2 * std::fmod(x + phaseIncrement * d, 1.f) - 1;
     float xdiff = x1 * x1 - xd * xd;
@@ -87,7 +87,7 @@ float polyBLEP(float x, float T, float h = -1.f)
 {
     float s = 0.f;
     float p = x;
-    p -= floorf(p); // phase [0,1)
+    p -= floor(p); // phase [0,1)
 
     if (p > (1 - T))
     {
