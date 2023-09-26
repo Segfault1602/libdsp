@@ -21,4 +21,8 @@ float Saw(float phase);
 /// @param phase Phase of the square wave
 /// @return The value of the square wave at the given phase
 float Square(float phase);
+
+/// @brief Simple noise generator
+/// @return
+float Noise();
 } // namespace dsp

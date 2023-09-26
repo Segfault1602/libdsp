@@ -10,6 +10,7 @@ set(LIB_SOURCES
     junction.cpp
     line.cpp
     phaseshapers.cpp
+    rms.cpp
     sinc_resampler.cpp
     termination.cpp
     waveguide.cpp)

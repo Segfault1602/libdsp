@@ -1,7 +1,9 @@
 set(TEST_SOURCES
     main_tests.cpp
+    basic_oscillators_tests.cpp
     circular_buffer_tests.cpp
     delayline_tests.cpp
+    rms_tests.cpp
     sinc_resampler_tests.cpp
     waveguide_tests.cpp)
 
