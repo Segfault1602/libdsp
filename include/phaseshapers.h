@@ -26,12 +26,12 @@ class Phaseshaper
     {
         VARIABLE_SLOPE = 0,
         VARIABLE_TRIANGLE,
-        SOFTSYNC,
         WAVESLICE,
         SUPERSAW,
-        HARDSYNC,
-        TRIANGLE_MOD,
         RIPPLE,
+        HARDSYNC,
+        SOFTSYNC,
+        TRIANGLE_MOD,
         NUM_WAVES,
     };
 

@@ -3,13 +3,17 @@
 #include <cmath>
 
 #include "dsp_base.h"
+#include "sin_table.h"
 
 namespace dsp
 {
 
 float Sine(float phase)
 {
-    return std::sin(phase * TWO_PI);
+    float idx = phase * SIN_LUT_SIZE;
+    int idx0 = static_cast<int>(idx);
+    float frac = idx - idx0;
+    return sin_lut[idx0] + frac * (sin_lut[idx0 + 1] - sin_lut[idx0]);
 }
 
 float Tri(float phase)

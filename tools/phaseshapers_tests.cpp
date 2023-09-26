@@ -8,7 +8,7 @@ void PhaseShaperTest::Init(size_t samplerate)
     phaseshaper_.SetMod(0.f);
     phaseshaper_.SetFreq(220.f);
 
-    frame_per_wave_ = (samplerate / 220) * 4;
+    frame_per_wave_ = (samplerate / 220) * 8;
     // 4 periods per waveform
     frame_count_ = frame_per_wave_ * static_cast<size_t>(dsp::Phaseshaper::Waveform::NUM_WAVES);
     name_ = "phaseshaper.wav";
