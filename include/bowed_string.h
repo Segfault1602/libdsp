@@ -89,5 +89,8 @@ class BowedString
 
     constexpr static float max_velocity_ = 0.2f;
     constexpr static float velocity_offset_ = 0.03f;
+
+    OnePoleFilter decay_filter_;
+    OnePoleFilter noise_lp_filter_;
 };
 } // namespace dsp

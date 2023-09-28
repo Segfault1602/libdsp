@@ -101,19 +101,21 @@ def main():
         bows = set([wave.bow for wave in waves_freq])
         bows = sorted(bows)
 
-        fig = plt.figure()
-        axes = fig.subplots(len(forces), len(bows), sharey='all')
-
-        # fig, axes = plt.subplots(len(forces), len(bows), sharey='all')
+        fig, axes = plt.subplots(len(forces), len(bows), sharey='all')
+        fig.subplots_adjust(hspace=0.5)
         fig.suptitle(f"Frequency: {waves_freq[0].freq}Hz")
+        plt.ylim(-1, 1)
 
         for i, force in enumerate(forces):
             for j, bow in enumerate(bows):
-                wave = [wave for wave in waves if wave.force ==
+                wave = [wave for wave in waves_freq if wave.force ==
                         force and wave.bow == bow][0]
                 axes[i][j].plot(wave.samples)
-                axes[i][j].set_title(f"Force: {force}, Bow: {bow}")
-        fig.tight_layout(pad=1.0)
+                axes[i][j].set_title(f"F: {force}, B: {bow}")
+
+                # fig.tight_layout(pad=0.5)
+
+
     plt.show()
 
 

@@ -47,7 +47,7 @@ def sinc_resample_table(x, ratio, h, h_diff, num_zeroes, samples_per_crossing):
     """
     time_step = 1 / ratio
     filter_scale = min(1, ratio)
-    filter_step = samples_per_crossing * filter_scale
+    filter_step = (samples_per_crossing-2) * filter_scale
 
     output = np.ndarray(shape=ceil(len(x) * ratio))
     out_idx = 0
@@ -125,17 +125,17 @@ def build_sinc_table(num_zeros, samples_per_crossing):
 
 
 NZ = 13
-SAMPLES_PER_CROSSING = 1024
+SAMPLES_PER_CROSSING = 128
 h, h_diff = build_sinc_table(NZ, SAMPLES_PER_CROSSING)
 
 # Quick sanity check with a simple sine wave
-ORIGINAL_FS = 1000
-SIGNAL_FREQUENCY = 200
+ORIGINAL_FS = 100
+SIGNAL_FREQUENCY = 10
+TARGET_FS = 200
 
-time = np.linspace(0, 1, ORIGINAL_FS)
+duration_sec = 1
+time = np.linspace(0, duration_sec, duration_sec*ORIGINAL_FS+1)
 in_sine = np.sin(2 * np.pi * time * SIGNAL_FREQUENCY)
-
-TARGET_FS = int(ORIGINAL_FS * 2.5)
 
 out_sine = sinc_resample_table(
     in_sine,
@@ -146,48 +146,48 @@ out_sine = sinc_resample_table(
     NZ,
     SAMPLES_PER_CROSSING)
 
-out_time = np.linspace(0, 1, TARGET_FS)
+out_time = np.linspace(0, duration_sec, len(out_sine))
 plt.plot(out_time, out_sine, 'g*--')
 plt.plot(time, in_sine, 'b+')
-plt.xlim(0.0, 0.02)
+plt.xlim(0.0, 1)
 plt.grid()
 
-# Create a signal to be resampled
-ORIGINAL_FS = 96000
-CHIRP_LENGTH_SECONDS = 8
-END_CHIRP_FREQUENCY = 44000
+# # Create a signal to be resampled
+# ORIGINAL_FS = 96000
+# CHIRP_LENGTH_SECONDS = 8
+# END_CHIRP_FREQUENCY = 44000
 
-time = np.linspace(0, CHIRP_LENGTH_SECONDS, ORIGINAL_FS * CHIRP_LENGTH_SECONDS)
-in_chirp = signal.chirp(
-    time,
-    0,
-    CHIRP_LENGTH_SECONDS,
-    END_CHIRP_FREQUENCY,
-    'quadratic')
+# time = np.linspace(0, CHIRP_LENGTH_SECONDS, ORIGINAL_FS * CHIRP_LENGTH_SECONDS)
+# in_chirp = signal.chirp(
+#     time,
+#     0,
+#     CHIRP_LENGTH_SECONDS,
+#     END_CHIRP_FREQUENCY,
+#     'quadratic')
 
-in_chirp = in_chirp * 0.5
+# in_chirp = in_chirp * 0.5
 
-TARGET_FS = 44100
-RESAMPLING_RATIO = TARGET_FS / ORIGINAL_FS
+# TARGET_FS = 44100
+# RESAMPLING_RATIO = TARGET_FS / ORIGINAL_FS
 
-output = sinc_resample_table(
-    in_chirp,
-    RESAMPLING_RATIO,
-    h,
-    h_diff,
-    NZ,
-    SAMPLES_PER_CROSSING)
+# output = sinc_resample_table(
+#     in_chirp,
+#     RESAMPLING_RATIO,
+#     h,
+#     h_diff,
+#     NZ,
+#     SAMPLES_PER_CROSSING)
 
-# plot_spectrogram(f"Original {ORIGINAL_FS} Hz", in_chirp, ORIGINAL_FS)
-# plot_spectrogram(f"Resampled to {TARGET_FS} Hz", output, TARGET_FS)
+# # plot_spectrogram(f"Original {ORIGINAL_FS} Hz", in_chirp, ORIGINAL_FS)
+# # plot_spectrogram(f"Resampled to {TARGET_FS} Hz", output, TARGET_FS)
 
-plt.figure(2)
-plt.specgram(in_chirp, Fs=ORIGINAL_FS)
-plt.figure(3)
-plt.specgram(output, Fs=TARGET_FS)
+# plt.figure(2)
+# plt.specgram(in_chirp, Fs=ORIGINAL_FS)
+# plt.figure(3)
+# plt.specgram(output, Fs=TARGET_FS)
 plt.show()
 
-# plt.plot(output)
-# plt.show()
+# # plt.plot(output)
+# # plt.show()
 
-io.wavfile.write('chirp_resampled.wav', 44100, output)
+# io.wavfile.write('chirp_resampled.wav', 44100, output)

@@ -41,8 +41,8 @@ float Square(float phase)
 
 float Noise()
 {
-    constexpr float n = 1.f / RAND_MAX;
-    return 2.f * rand() * n - 1.f;
+    constexpr float kOneOverRandMax = 1.f / RAND_MAX;
+    return 2.f * rand() * kOneOverRandMax - 1.f;
 }
 
 } // namespace dsp

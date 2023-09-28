@@ -33,7 +33,7 @@
 namespace dsp
 {
 
-BowedString::BowedString() : waveguide_(1024, InterpolationType::Linear), bow_output_rms_(128)
+BowedString::BowedString() : waveguide_(1024, InterpolationType::Linear), bow_output_rms_(1024)
 {
 }
 
@@ -48,6 +48,17 @@ void BowedString::Init(float samplerate)
     bridge_.SetGain(-1.f);
     waveguide_.SetDelay(1024);
     bridge_.SetFilter(&reflection_filter_);
+
+
+    // Decay filter for add. noise
+    constexpr float decayDb = -12.f;
+    constexpr float timeMs = 20.f;
+    float lambda = std::logf(std::powf(10.f, (decayDb / 20.f)));
+    float pole = std::expf(lambda / (timeMs / 1000.f) / samplerate);
+    decay_filter_.SetPole(pole);
+    decay_filter_.SetGain(1.f);
+
+    noise_lp_filter_.SetPole(0.8f);
 }
 
 void BowedString::SetFrequency(float f)
@@ -136,11 +147,13 @@ float BowedString::Tick(bool note_on)
     if (note_on)
     {
         float velocity_delta = velocity_ - (vsl_plus + vsr_plus);
-        bow_output = velocity_delta * bow_table_.Tick(velocity_delta);
+        constexpr float noise_db = -18;
+        const float noise_gain = std::powf(10.f, noise_db / 20.f);
 
-        // float rms = bow_output_rms_.Tick(bow_output);
-        // float additive_noise = Noise() * rms * 0.1f;
-        // bow_output += additive_noise;
+        float env = std::sqrt(decay_filter_.Tick(velocity_delta * velocity_delta));
+        float additive_noise = noise_lp_filter_.Tick(Noise()) * env * noise_gain;
+
+        bow_output = (velocity_delta+additive_noise) * bow_table_.Tick(velocity_delta + additive_noise);
     }
 
     waveguide_.TapIn(bow_position_, bow_output);

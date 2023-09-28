@@ -24,7 +24,7 @@ struct TestConfig
 constexpr float kDefaultVelocity = 0.9f;
 
 constexpr std::array Forces{0.75f, 0.80f, 0.85f, 0.90f, 1.0f};
-constexpr std::array BowPositions{0.02f, 0.05f, 0.08f, 0.1f, 0.2f, 0.3f};
+constexpr std::array BowPositions{0.06f, 0.07f, 0.08f, 0.1f, 0.2f, 0.3f};
 constexpr std::array Frequencies{196.f, 293.7f, 440.f, 659.3f, 1567.f};
 
 bool Run(TestConfig config);

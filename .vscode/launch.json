@@ -111,10 +111,11 @@
             "name": "Debug Player.exe",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/tools/effect_player.exe",
+            "program": "${workspaceFolder}/build/tools/debug/effect_player.exe",
             "args": [
+                "-r",
                 "-t",
-                "6"
+                "2"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

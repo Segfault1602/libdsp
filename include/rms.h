@@ -10,7 +10,7 @@ class RMS
 {
   public:
     /// @brief Construct a new RMS calculator
-    /// @param size Size of the RMS buffer
+    /// @param size Size of the RMS window
     RMS(size_t size);
     ~RMS() = default;
 
