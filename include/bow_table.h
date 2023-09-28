@@ -14,7 +14,7 @@ class BowTable
     /// @param f Force of the bow
     void SetForce(float f)
     {
-        force_ = 5.f - (4.f * f);
+        force_ = 5.f - (4.5f * f);
     }
 
     /// @brief Returns the force of the bow

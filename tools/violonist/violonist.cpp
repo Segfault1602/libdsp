@@ -9,7 +9,7 @@
 
 #include "test_utils.h"
 
-constexpr size_t kSampleRate = 48000;
+constexpr size_t kSampleRate = 96000;
 constexpr size_t kFrameCount = kSampleRate;
 constexpr char kOutputFilenameFormat[] = "%dHz_f%.2f_v%.2f_b%.2f.wav";
 
@@ -21,21 +21,11 @@ struct TestConfig
     uint32_t frequency;
 };
 
-constexpr float kDefaultVelocity = 0.5f;
+constexpr float kDefaultVelocity = 0.9f;
 
-// constexpr std::array TestConfigs{TestConfig{0.0f, 0.9f, 880}, TestConfig{0.1f, 0.9f, 880}, TestConfig{0.2f, 0.9f,
-// 880},
-//                                  TestConfig{0.3f, 0.9f, 880}, TestConfig{0.4f, 0.9f, 880}, TestConfig{0.5f, 0.9f,
-//                                  880}, TestConfig{0.6f, 0.9f, 880}, TestConfig{0.7f, 0.9f, 880}, TestConfig{0.8f,
-//                                  0.9f, 880}, TestConfig{0.9f, 0.9f, 880}};
-
-// constexpr std::array Forces{0.0f, 0.25f, 0.5f, 0.75f, 1.0f};
-// constexpr std::array BowPositions{0.1f, 0.21f, 0.54f, 0.72f, 0.98f};
-// constexpr std::array Frequencies{196.f, 293.7f, 440.f, 659.3f};
-
-constexpr std::array Forces{0.9f};
-constexpr std::array BowPositions{0.127236f};
-constexpr std::array Frequencies{220.f};
+constexpr std::array Forces{0.75f, 0.80f, 0.85f, 0.90f, 1.0f};
+constexpr std::array BowPositions{0.02f, 0.05f, 0.08f, 0.1f, 0.2f, 0.3f};
+constexpr std::array Frequencies{196.f, 293.7f, 440.f, 659.3f, 1567.f};
 
 bool Run(TestConfig config);
 
