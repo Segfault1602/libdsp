@@ -22,14 +22,16 @@ class Phaseshaper
 {
   public:
     /// @brief Waveform types
+    /// @note The order of the waveforms is intentional: the waveform are ordered in such a
+    /// way that make interpolating between them more aesthetically pleasing.
     enum class Waveform : uint8_t
     {
         VARIABLE_SLOPE = 0,
-        VARIABLE_TRIANGLE,
+        // VARIABLE_TRIANGLE,
         WAVESLICE,
         SUPERSAW,
         RIPPLE,
-        HARDSYNC,
+        // HARDSYNC,
         SOFTSYNC,
         TRIANGLE_MOD,
         NUM_WAVES,

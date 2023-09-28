@@ -76,7 +76,7 @@ float Delayline::Tick(float input)
     return last_out_;
 }
 
-float Delayline::TapOut(float delay, InterpolationStrategy* interpolation_strategy) const
+float Delayline::TapOut(float delay, InterpolationStrategy* interpolation_strategy)
 {
     if (delay >= delay_)
     {

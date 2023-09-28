@@ -26,3 +26,4 @@ if(NOT MSVC)
 endif()
 
 add_subdirectory(player)
+add_subdirectory(violonist)

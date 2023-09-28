@@ -2,7 +2,28 @@
 
 #include "basic_oscillators.h"
 
-void SimpleBowedStringTester::Init(size_t samplerate)
+void SimpleBowedString::Init(size_t samplerate)
+{
+    samplerate_ = samplerate;
+    string_.Init(static_cast<float>(samplerate));
+    string_.SetFrequency(440.f);
+    string_.SetForce(0.01f);
+    string_.SetVelocity(0.5f);
+
+    name_ = "bowedstring.wav";
+}
+
+float SimpleBowedString::Tick()
+{
+    return string_.Tick(true);
+}
+
+float SimpleBowedString::Tick(float)
+{
+    return Tick();
+}
+
+void CrescendoBowedStringTester::Init(size_t samplerate)
 {
     samplerate_ = samplerate;
 
@@ -20,11 +41,11 @@ void SimpleBowedStringTester::Init(size_t samplerate)
     string_.SetForce(0.f);
     string_.SetVelocity(0.f);
 
-    name_ = "bowedstring.wav";
+    name_ = "crescendo_bowedstring.wav";
 }
 
 // Velocity and Force will gradually increase over the first 3 seconds and then decrease until the end.
-float SimpleBowedStringTester::Tick()
+float CrescendoBowedStringTester::Tick()
 {
     if (current_frame_ == midway_frame_)
     {
@@ -40,7 +61,7 @@ float SimpleBowedStringTester::Tick()
     return string_.Tick(true);
 }
 
-float SimpleBowedStringTester::Tick(float)
+float CrescendoBowedStringTester::Tick(float)
 {
     return Tick();
 }

@@ -5,6 +5,28 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Violonist.exe",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/tools/violonist/violonist.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "console": "externalTerminal"
+        }
+        {
+            "name": "plot_waveform.py",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/tools/violonist/plot_waveform.py",
+            "args": [
+                "${workspaceFolder}/outputs",
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
             "name": "Instrument Player",
             "type": "cppdbg",
             "MIMode": "lldb",

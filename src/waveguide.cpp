@@ -10,7 +10,7 @@ Waveguide::Waveguide(size_t max_size, InterpolationType interpolation_type)
       left_traveling_line_(max_size, true, interpolation_type)
 {
     SetDelay(static_cast<float>(max_size - 1));
-    SetJunction(0);
+    SetJunctionDelay(0);
 }
 
 void Waveguide::SetDelay(float delay)
@@ -30,9 +30,14 @@ float Waveguide::GetDelay() const
     return current_delay_;
 }
 
-void Waveguide::SetJunction(float pos)
+void Waveguide::SetJunctionDelay(float pos)
 {
     junction_.SetDelay(pos);
+}
+
+float Waveguide::GetJunctionDelay() const
+{
+    return junction_.GetDelay();
 }
 
 void Waveguide::NextOut(float& right, float& left)
@@ -46,8 +51,8 @@ void Waveguide::Tick(float right, float left)
     // Always tick the junction(s) first
     junction_.Tick(left_traveling_line_, right_traveling_line_);
 
-    right_traveling_line_.Tick(left);
-    left_traveling_line_.Tick(right);
+    right_traveling_line_.Tick(right);
+    left_traveling_line_.Tick(left);
 }
 
 void Waveguide::TapIn(float delay, float input)

@@ -17,6 +17,11 @@ void Junction::SetDelay(float delay)
     }
 }
 
+float Junction::GetDelay() const
+{
+    return delay_;
+}
+
 #if 0
 void Junction::Tick(Delayline& left_traveling_line, Delayline& right_traveling_line)
 {

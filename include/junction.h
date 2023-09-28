@@ -15,6 +15,7 @@ class Junction
     ~Junction() = default;
 
     void SetDelay(float delay);
+    float GetDelay() const;
 
     void Tick(Delayline& left_traveling_line, Delayline& right_traveling_line);
 

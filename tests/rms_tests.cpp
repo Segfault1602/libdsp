@@ -13,10 +13,10 @@ class RMSTest : public ::testing::TestWithParam<float>
 
 TEST_P(RMSTest, PureSine)
 {
+
     dsp::RMS rms(4096);
 
-    float amplitude = GetParam();
-
+    const float kAmplitude = GetParam();
     constexpr float kFreq = 440.f;
     constexpr float kSampleRate = 48000.f;
     constexpr float kPhaseInc = kFreq / kSampleRate;
@@ -27,7 +27,7 @@ TEST_P(RMSTest, PureSine)
 
     for (auto i = 0; i < kLoopLength; i++)
     {
-        auto s = amplitude * std::sin(phase * TWO_PI);
+        auto s = kAmplitude * std::sin(phase * TWO_PI);
         phase = std::fmodf(phase + kPhaseInc, 1.f);
 
         (void)rms.Tick(s);
@@ -35,7 +35,7 @@ TEST_P(RMSTest, PureSine)
 
     auto rms_value = rms.GetRMS();
 
-    float expected_rms = amplitude / std::sqrt(2.f);
+    float expected_rms = kAmplitude / std::sqrt(2.f);
 
     ASSERT_THAT(rms_value, ::testing::FloatNear(expected_rms, 0.001f));
 }

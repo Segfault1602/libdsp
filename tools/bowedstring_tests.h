@@ -3,11 +3,25 @@
 #include "arpegiator.h"
 #include "dsp_tester.h"
 
-class SimpleBowedStringTester : public DspTester
+class SimpleBowedString : public DspTester
 {
   public:
-    SimpleBowedStringTester() = default;
-    ~SimpleBowedStringTester() override = default;
+    SimpleBowedString() = default;
+    ~SimpleBowedString() override = default;
+
+    void Init(size_t samplerate) override;
+    float Tick() override;
+    float Tick(float input) override;
+
+  private:
+    dsp::BowedString string_;
+};
+
+class CrescendoBowedStringTester : public DspTester
+{
+  public:
+    CrescendoBowedStringTester() = default;
+    ~CrescendoBowedStringTester() override = default;
 
     void Init(size_t samplerate) override;
     float Tick() override;

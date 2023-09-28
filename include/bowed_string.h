@@ -3,6 +3,7 @@
 #include "bow_table.h"
 #include "dsp_base.h"
 #include "filter.h"
+#include "rms.h"
 #include "termination.h"
 #include "waveguide.h"
 
@@ -51,6 +52,16 @@ class BowedString
     /// @return The force of the bow
     float GetForce() const;
 
+    /// @brief Set the position of the bow on the string.
+    /// @param pos The position of the bow on the string. Value should be between 0 and 1.
+    /// @note A position of 0 would be right at the bridge, and a position of 1 would be at the nut/finger.
+    void SetBowPosition(float pos);
+
+    /// @brief Returns the position of the bow on the string.
+    /// @return The position of the bow on the string.
+    /// @note A position of 0 would be right at the bridge, and a position of 1 would be at the nut/finger.
+    float GetBowPosition() const;
+
     /// @brief Pluck the string.
     void Pluck();
 
@@ -63,18 +74,20 @@ class BowedString
     Waveguide waveguide_;
 
     float bow_position_ = 0.f;
+    float relative_bow_position_ = 0.2f;
 
     Termination nut_;
     Termination bridge_;
     BowTable bow_table_;
     LinearInterpolation bow_interpolation_strategy_;
+    RMS bow_output_rms_;
 
     OnePoleFilter reflection_filter_;
     float samplerate_;
     float freq_;
     float velocity_ = 0.f;
 
-    constexpr static float max_velocity_ = 0.3f;
+    constexpr static float max_velocity_ = 0.2f;
     constexpr static float velocity_offset_ = 0.03f;
 };
 } // namespace dsp

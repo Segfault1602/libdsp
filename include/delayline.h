@@ -55,7 +55,7 @@ class Delayline
     /// @param interpolation_strategy The interpolation strategy to use. If nullptr, the default interpolation strategy
     /// is Linear.
     /// @return The sample at the specified delay.
-    float TapOut(float delay, InterpolationStrategy* interpolation_strategy = nullptr) const;
+    float TapOut(float delay, InterpolationStrategy* interpolation_strategy = nullptr);
 
     /// @brief Add a sample to the delayline at a specific delay. If the delay is not an integer, linear interpolation
     /// is used.

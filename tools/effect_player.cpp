@@ -24,6 +24,7 @@ enum class TesterType
 {
     CHORUS = 0,
     SIMPLE_BOWEDSTRING,
+    CRESCENDO_BOWEDSTRING,
     PITCHSLIDE_BOWEDSTRING,
     OSCVELOCITY_BOWEDSTRING,
     VIBRATO_BOWEDSTRING,
@@ -39,7 +40,9 @@ std::unique_ptr<DspTester> CreateTester(TesterType type)
     case TesterType::CHORUS:
         return std::make_unique<ChorusTester>();
     case TesterType::SIMPLE_BOWEDSTRING:
-        return std::make_unique<SimpleBowedStringTester>();
+        return std::make_unique<SimpleBowedString>();
+    case TesterType::CRESCENDO_BOWEDSTRING:
+        return std::make_unique<CrescendoBowedStringTester>();
     case TesterType::PITCHSLIDE_BOWEDSTRING:
         return std::make_unique<PitchSlideBowedStringTester>();
     case TesterType::OSCVELOCITY_BOWEDSTRING:
@@ -93,7 +96,7 @@ int main(int argc, char** argv)
 
     bool realtime = false;
     std::string input_file;
-    TesterType type = TesterType::SIMPLE_BOWEDSTRING;
+    TesterType type = TesterType::CRESCENDO_BOWEDSTRING;
 
     for (size_t i = 0; i < args.size(); ++i)
     {
@@ -282,5 +285,5 @@ int ProcessToFile(DspTester* dsp)
 
     printf("Which is %f %% of the audio time (%f seconds).\n", time_span.count() / file_duration, file_duration);
 
-    return WriteWavFile("out.wav", out.get(), out_sf_info, out_size) != 0;
+    return WriteWavFile(dsp->GetOutputFileName(), out.get(), out_sf_info, out_size) != 0;
 }

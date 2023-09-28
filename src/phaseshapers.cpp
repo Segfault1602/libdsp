@@ -16,6 +16,8 @@
 #include <cmath>
 #include <stdint.h>
 
+#include "basic_oscillators.h"
+
 #define G_B(x) (2 * x - 1)
 #define MODM(x, m) (std::fmod(x, m))
 #define MOD1(x) (std::fmod(x, 1.f))
@@ -151,7 +153,7 @@ float Phaseshaper::ProcessWaveSlice() const
 {
     float a1 = 0.25f + (1.f + m_mod) * 0.10f;
     float slicePhase = g_lin(m_phase, a1);
-    float trivial = G_B(std::sin(TWO_PI * slicePhase));
+    float trivial = G_B(dsp::Sine(slicePhase));
 
     float blep = polyBLEP(trivial, m_phase, m_phaseIncrement, -2);
     return blep;
@@ -186,7 +188,11 @@ float Phaseshaper::ProcessSupersaw() const
     float xs = g_lin(m_phase, a1);
 
     float supersawPhase = std::fmod(xs, m1) + std::fmod(xs, m2);
-    return G_B(std::sin(supersawPhase));
+
+    // Original equation was sin(supersawPhase) but since dsp::Sine expects a value between 0 and 1
+    // we need to remove the implied 2pi factor.
+    constexpr float one_over_2pi = 1.f / TWO_PI;
+    return G_B(dsp::Sine(supersawPhase * one_over_2pi));
 }
 
 float Phaseshaper::ProcessVarSlope() const
@@ -195,7 +201,7 @@ float Phaseshaper::ProcessVarSlope() const
 
     float pulse = g_pulse(m_phase, m_phaseIncrement, width, m_period);
     float vslope = 0.5f * m_phase * (1.0f - pulse) / width + pulse * (m_phase - width) / (1 - width);
-    return std::sin(TWO_PI * vslope);
+    return dsp::Sine(vslope);
 }
 
 float Phaseshaper::ProcessVarTri() const
@@ -203,7 +209,7 @@ float Phaseshaper::ProcessVarTri() const
     float a1 = 1.5;
     float w3 = 0.75;
     float vtri = g_vtri(m_phase, m_phaseIncrement, w3, a1, 0, m_period);
-    return std::sin(TWO_PI * vtri);
+    return dsp::Sine(vtri);
 }
 
 float Phaseshaper::ProcessRipple() const
@@ -220,9 +226,9 @@ float Phaseshaper::ProcessWave(Waveform wave) const
     case Waveform::VARIABLE_SLOPE:
         out = ProcessVarSlope();
         break;
-    case Waveform::VARIABLE_TRIANGLE:
-        out = ProcessVarTri();
-        break;
+    // case Waveform::VARIABLE_TRIANGLE:
+    //     out = ProcessVarTri();
+    //     break;
     case Waveform::SOFTSYNC:
         out = ProcessSoftSync();
         break;
@@ -232,9 +238,9 @@ float Phaseshaper::ProcessWave(Waveform wave) const
     case Waveform::SUPERSAW:
         out = ProcessSupersaw();
         break;
-    case Waveform::HARDSYNC:
-        out = ProcessHardSync();
-        break;
+    // case Waveform::HARDSYNC:
+    //     out = ProcessHardSync();
+    //     break;
     case Waveform::TRIANGLE_MOD:
         out = ProcessTriMod();
         break;
