@@ -10,7 +10,7 @@ namespace dsp
 
 float Sine(float phase)
 {
-    phase = std::fmodf(phase, 1.f);
+    phase = std::fmod(phase, 1.f);
     float idx = phase * SIN_LUT_SIZE;
     int idx0 = static_cast<int>(idx);
     float frac = idx - idx0;

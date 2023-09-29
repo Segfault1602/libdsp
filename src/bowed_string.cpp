@@ -146,7 +146,7 @@ float BowedString::Tick(bool note_on)
     {
         float velocity_delta = velocity_ - (vsl_plus + vsr_plus);
         constexpr float noise_db = -18;
-        const float noise_gain = std::powf(10.f, noise_db / 20.f);
+        const float noise_gain = std::pow(10.f, noise_db / 20.f);
 
         float env = std::sqrt(decay_filter_.Tick(velocity_delta * velocity_delta));
         float additive_noise = noise_lp_filter_.Tick(Noise()) * env * noise_gain;

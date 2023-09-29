@@ -38,8 +38,8 @@ void OnePoleFilter::SetPole(float pole)
 
 void OnePoleFilter::SetDecayFilter(float decayDb, float timeMs, float samplerate)
 {
-    const float lambda = std::logf(std::powf(10.f, (decayDb / 20.f)));
-    const float pole = std::expf(lambda / (timeMs / 1000.f) / samplerate);
+    const float lambda = std::log(std::pow(10.f, (decayDb / 20.f)));
+    const float pole = std::exp(lambda / (timeMs / 1000.f) / samplerate);
     SetPole(pole);
 }
 
