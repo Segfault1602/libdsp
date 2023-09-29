@@ -36,6 +36,13 @@ void OnePoleFilter::SetPole(float pole)
     a_[1] = -pole;
 }
 
+void OnePoleFilter::SetDecayFilter(float decayDb, float timeMs, float samplerate)
+{
+    const float lambda = std::logf(std::powf(10.f, (decayDb / 20.f)));
+    const float pole = std::expf(lambda / (timeMs / 1000.f) / samplerate);
+    SetPole(pole);
+}
+
 float OnePoleFilter::Tick(float in)
 {
     outputs_[0] = gain_ * in * b_[0] - outputs_[1] * a_[1];

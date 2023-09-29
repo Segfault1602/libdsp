@@ -53,6 +53,11 @@ class Phaseshaper
         m_waveform = wave;
     }
 
+    void SetWaveform(Waveform wave)
+    {
+        m_waveform = static_cast<float>(wave);
+    }
+
     /// @brief Sets the frequency
     /// @param freq Frequency in Hz
     void SetFreq(float freq)

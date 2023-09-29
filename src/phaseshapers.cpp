@@ -77,7 +77,9 @@ inline float g_vtri(float x, float phaseIncrement, float w = 0.5f, float a1 = 1.
 
 inline float g_ripple(float x, float m = 0.0f)
 {
-    return G_B(x + MODM(x, m));
+    // Orignal equation was 'x+MODM(x,m)', but I found that subtracting the modulo resulted in the same output but
+    // without clipping.
+    return G_B(x - MODM(x, m));
 }
 
 /// @brief
@@ -214,7 +216,8 @@ float Phaseshaper::ProcessVarTri() const
 
 float Phaseshaper::ProcessRipple() const
 {
-    float ripple_amount = 0.05f;
+    // ripples amount goes from no ripple at 0 to some ripples at 1.
+    float ripple_amount = m_mod > 0.f ? m_mod * 0.1f : m_phase;
     return g_ripple(m_phase, ripple_amount);
 }
 

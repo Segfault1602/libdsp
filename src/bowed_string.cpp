@@ -53,9 +53,7 @@ void BowedString::Init(float samplerate)
     // Decay filter for add. noise
     constexpr float decayDb = -12.f;
     constexpr float timeMs = 20.f;
-    float lambda = std::logf(std::powf(10.f, (decayDb / 20.f)));
-    float pole = std::expf(lambda / (timeMs / 1000.f) / samplerate);
-    decay_filter_.SetPole(pole);
+    decay_filter_.SetDecayFilter(decayDb, timeMs, samplerate);
     decay_filter_.SetGain(1.f);
 
     noise_lp_filter_.SetPole(0.8f);

@@ -61,6 +61,12 @@ class OnePoleFilter : public Filter
     ///
     void SetPole(float pole);
 
+    /// @brief Set the pole of the filter to obtain an exponential decay filter.
+    /// @param decayDb The decay in decibels.
+    /// @param timeMs The time in milliseconds.
+    /// @param samplerate The samplerate.
+    void SetDecayFilter(float decayDb, float timeMs, float samplerate);
+
     float Tick(float in) override;
 };
 
