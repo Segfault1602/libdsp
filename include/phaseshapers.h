@@ -26,14 +26,14 @@ class Phaseshaper
     /// way that make interpolating between them more aesthetically pleasing.
     enum class Waveform : uint8_t
     {
-        VARIABLE_SLOPE = 0,
-        // VARIABLE_TRIANGLE,
-        WAVESLICE,
-        SUPERSAW,
+        VARIABLE_SLOPE = 0, // 0.10 - 0.50
+        // VARIABLE_TRIANGLE, // 1.25 - 1.75 w=05
+        WAVESLICE, // 0.25 - 0.40
+        SUPERSAW,  // 0.25 - 0.75
         RIPPLE,
-        // HARDSYNC,
-        SOFTSYNC,
-        TRIANGLE_MOD,
+        // HARDSYNC, // 2 - 3
+        SOFTSYNC,     // 1 - 1.5
+        TRIANGLE_MOD, // 0.5 - 1.5
         NUM_WAVES,
     };
 

@@ -31,18 +31,18 @@ inline float g_lin(float x, float a1 = 1, float a0 = 0)
 
 inline float g_ramp(float x, float a1 = 1, float a0 = 0)
 {
-    return std::fmod(g_lin(x, a1, a0), 1.f);
+    return MOD1(g_lin(x, a1, a0));
 }
 
 inline float g_tri(float x, float a1 = 1, float a0 = 0)
 {
-    return std::fmod(g_lin(std::abs(G_B(x)), a1, a0), 1.f);
+    return MOD1(g_lin(std::abs(G_B(x)), a1, a0));
 }
 
 inline float g_pulse(float x, float phaseIncrement, float width = 0.5f, float period = 100.f)
 {
     float d = std::floor(width * period);
-    return x - std::fmod(x + phaseIncrement * d, 1.f) + (1 - width);
+    return x - MOD1(x + phaseIncrement * d) + (1 - width);
 }
 
 inline float s_tri(float x)
@@ -153,7 +153,8 @@ float Phaseshaper::Process()
 
 float Phaseshaper::ProcessWaveSlice() const
 {
-    float a1 = 0.25f + (1.f + m_mod) * 0.10f;
+    // a1 vary from 0.25  to 0.40
+    float a1 = 0.25f + (m_mod * 0.15f);
     float slicePhase = g_lin(m_phase, a1);
     float trivial = G_B(dsp::Sine(slicePhase));
 
@@ -163,33 +164,36 @@ float Phaseshaper::ProcessWaveSlice() const
 
 float Phaseshaper::ProcessHardSync() const
 {
-    float a1 = 2.5f + m_mod;
+    // a1 vary from 2 to 3
+    float a1 = 2.0f + m_mod;
     return G_B(g_ramp(m_phase, a1));
 }
 
 float Phaseshaper::ProcessSoftSync() const
 {
-    float a1 = 1.25f + m_mod;
+    // a1 vary from 1 to 1.5
+    float a1 = 1.f + (m_mod * 0.5f);
     float softPhase = g_tri(m_phase, a1);
     return G_B(s_tri(softPhase));
 }
 
 float Phaseshaper::ProcessTriMod() const
 {
-    const float atm = 0.82f; // Roland JP-8000 triangle modulation offset parameter
-    float mod = atm + m_mod * 0.15f;
+    // atm vary from 0.5 to 1.5
+    float mod = 0.5 + m_mod;
     float trimodPhase = mod * G_B(g_tri(m_phase));
     return 2 * (trimodPhase - std::ceil(trimodPhase - 0.5f));
 }
 
 float Phaseshaper::ProcessSupersaw() const
 {
-    const float m1 = 0.5f + (m_mod * 0.25f);
+    // m1 vary from 0.25 to 0.75
+    const float m1 = 0.25f + (m_mod * 0.50f);
     const float m2 = 0.88f;
     const float a1 = 1.5f;
     float xs = g_lin(m_phase, a1);
 
-    float supersawPhase = std::fmod(xs, m1) + std::fmod(xs, m2);
+    float supersawPhase = MODM(xs, m1) + MODM(xs, m2);
 
     // Original equation was sin(supersawPhase) but since dsp::Sine expects a value between 0 and 1
     // we need to remove the implied 2pi factor.
@@ -199,7 +203,8 @@ float Phaseshaper::ProcessSupersaw() const
 
 float Phaseshaper::ProcessVarSlope() const
 {
-    float width = 0.5f + m_mod * 0.25f;
+    // Width can vary from 0.1 to 0.5
+    float width = 0.10f + (m_mod * 0.40f);
 
     float pulse = g_pulse(m_phase, m_phaseIncrement, width, m_period);
     float vslope = 0.5f * m_phase * (1.0f - pulse) / width + pulse * (m_phase - width) / (1 - width);
@@ -208,8 +213,9 @@ float Phaseshaper::ProcessVarSlope() const
 
 float Phaseshaper::ProcessVarTri() const
 {
-    float a1 = 1.5;
-    float w3 = 0.75;
+    // a1 can vary from 1.25 to 1.75
+    float a1 = 1.25 + (m_mod * 0.5f);
+    float w3 = 0.50;
     float vtri = g_vtri(m_phase, m_phaseIncrement, w3, a1, 0, m_period);
     return dsp::Sine(vtri);
 }
@@ -217,7 +223,7 @@ float Phaseshaper::ProcessVarTri() const
 float Phaseshaper::ProcessRipple() const
 {
     // ripples amount goes from no ripple at 0 to some ripples at 1.
-    float ripple_amount = m_mod > 0.f ? m_mod * 0.1f : m_phase;
+    float ripple_amount = m_mod * 0.1f;
     return g_ripple(m_phase, ripple_amount);
 }
 
