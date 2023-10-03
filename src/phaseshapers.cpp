@@ -140,7 +140,11 @@ float Phaseshaper::Process()
     float out1 = ProcessWave(static_cast<Waveform>(wave1));
 
     float wave2 = std::ceil(m_waveform);
-    float out2 = ProcessWave(static_cast<Waveform>(wave2));
+    float out2 = 0.f;
+    if (wave1 != wave2)
+    {
+        out2 = ProcessWave(static_cast<Waveform>(wave2));
+    }
 
     float w1 = 1.f - (m_waveform - wave1);
     float w2 = 1.f - w1;
