@@ -28,7 +28,7 @@ TEST_P(RMSTest, PureSine)
     for (auto i = 0; i < kLoopLength; i++)
     {
         auto s = kAmplitude * std::sin(phase * TWO_PI);
-        phase = std::fmodf(phase + kPhaseInc, 1.f);
+        phase = std::fmod(phase + kPhaseInc, 1.f);
 
         (void)rms.Tick(s);
     }
