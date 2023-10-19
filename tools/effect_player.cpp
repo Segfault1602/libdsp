@@ -19,45 +19,7 @@
 #include "dsp_tester.h"
 #include "phaseshapers_tests.h"
 #include "test_utils.h"
-
-enum class TesterType
-{
-    CHORUS = 0,
-    SIMPLE_BOWEDSTRING,
-    CRESCENDO_BOWEDSTRING,
-    PITCHSLIDE_BOWEDSTRING,
-    OSCVELOCITY_BOWEDSTRING,
-    VIBRATO_BOWEDSTRING,
-    SCALE_BOWEDSTRING,
-    PHASESHAPER,
-    TYPE_COUNT
-};
-
-std::unique_ptr<DspTester> CreateTester(TesterType type)
-{
-    switch (type)
-    {
-    case TesterType::CHORUS:
-        return std::make_unique<ChorusTester>();
-    case TesterType::SIMPLE_BOWEDSTRING:
-        return std::make_unique<SimpleBowedString>();
-    case TesterType::CRESCENDO_BOWEDSTRING:
-        return std::make_unique<CrescendoBowedStringTester>();
-    case TesterType::PITCHSLIDE_BOWEDSTRING:
-        return std::make_unique<PitchSlideBowedStringTester>();
-    case TesterType::OSCVELOCITY_BOWEDSTRING:
-        return std::make_unique<OscVelocityBowedStringTester>();
-    case TesterType::VIBRATO_BOWEDSTRING:
-        return std::make_unique<VibratoBowedStringTester>();
-    case TesterType::SCALE_BOWEDSTRING:
-        return std::make_unique<ScaleBowedStringTester>();
-    case TesterType::PHASESHAPER:
-        return std::make_unique<PhaseShaperTest>();
-    default:
-        assert(false);
-        return nullptr;
-    }
-}
+#include "tests_list.h"
 
 int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBufferFrames, double /*streamTime*/,
                      RtAudioStreamStatus /*status*/, void* data);
@@ -92,11 +54,18 @@ bool g_use_input_file = false;
 
 int main(int argc, char** argv)
 {
+    size_t test_idx = 0;
+    for (const auto& i : TEST_STRING)
+    {
+        printf("%zu - %s\n", test_idx, i);
+        ++test_idx;
+    }
+
     const std::vector<std::string> args(argv + 1, argv + argc);
 
     bool realtime = false;
     std::string input_file;
-    TesterType type = TesterType::CRESCENDO_BOWEDSTRING;
+    TesterType type = TesterType::SimpleBowedString;
 
     for (size_t i = 0; i < args.size(); ++i)
     {
@@ -112,11 +81,6 @@ int main(int argc, char** argv)
         else if (args[i] == "-t")
         {
             auto type_id = static_cast<uint8_t>(std::stoi(args[i + 1]));
-            if (type_id >= static_cast<uint8_t>(TesterType::TYPE_COUNT))
-            {
-                printf("Invalid tester type %u\n", type_id);
-                return -1;
-            }
             type = static_cast<TesterType>(type_id);
         }
     }

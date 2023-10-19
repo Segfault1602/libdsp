@@ -33,7 +33,7 @@
 namespace dsp
 {
 
-BowedString::BowedString() : waveguide_(1024, InterpolationType::Linear), bow_output_rms_(1024)
+BowedString::BowedString(size_t max_size) : waveguide_(max_size, InterpolationType::Linear)
 {
 }
 
@@ -45,7 +45,7 @@ void BowedString::Init(float samplerate)
     reflection_filter_.SetGain(0.95f);
     reflection_filter_.SetPole(0.75f - (0.2f * 22050.0f / samplerate_));
 
-    bridge_.SetGain(-1.f);
+    bridge_.SetGain(1.f);
     waveguide_.SetDelay(1024);
     bridge_.SetFilter(&reflection_filter_);
 
@@ -124,6 +124,16 @@ float BowedString::GetBowPosition() const
     return relative_bow_position_;
 }
 
+void BowedString::SetNoteOn(bool note_on)
+{
+    note_on_ = note_on;
+}
+
+bool BowedString::GetNoteOn() const
+{
+    return note_on_;
+}
+
 void BowedString::Pluck()
 {
     float L = waveguide_.GetJunctionDelay();
@@ -133,7 +143,14 @@ void BowedString::Pluck()
     }
 }
 
-float BowedString::Tick(bool note_on)
+float BowedString::NextOut()
+{
+    float bridge, nut;
+    waveguide_.NextOut(nut, bridge);
+    return bridge;
+}
+
+float BowedString::Tick(float input)
 {
     float bridge, nut;
     waveguide_.NextOut(nut, bridge);
@@ -142,10 +159,10 @@ float BowedString::Tick(bool note_on)
     waveguide_.TapOut(bow_position_, vsl_plus, vsr_plus, &bow_interpolation_strategy_);
 
     float bow_output = 0.f;
-    if (note_on)
+    if (note_on_)
     {
         float velocity_delta = velocity_ - (vsl_plus + vsr_plus);
-        constexpr float noise_db = -18;
+        constexpr float noise_db = -24;
         const float noise_gain = std::pow(10.f, noise_db / 20.f);
 
         float env = std::sqrt(decay_filter_.Tick(velocity_delta * velocity_delta));
@@ -155,7 +172,7 @@ float BowedString::Tick(bool note_on)
     }
 
     waveguide_.TapIn(bow_position_, bow_output);
-    waveguide_.Tick(bridge_.Tick(bridge), nut_.Tick(nut));
+    waveguide_.Tick(bridge_.Tick(-input), nut_.Tick(nut));
 
     return bridge;
 }

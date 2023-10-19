@@ -4,6 +4,17 @@
 
 namespace dsp
 {
+
+std::array<float, 2> Scatter2(std::array<float, 2> inputs, float k)
+{
+    std::array<float, 2> outputs;
+
+    outputs[0] = inputs[0] + k * (inputs[0] - inputs[1]);
+    outputs[1] = inputs[1] + k * (inputs[0] - inputs[1]);
+
+    return outputs;
+}
+
 void Junction::SetDelay(float delay)
 {
     // There is a minimum delay of 2 samples to perform the linear interpolation

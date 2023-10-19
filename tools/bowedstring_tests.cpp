@@ -9,13 +9,14 @@ void SimpleBowedString::Init(size_t samplerate)
     string_.SetFrequency(440.f);
     string_.SetForce(0.01f);
     string_.SetVelocity(0.5f);
+    string_.SetNoteOn(true);
 
     name_ = "bowedstring.wav";
 }
 
 float SimpleBowedString::Tick()
 {
-    return string_.Tick(true);
+    return string_.Tick();
 }
 
 float SimpleBowedString::Tick(float)
@@ -40,6 +41,7 @@ void CrescendoBowedStringTester::Init(size_t samplerate)
     string_.SetFrequency(220.f);
     string_.SetForce(0.f);
     string_.SetVelocity(0.f);
+    string_.SetNoteOn(true);
 
     name_ = "crescendo_bowedstring.wav";
 }
@@ -58,7 +60,7 @@ float CrescendoBowedStringTester::Tick()
     ++current_frame_;
     string_.SetVelocity(current_velocity_);
     string_.SetForce(current_force_);
-    return string_.Tick(true);
+    return string_.Tick();
 }
 
 float CrescendoBowedStringTester::Tick(float)
@@ -74,6 +76,7 @@ void OscVelocityBowedStringTester::Init(size_t samplerate)
     string_.SetFrequency(440.f);
     string_.SetForce(0.f);
     string_.SetVelocity(0.f);
+    string_.SetNoteOn(true);
 
     name_ = "bowedstring_oscvelocity.wav";
 }
@@ -90,7 +93,7 @@ float OscVelocityBowedStringTester::Tick()
 
     string_.SetVelocity(param);
     string_.SetForce(param);
-    return string_.Tick(true);
+    return string_.Tick();
 }
 
 float OscVelocityBowedStringTester::Tick(float)
@@ -111,6 +114,7 @@ void PitchSlideBowedStringTester::Init(size_t samplerate)
     string_.SetFrequency(dsp::FastMidiToFreq(kStartNote));
     string_.SetForce(0.5f);
     string_.SetVelocity(0.5f);
+    string_.SetNoteOn(true);
 
     current_frame_ = 0;
     name_ = "bowedstring_pitchslide.wav";
@@ -126,7 +130,7 @@ float PitchSlideBowedStringTester::Tick()
     }
     ++current_frame_;
 
-    return string_.Tick(true);
+    return string_.Tick();
 }
 
 float PitchSlideBowedStringTester::Tick(float)
@@ -145,6 +149,7 @@ void VibratoBowedStringTester::Init(size_t samplerate)
     string_.SetFrequency(kFrequency);
     string_.SetForce(0.5f);
     string_.SetVelocity(0.5f);
+    string_.SetNoteOn(true);
 
     name_ = "bowedstring_vibrato.wav";
 }
@@ -160,7 +165,7 @@ float VibratoBowedStringTester::Tick()
     }
 
     string_.SetFrequency(freq);
-    return string_.Tick(true);
+    return string_.Tick();
 }
 
 float VibratoBowedStringTester::Tick(float)
@@ -185,6 +190,7 @@ void ScaleBowedStringTester::Init(size_t samplerate)
     string_.SetFrequency(dsp::midi_to_freq[static_cast<size_t>(arp_.Next())]);
     string_.SetForce(0.5f);
     string_.SetVelocity(0.5f);
+    string_.SetNoteOn(true);
 
     name_ = "bowedstring_scale.wav";
 }
@@ -218,7 +224,7 @@ float ScaleBowedStringTester::Tick()
     }
 
     ++current_frame_;
-    return string_.Tick(true);
+    return string_.Tick();
 }
 
 float ScaleBowedStringTester::Tick(float)

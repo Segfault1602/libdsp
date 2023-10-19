@@ -3,10 +3,16 @@
 #include "dsp_base.h"
 
 #include "delayline.h"
-#include <cstdio>
+#include <array>
 
 namespace dsp
 {
+
+template <size_t N>
+std::array<float, N> Scatter(std::array<float, N> input, float k);
+
+std::array<float, 2> Scatter2(std::array<float, 2> input, float k);
+
 /// @brief Implements a junction point between two delaylines
 class Junction
 {
@@ -23,4 +29,23 @@ class Junction
     float delay_ = 0;
     // float gain_ = 1.f;
 };
+
+template <size_t N>
+std::array<float, N> Scatter(std::array<float, N> input, float k)
+{
+    float sum = 0.f;
+    for (auto& sample : input)
+    {
+        sum += sample;
+    }
+
+    std::array<float, N> output;
+    for (size_t i = 0; i < N; ++i)
+    {
+        output[i] = input[i] - (1.f - k) * sum;
+    }
+
+    return output;
+}
+
 } // namespace dsp

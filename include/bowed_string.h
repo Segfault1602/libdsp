@@ -17,7 +17,7 @@ namespace dsp
 class BowedString
 {
   public:
-    BowedString();
+    BowedString(size_t max_size = 1024);
     ~BowedString() = default;
 
     void Init(float samplerate);
@@ -62,13 +62,24 @@ class BowedString
     /// @note A position of 0 would be right at the bridge, and a position of 1 would be at the nut/finger.
     float GetBowPosition() const;
 
+    /// @brief Set the note on state of the string.
+    /// @param note_on
+    void SetNoteOn(bool note_on);
+
+    /// @brief Returns the note on state of the string.
+    bool GetNoteOn() const;
+
     /// @brief Pluck the string.
     void Pluck();
 
+    /// @brief Return the next sample at the bridge.
+    /// @return The next sample at the bridge.
+    float NextOut();
+
     /// @brief Tick the string.
-    /// @param note_on If true, the string is bowed, otherwise it is left to resonate.
+    /// @param input Energy coming from the bridge. Optional.
     /// @return The output sample at the bridge.
-    float Tick(bool note_on);
+    float Tick(float input = 0.f);
 
   private:
     Waveguide waveguide_;
@@ -80,12 +91,12 @@ class BowedString
     Termination bridge_;
     BowTable bow_table_;
     LinearInterpolation bow_interpolation_strategy_;
-    RMS bow_output_rms_;
 
     OnePoleFilter reflection_filter_;
     float samplerate_;
     float freq_;
     float velocity_ = 0.f;
+    bool note_on_ = false;
 
     constexpr static float max_velocity_ = 0.2f;
     constexpr static float velocity_offset_ = 0.03f;

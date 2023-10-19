@@ -69,7 +69,9 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/tests/libdsp_tests",
-            "args": [],
+            "args": [
+                "--gtest_filter=ScatterTests/ScatterTest.Scatter2/135"
+            ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
@@ -129,7 +131,7 @@
             "program": "${workspaceFolder}/build/tools/effect_player",
             "args": [
                 "-t",
-                "6"
+                "8"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
