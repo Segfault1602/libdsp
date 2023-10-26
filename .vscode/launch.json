@@ -70,7 +70,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/tests/libdsp_tests",
             "args": [
-                "--gtest_filter=ScatterTests/ScatterTest.Scatter2/135"
+                "--gtest_filter=ScatterTests/ScatterTest*"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
@@ -84,7 +84,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/tests/libdsp_tests.exe",
             "args": [
-                "--gtest_filter=Basic*"
+                "--gtest_filter=ScatterTest*"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

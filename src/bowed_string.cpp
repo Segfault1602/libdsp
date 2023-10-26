@@ -6,30 +6,6 @@
 #include "basic_oscillators.h"
 #include "window_functions.h"
 
-// void PrintWaveguide(dsp::Waveguide& wave, size_t delay_size)
-// {
-//     std::vector<float> right_samples, left_samples;
-//     for (size_t i = 1; i <= delay_size; ++i)
-//     {
-//         float right, left;
-//         wave.TapOut(i, right, left);
-//         right_samples.push_back(right);
-//         left_samples.push_back(left);
-//     }
-
-//     for (auto sample : right_samples)
-//     {
-//         printf("%s%5.3f ", sample >= 0 ? " " : "", sample);
-//     }
-//     printf("\n");
-
-//     for (auto sample : left_samples)
-//     {
-//         printf("%s%5.3f ", sample >= 0 ? " " : "", sample);
-//     }
-//     printf("\n");
-// }
-
 namespace dsp
 {
 

@@ -6,6 +6,7 @@ set(TEST_SOURCES
     rms_tests.cpp
     scattering_tests.cpp
     sinc_resampler_tests.cpp
+    test_utils.cpp
     waveguide_tests.cpp)
 
 set(SOURCES ${TEST_SOURCES})
