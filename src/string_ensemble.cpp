@@ -12,8 +12,8 @@ void StringEnsemble::Init(float samplerate, const std::array<float, kStringCount
         strings_[i].SetFrequency(frequencies[i]);
     }
 
-    transmission_filter_.SetPole(0.9);
-    transmission_filter_.SetGain(0.1);
+    transmission_filter_.SetPole(0.6f);
+    transmission_filter_.SetGain(1.f);
 }
 
 void StringEnsemble::TuneStrings(uint8_t string_num, float frequencies)
@@ -63,20 +63,25 @@ float StringEnsemble::GetForce(uint8_t string_number) const
 float StringEnsemble::Tick()
 {
     std::array<float, kStringCount> string_outs;
+
+    constexpr float kTransmissionRatio = 0.10f;
+    float transmission = 0.f;
     float output = 0.f;
     for (auto i = 0; i < kStringCount; ++i)
     {
         string_outs[i] = strings_[i].NextOut();
         output += string_outs[i];
+        transmission += string_outs[i] * kTransmissionRatio;
+        string_outs[i] *= (1.f - kTransmissionRatio);
     }
 
     // filter the bridge output
-    std::array<float, kStringCount> scattered_out = Scatter(string_outs, 0.5f);
+    transmission = transmission_filter_.Tick(transmission);
 
     for (size_t i = 0; i < kStringCount; ++i)
     {
-        strings_[i].Tick(scattered_out[i]);
+        strings_[i].Tick(string_outs[i] + transmission * 0.25f);
     }
 
-    return output;
+    return string_outs[3] + transmission * 0.25f;
 }
