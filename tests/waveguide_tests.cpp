@@ -2,32 +2,9 @@
 #include "gtest/gtest.h"
 
 #include "termination.h"
+#include "test_utils.h"
 #include "waveguide.h"
 #include "window_functions.h"
-
-void PrintWaveguide(dsp::Waveguide& wave, size_t delay_size)
-{
-    std::vector<float> right_samples, left_samples;
-    for (size_t i = 1; i <= delay_size; ++i)
-    {
-        float right, left;
-        wave.TapOut(i, right, left);
-        right_samples.push_back(right);
-        left_samples.push_back(left);
-    }
-
-    for (auto sample : right_samples)
-    {
-        printf("%5.1f ", sample);
-    }
-    printf("\n");
-
-    for (auto sample : left_samples)
-    {
-        printf("%5.1f ", sample);
-    }
-    printf("\n");
-}
 
 TEST(WaveguideTests, EmptyWaveguide)
 {
@@ -44,7 +21,7 @@ TEST(WaveguideTests, EmptyWaveguide)
     {
         float right, left;
         wave.NextOut(right, left);
-        wave.Tick(right_termination.Tick(right), left_termination.Tick(left));
+        wave.Tick(left_termination.Tick(left), right_termination.Tick(right));
         float sample = wave.TapOut(WAVEGUIDE_SIZE / 2);
         ASSERT_THAT(0.f, ::testing::FloatEq(sample));
     }
@@ -70,7 +47,7 @@ TEST(WaveguideTests, Dirac)
     {
         float right, left;
         wave.NextOut(right, left);
-        wave.Tick(right_termination.Tick(right), left_termination.Tick(left));
+        wave.Tick(left_termination.Tick(left), right_termination.Tick(right));
         printf("iter #%zu\n", i);
         PrintWaveguide(wave, DELAY_SIZE);
     }
@@ -92,7 +69,7 @@ TEST(WaveguideTests, StabilityTestInteger)
         wave.TapIn(tap_in_pos, 1.f);
         float right, left;
         wave.NextOut(right, left);
-        wave.Tick(right_termination.Tick(right), left_termination.Tick(left));
+        wave.Tick(left_termination.Tick(left), right_termination.Tick(right));
 
         float sample = wave.TapOut(tap_out_pos);
         ASSERT_THAT(std::fabs(sample), ::testing::Le(1.f));
@@ -121,7 +98,7 @@ TEST(WaveguideTests, StabilityTestFrac)
         PrintWaveguide(wave, DELAY_SIZE);
         float right, left;
         wave.NextOut(right, left);
-        wave.Tick(right_termination.Tick(right), left_termination.Tick(left));
+        wave.Tick(left_termination.Tick(left), right_termination.Tick(right));
 
         printf("After tick:\n");
         PrintWaveguide(wave, DELAY_SIZE);
@@ -213,7 +190,7 @@ TEST(WaveguideTests, GainTest)
     {
         float right, left;
         wave.NextOut(right, left);
-        wave.Tick(right_termination.Tick(right), left_termination.Tick(left));
+        wave.Tick(left_termination.Tick(left), right_termination.Tick(right));
         printf("iter #%zu\n", i);
         PrintWaveguide(wave, DELAY_SIZE);
         printf("Next out: %f %f\n", left, right);
@@ -236,7 +213,7 @@ TEST(WaveguideTests, GainTest)
     {
         float right, left;
         wave.NextOut(right, left);
-        wave.Tick(right_termination.Tick(right), left_termination.Tick(left));
+        wave.Tick(left_termination.Tick(left), right_termination.Tick(right));
     }
 
     // Waveguide should now be back to initial state:
@@ -278,13 +255,13 @@ TEST(WaveguideTests, JunctionTest)
 
     PrintWaveguide(wave, DELAY_SIZE);
 
-    wave.SetJunction(3.75f);
+    wave.SetJunctionDelay(3.75f);
 
     for (size_t i = 0; i < DELAY_SIZE * 2; ++i)
     {
         float right, left;
         wave.NextOut(right, left);
-        wave.Tick(right_termination.Tick(right), left_termination.Tick(left));
+        wave.Tick(left_termination.Tick(left), right_termination.Tick(right));
         printf("iter #%zu\n", i);
         PrintWaveguide(wave, DELAY_SIZE);
         printf("Next out: %f %f\n", left, right);

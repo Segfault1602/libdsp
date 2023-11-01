@@ -67,16 +67,15 @@ float Delayline::LastOut() const
 
 float Delayline::Tick(float input)
 {
+    line_[write_ptr_] = input;
     last_out_ = NextOut();
     do_next_out_ = true;
-
-    line_[write_ptr_] = input;
     write_ptr_ = (write_ptr_ - 1 + max_size_) % max_size_;
 
     return last_out_;
 }
 
-float Delayline::TapOut(float delay, InterpolationStrategy* interpolation_strategy) const
+float Delayline::TapOut(float delay, InterpolationStrategy* interpolation_strategy)
 {
     if (delay >= delay_)
     {
@@ -111,7 +110,7 @@ void Delayline::SetIn(float delay, float input)
 {
     if (reverse_)
     {
-        delay = std::floor(delay_) - delay - 1.f;
+        delay = std::floor(delay_) - delay + 1.f;
     }
 
     uint32_t delay_integer = static_cast<uint32_t>(delay);
@@ -122,6 +121,31 @@ void Delayline::SetIn(float delay, float input)
     {
         line_[(write_ptr_ + delay_integer + 1) % max_size_] = input * frac;
     }
+}
+
+void Delayline::Rewind()
+{
+    write_ptr_ = (write_ptr_ + 1) % max_size_;
+}
+
+float& Delayline::operator[](size_t index) const
+{
+    if (reverse_)
+    {
+        index = std::floor(delay_) - index + 1.f;
+    }
+    size_t read_ptr = (write_ptr_ + index) % max_size_;
+    return line_[read_ptr];
+}
+
+float& Delayline::operator[](size_t index)
+{
+    if (reverse_)
+    {
+        index = std::floor(delay_) - index + 1.f;
+    }
+    size_t read_ptr = (write_ptr_ + index) % max_size_;
+    return line_[read_ptr];
 }
 
 } // namespace dsp

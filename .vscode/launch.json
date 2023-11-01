@@ -5,6 +5,28 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Violonist.exe",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/tools/violonist/violonist.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "console": "externalTerminal"
+        }
+        {
+            "name": "plot_waveform.py",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/tools/violonist/plot_waveform.py",
+            "args": [
+                "${workspaceFolder}/outputs",
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
             "name": "Instrument Player",
             "type": "cppdbg",
             "MIMode": "lldb",
@@ -47,7 +69,9 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/tests/libdsp_tests",
-            "args": [],
+            "args": [
+                "--gtest_filter=ScatterTests/ScatterTest*"
+            ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
@@ -60,7 +84,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/tests/libdsp_tests.exe",
             "args": [
-                "--gtest_filter=WaveguideTests.JunctionTest"
+                "--gtest_filter=WaveguideGatesTest.ClosedGates"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
@@ -91,8 +115,9 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/tools/effect_player.exe",
             "args": [
-                "-f",
-                "${workspaceFolder}/waves/piano.wav"
+                "-r",
+                "-t",
+                "1"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
@@ -104,7 +129,10 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/tools/effect_player",
-            "args": [],
+            "args": [
+                "-t",
+                "8"
+            ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],

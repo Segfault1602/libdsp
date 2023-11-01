@@ -10,9 +10,12 @@ set(LIB_SOURCES
     junction.cpp
     line.cpp
     phaseshapers.cpp
+    rms.cpp
     sinc_resampler.cpp
+    string_ensemble.cpp
     termination.cpp
-    waveguide.cpp)
+    waveguide.cpp
+    waveguide_gate.cpp)
 
 add_library(dsp STATIC ${LIB_SOURCES})
 

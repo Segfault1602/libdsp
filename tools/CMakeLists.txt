@@ -1,4 +1,4 @@
-add_executable(resampler resampler.cpp)
+add_executable(resampler resampler.cpp test_utils.cpp)
 target_include_directories(resampler PRIVATE externals/libsamplerate/include)
 target_link_libraries(resampler PUBLIC dsp sndfile samplerate)
 
@@ -9,7 +9,15 @@ if(NOT MSVC)
 endif()
 
 # effect player executable
-add_executable(effect_player effect_player.cpp dsp_tester.cpp)
+add_executable(effect_player
+    arpegiator.cpp
+    bowedstring_tests.cpp
+    effect_player.cpp
+    dsp_tester.cpp
+    phaseshapers_tests.cpp
+    stringensemble_tests.cpp
+    test_utils.cpp)
+
 target_link_libraries(effect_player PUBLIC dsp sndfile rtaudio)
 
 set_target_properties(effect_player PROPERTIES CXX_CLANG_TIDY
@@ -19,3 +27,4 @@ if(NOT MSVC)
 endif()
 
 add_subdirectory(player)
+add_subdirectory(violonist)

@@ -55,7 +55,7 @@ class Delayline
     /// @param interpolation_strategy The interpolation strategy to use. If nullptr, the default interpolation strategy
     /// is Linear.
     /// @return The sample at the specified delay.
-    float TapOut(float delay, InterpolationStrategy* interpolation_strategy = nullptr) const;
+    float TapOut(float delay, InterpolationStrategy* interpolation_strategy = nullptr);
 
     /// @brief Add a sample to the delayline at a specific delay. If the delay is not an integer, linear interpolation
     /// is used.
@@ -68,6 +68,12 @@ class Delayline
     /// @param delay Delay in samples
     /// @param input Input sample
     void SetIn(float delay, float input);
+
+    /// @brief Move the write pointer of the delayline back one sample.
+    void Rewind();
+
+    float& operator[](size_t index) const;
+    float& operator[](size_t index);
 
   protected:
     const size_t max_size_ = 0;

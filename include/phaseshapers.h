@@ -22,14 +22,18 @@ class Phaseshaper
 {
   public:
     /// @brief Waveform types
+    /// @note The order of the waveforms is intentional: the waveform are ordered in such a
+    /// way that make interpolating between them more aesthetically pleasing.
     enum class Waveform : uint8_t
     {
-        VARIABLE_SLOPE = 0,
-        SOFTSYNC,
-        WAVESLICE,
-        SUPERSAW,
-        HARDSYNC,
-        TRIANGLE_MOD,
+        VARIABLE_SLOPE = 0, // 0.10 - 0.50
+        // VARIABLE_TRIANGLE, // 1.25 - 1.75 w=05
+        WAVESLICE, // 0.25 - 0.40
+        SUPERSAW,  // 0.25 - 0.75
+        RIPPLE,
+        // HARDSYNC, // 2 - 3
+        SOFTSYNC,     // 1 - 1.5
+        TRIANGLE_MOD, // 0.5 - 1.5
         NUM_WAVES,
     };
 
@@ -49,6 +53,13 @@ class Phaseshaper
         m_waveform = wave;
     }
 
+    void SetWaveform(Waveform wave)
+    {
+        m_waveform = static_cast<float>(wave);
+    }
+
+    /// @brief Sets the frequency
+    /// @param freq Frequency in Hz
     void SetFreq(float freq)
     {
         m_freq = freq;
@@ -62,6 +73,8 @@ class Phaseshaper
     /// For example, for Waveform::VARIABLE_SLOPE, the modulation parameter controls the width of the waveform.
     void SetMod(float mod);
 
+    /// @brief Processes the oscillator
+    /// @return
     float Process();
 
   private:
@@ -72,6 +85,7 @@ class Phaseshaper
     float ProcessSupersaw() const;
     float ProcessVarSlope() const;
     float ProcessVarTri() const;
+    float ProcessRipple() const;
 
     float ProcessWave(Waveform wave) const;
 

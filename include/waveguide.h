@@ -6,6 +6,7 @@
 #include "dsp_base.h"
 #include "interpolation_strategy.h"
 #include "junction.h"
+#include "waveguide_gate.h"
 
 namespace dsp
 {
@@ -32,7 +33,11 @@ class Waveguide
     /// @param pos position of the junction in sample
     /// @note Junction isn't the right name for this, at least for now. This is basically a sliding nut and is used to
     /// change the length of the waveguide in a physically sensible way.
-    void SetJunction(float pos);
+    void SetJunctionDelay(float pos);
+
+    /// @brief Returns the junction position.
+    /// @return The junction position.
+    float GetJunctionDelay() const;
 
     /// @brief Returns the output sample of the right traveling wave and left traveling wave.
     /// @param right Output sample of the right traveling wave.
@@ -87,6 +92,7 @@ class Waveguide
     Delayline left_traveling_line_;
 
     Junction junction_;
+    WaveguideGate gate_;
 };
 
 } // namespace dsp

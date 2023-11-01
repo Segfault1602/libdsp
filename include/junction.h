@@ -3,10 +3,11 @@
 #include "dsp_base.h"
 
 #include "delayline.h"
-#include <cstdio>
+#include <array>
 
 namespace dsp
 {
+
 /// @brief Implements a junction point between two delaylines
 class Junction
 {
@@ -15,6 +16,7 @@ class Junction
     ~Junction() = default;
 
     void SetDelay(float delay);
+    float GetDelay() const;
 
     void Tick(Delayline& left_traveling_line, Delayline& right_traveling_line);
 

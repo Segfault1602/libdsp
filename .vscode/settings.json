@@ -110,7 +110,8 @@
         "source_location": "cpp",
         "shared_mutex": "cpp",
         "regex": "cpp",
-        "coroutine": "cpp"
+        "coroutine": "cpp",
+        "span": "cpp"
     },
     "vscode-nmake-tools.workspaceBuildDirectories": [
         "."

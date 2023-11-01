@@ -1,18 +1,22 @@
 set(TEST_SOURCES
     main_tests.cpp
+    basic_oscillators_tests.cpp
     circular_buffer_tests.cpp
     delayline_tests.cpp
+    rms_tests.cpp
     sinc_resampler_tests.cpp
-    waveguide_tests.cpp)
+    test_utils.cpp
+    waveguide_tests.cpp
+    waveguide_gates_tests.cpp)
 
 set(SOURCES ${TEST_SOURCES})
 
 add_executable(libdsp_tests ${TEST_SOURCES})
 
 if(NOT MSVC)
-  target_compile_options(dsp PRIVATE -Wall -Wpedantic -Werror)
+  target_compile_options(libdsp_tests PRIVATE ${CLANG_COMPILER_OPTION})
 else()
-  target_compile_options(dsp PRIVATE /W4 /WX)
+  target_compile_options(libdsp_tests PRIVATE ${MSVC_COMPILER_OPTION})
 endif()
 
 add_test(NAME libdsp_tests COMMAND libdsp_tests)

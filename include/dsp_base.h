@@ -3,7 +3,10 @@
 // =============================================================================
 #pragma once
 
+#ifndef PI_F
 #define PI_F 3.14159265358979323846f
+#endif
+
 #define TWO_PI (2.0f * PI_F)
 
 namespace dsp
@@ -28,6 +31,11 @@ class DspBase
 /// @param midi_note The midi note number. Valid range is 0 to 127.
 /// @return The frequency in Hz.
 float MidiToFreq(float midi_note);
+
+/// @brief Convert midi note to frequency using a lookup table and linear interpolation.
+/// @param midi_note The midi note number.
+/// @return The frequency in Hz.
+float FastMidiToFreq(float midi_note);
 
 /// @brief Convert frequency to midi note.
 /// @param freq The frequency in Hz.

@@ -11,6 +11,14 @@ The library use CMake and can probably be built in multiple of ways, but here's 
 > cmake --build ./build
 ```
 
+I also included a toolchain file for cross compiling libDSP for the Daisy platform. This assumes that you
+already have the [Daisy Toolchain installed](https://github.com/electro-smith/DaisyWiki/wiki/1.-Setting-Up-Your-Development-Environment).
+
+```
+> cmake -GNinja -Bdaisy -DCMAKE_TOOLCHAIN_FILE=cmake/daisy.cmake
+> cmake --build ./daisy
+```
+
 ## Including libdsp
 
 When including the library in another project you might want to disable certain features with these CMAKE option flags:

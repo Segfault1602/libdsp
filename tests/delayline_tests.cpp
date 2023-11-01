@@ -5,11 +5,41 @@
 #include "delayline.h"
 #include "interpolation_strategy.h"
 #include "test_resources.h"
+#include "test_utils.h"
+
+namespace dsp
+{
+std::ostream& operator<<(std::ostream& os, const dsp::InterpolationType& t)
+{
+    switch (t)
+    {
+    case dsp::InterpolationType::None:
+        os << "None";
+        break;
+    case dsp::InterpolationType::Linear:
+        os << "Linear";
+        break;
+    case dsp::InterpolationType::Allpass:
+        os << "Allpass";
+        break;
+    default:
+        os << "Unknown";
+    }
+
+    return os;
+}
+} // namespace dsp
 
 class DelayInterpolationTest : public ::testing::TestWithParam<dsp::InterpolationType>
 {
   public:
     DelayInterpolationTest() = default;
+};
+
+class DelayNotFractionalTest : public ::testing::TestWithParam<dsp::InterpolationType>
+{
+  public:
+    DelayNotFractionalTest() = default;
 };
 
 TEST_P(DelayInterpolationTest, NoInterpolation)
@@ -108,7 +138,7 @@ TEST(LinearDelaylineTests, WithInterpolation2)
     }
 }
 
-TEST(LinearDelaylineTests, TapOut)
+TEST_P(DelayNotFractionalTest, TapOut)
 {
     constexpr size_t max_delay_size = 100;
     dsp::Delayline line(max_delay_size, false);
@@ -119,7 +149,7 @@ TEST(LinearDelaylineTests, TapOut)
     constexpr size_t loop_count = delay;
 
     // This will give us a delay line that looks like
-    // read->[0 1 2 3 4 5 6 7 8 9]<-write
+    // write->[9 8 7 6 5 4 3 2 1 0]<-read
     for (size_t i = 0; i < loop_count; ++i)
     {
         line.Tick(i);
@@ -138,7 +168,7 @@ TEST(LinearDelaylineTests, TapOut)
     ASSERT_EQ(tap_out_of_bound, line.TapOut(delay));
 }
 
-TEST(LinearDelaylineTests, TapOutReverse)
+TEST_P(DelayNotFractionalTest, TapOutReverse)
 {
     constexpr size_t max_delay_size = 100;
     dsp::Delayline line(max_delay_size, true);
@@ -194,7 +224,7 @@ TEST(LinearDelaylineTests, TapOutInterpolation)
     ASSERT_EQ(tap_out_of_bound, line.TapOut(delay));
 }
 
-TEST(LinearDelaylineTests, TapIn)
+TEST_P(DelayNotFractionalTest, TapIn)
 {
     constexpr size_t max_delay_size = 100;
     dsp::Delayline line(max_delay_size);
@@ -214,7 +244,7 @@ TEST(LinearDelaylineTests, TapIn)
     }
 }
 
-TEST(LinearDelaylineTests, TapIn2)
+TEST_P(DelayNotFractionalTest, TapIn2)
 {
     constexpr size_t max_delay_size = 7;
     constexpr float delay = max_delay_size - 1;
@@ -230,7 +260,7 @@ TEST(LinearDelaylineTests, TapIn2)
     }
 }
 
-TEST(LinearDelaylineTests, TapInTick)
+TEST_P(DelayNotFractionalTest, TapInTick)
 {
     constexpr size_t max_delay_size = 100;
     dsp::Delayline line(max_delay_size);
@@ -251,6 +281,41 @@ TEST(LinearDelaylineTests, TapInTick)
     }
 }
 
+TEST_P(DelayNotFractionalTest, SubscriptOperator)
+{
+    constexpr size_t max_delay_size = 11;
+    dsp::Delayline line(max_delay_size);
+
+    constexpr float delay = max_delay_size - 1;
+    line.SetDelay(delay);
+
+    for (size_t i = 1; i <= delay; ++i)
+    {
+        line[i] = i;
+        float out = line[i];
+        ASSERT_EQ(i, out);
+
+        out = line.TapOut(i);
+        ASSERT_EQ(i, out);
+    }
+
+    dsp::Delayline line2(max_delay_size);
+    line2.SetDelay(delay);
+
+    // This will give us a delay line that looks like
+    // read->[0 1 2 3 4 5 6 7 8 9]<-write
+    for (size_t i = delay; i > 0; --i)
+    {
+        line2.Tick(i);
+    }
+
+    PrintDelayline(line2);
+    for (size_t i = 1; i <= delay; ++i)
+    {
+        ASSERT_EQ(line2[i], i);
+    }
+}
+
 TEST(LinearDelaylineTests, TapInFrac)
 {
     constexpr size_t max_delay_size = 100;
@@ -266,3 +331,8 @@ TEST(LinearDelaylineTests, TapInFrac)
 
 INSTANTIATE_TEST_SUITE_P(InterpolationTest, DelayInterpolationTest,
                          ::testing::Values(dsp::InterpolationType::Linear, dsp::InterpolationType::Allpass));
+
+INSTANTIATE_TEST_SUITE_P(DelaylineParamTest, DelayNotFractionalTest,
+                         ::testing::Values(dsp::InterpolationType::None, dsp::InterpolationType::Linear,
+                                           dsp::InterpolationType::Allpass),
+                         ::testing::PrintToStringParamName());

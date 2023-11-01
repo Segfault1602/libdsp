@@ -3,6 +3,7 @@
 #include "bow_table.h"
 #include "dsp_base.h"
 #include "filter.h"
+#include "rms.h"
 #include "termination.h"
 #include "waveguide.h"
 
@@ -16,10 +17,13 @@ namespace dsp
 class BowedString
 {
   public:
-    BowedString();
+    BowedString(size_t max_size = 1024);
     ~BowedString() = default;
 
-    void Init(float samplerate);
+    /// @brief Initialize the string
+    /// @param samplerate The samplerate of the system
+    /// @param tuning The tuning of the open string in Hz, Default to G3
+    void Init(float samplerate, float tuning = 196.f);
 
     /// @brief Set the frequency of the string
     /// @param f The frequency of the string in Hz
@@ -51,18 +55,40 @@ class BowedString
     /// @return The force of the bow
     float GetForce() const;
 
+    /// @brief Set the position of the bow on the string.
+    /// @param pos The position of the bow on the string. Value should be between 0 and 1.
+    /// @note A position of 0 would be right at the bridge, and a position of 1 would be at the nut/finger.
+    void SetBowPosition(float pos);
+
+    /// @brief Returns the position of the bow on the string.
+    /// @return The position of the bow on the string.
+    /// @note A position of 0 would be right at the bridge, and a position of 1 would be at the nut/finger.
+    float GetBowPosition() const;
+
+    /// @brief Set the note on state of the string.
+    /// @param note_on
+    void SetNoteOn(bool note_on);
+
+    /// @brief Returns the note on state of the string.
+    bool GetNoteOn() const;
+
     /// @brief Pluck the string.
     void Pluck();
 
+    /// @brief Return the next sample at the bridge.
+    /// @return The next sample at the bridge.
+    float NextOut();
+
     /// @brief Tick the string.
-    /// @param note_on If true, the string is bowed, otherwise it is left to resonate.
+    /// @param input Energy coming from the bridge. Optional.
     /// @return The output sample at the bridge.
-    float Tick(bool note_on);
+    float Tick(float input = 0.f);
 
   private:
     Waveguide waveguide_;
 
     float bow_position_ = 0.f;
+    float relative_bow_position_ = 0.2f;
 
     Termination nut_;
     Termination bridge_;
@@ -73,8 +99,12 @@ class BowedString
     float samplerate_;
     float freq_;
     float velocity_ = 0.f;
+    bool note_on_ = false;
 
-    constexpr static float max_velocity_ = 0.3f;
+    constexpr static float max_velocity_ = 0.2f;
     constexpr static float velocity_offset_ = 0.03f;
+
+    OnePoleFilter decay_filter_;
+    OnePoleFilter noise_lp_filter_;
 };
 } // namespace dsp

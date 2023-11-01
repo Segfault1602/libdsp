@@ -13,10 +13,13 @@
 #include <sndfile.h>
 
 #include "bowed_string.h"
+#include "bowedstring_tests.h"
 #include "chorus.h"
 #include "dsp_base.h"
 #include "dsp_tester.h"
+#include "phaseshapers_tests.h"
 #include "test_utils.h"
+#include "tests_list.h"
 
 int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBufferFrames, double /*streamTime*/,
                      RtAudioStreamStatus /*status*/, void* data);
@@ -51,11 +54,18 @@ bool g_use_input_file = false;
 
 int main(int argc, char** argv)
 {
+    size_t test_idx = 0;
+    for (const auto& i : TEST_STRING)
+    {
+        printf("%zu - %s\n", test_idx, i);
+        ++test_idx;
+    }
+
     const std::vector<std::string> args(argv + 1, argv + argc);
 
     bool realtime = false;
     std::string input_file;
-    TesterType type = TesterType::SIMPLE_BOWEDSTRING;
+    TesterType type = TesterType::SimpleBowedString;
 
     for (size_t i = 0; i < args.size(); ++i)
     {
@@ -71,11 +81,6 @@ int main(int argc, char** argv)
         else if (args[i] == "-t")
         {
             auto type_id = static_cast<uint8_t>(std::stoi(args[i + 1]));
-            if (type_id >= static_cast<uint8_t>(TesterType::TYPE_COUNT))
-            {
-                printf("Invalid tester type %u\n", type_id);
-                return -1;
-            }
             type = static_cast<TesterType>(type_id);
         }
     }
@@ -244,5 +249,5 @@ int ProcessToFile(DspTester* dsp)
 
     printf("Which is %f %% of the audio time (%f seconds).\n", time_span.count() / file_duration, file_duration);
 
-    return WriteWavFile("out.wav", out.get(), out_sf_info, out_size) != 0;
+    return WriteWavFile(dsp->GetOutputFileName(), out.get(), out_sf_info, out_size) != 0;
 }
