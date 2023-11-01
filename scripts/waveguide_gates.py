@@ -24,8 +24,6 @@ class LinearInterpolator:
 
         return a + (b - a) * self.delay_frac
 
-
-
 Fs = 48000
 
 # Waveguide Length

@@ -124,4 +124,16 @@ void Delayline::SetIn(float delay, float input)
     }
 }
 
+float& Delayline::operator[](size_t index) const
+{
+    size_t read_ptr = (write_ptr_ + index) % max_size_;
+    return line_[read_ptr];
+}
+
+float& Delayline::operator[](size_t index)
+{
+    size_t read_ptr = (write_ptr_ + index) % max_size_;
+    return line_[read_ptr];
+}
+
 } // namespace dsp

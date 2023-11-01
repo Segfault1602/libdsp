@@ -14,7 +14,8 @@ set(LIB_SOURCES
     sinc_resampler.cpp
     string_ensemble.cpp
     termination.cpp
-    waveguide.cpp)
+    waveguide.cpp
+    waveguide_gates.cpp)
 
 add_library(dsp STATIC ${LIB_SOURCES})
 

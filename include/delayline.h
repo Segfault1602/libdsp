@@ -69,6 +69,9 @@ class Delayline
     /// @param input Input sample
     void SetIn(float delay, float input);
 
+    float& operator[](size_t index) const;
+    float& operator[](size_t index);
+
   protected:
     const size_t max_size_ = 0;
     const bool reverse_ = false;
