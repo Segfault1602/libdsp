@@ -15,7 +15,7 @@ set(LIB_SOURCES
     string_ensemble.cpp
     termination.cpp
     waveguide.cpp
-    waveguide_gates.cpp)
+    waveguide_gate.cpp)
 
 add_library(dsp STATIC ${LIB_SOURCES})
 

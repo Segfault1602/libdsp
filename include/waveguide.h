@@ -6,6 +6,7 @@
 #include "dsp_base.h"
 #include "interpolation_strategy.h"
 #include "junction.h"
+#include "waveguide_gate.h"
 
 namespace dsp
 {
@@ -91,6 +92,7 @@ class Waveguide
     Delayline left_traveling_line_;
 
     Junction junction_;
+    WaveguideGate gate_;
 };
 
 } // namespace dsp

@@ -69,6 +69,9 @@ class Delayline
     /// @param input Input sample
     void SetIn(float delay, float input);
 
+    /// @brief Move the write pointer of the delayline back one sample.
+    void Rewind();
+
     float& operator[](size_t index) const;
     float& operator[](size_t index);
 

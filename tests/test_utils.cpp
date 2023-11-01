@@ -24,6 +24,15 @@ void PrintWaveguide(dsp::Waveguide& wave, size_t delay_size)
     printf("\n");
 }
 
+void PrintDelayline(const dsp::Delayline& line)
+{
+    for (auto i = 0; i < line.GetDelay(); ++i)
+    {
+        printf("%5.1f ", line[i + 1]);
+    }
+    printf("\n");
+}
+
 float GetWaveguideTotalEnergy(dsp::Waveguide& wave, size_t delay_size)
 {
     float total_energy = 0.f;

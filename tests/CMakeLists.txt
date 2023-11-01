@@ -4,10 +4,10 @@ set(TEST_SOURCES
     circular_buffer_tests.cpp
     delayline_tests.cpp
     rms_tests.cpp
-    scattering_tests.cpp
     sinc_resampler_tests.cpp
     test_utils.cpp
-    waveguide_tests.cpp)
+    waveguide_tests.cpp
+    waveguide_gates_tests.cpp)
 
 set(SOURCES ${TEST_SOURCES})
 

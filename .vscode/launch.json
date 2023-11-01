@@ -84,7 +84,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/tests/libdsp_tests.exe",
             "args": [
-                "--gtest_filter=ScatterTest*"
+                "--gtest_filter=WaveguideGatesTest.ClosedGates"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
@@ -113,11 +113,11 @@
             "name": "Debug Player.exe",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/tools/debug/effect_player.exe",
+            "program": "${workspaceFolder}/build/tools/effect_player.exe",
             "args": [
                 "-r",
                 "-t",
-                "2"
+                "1"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

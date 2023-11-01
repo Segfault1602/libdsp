@@ -83,5 +83,5 @@ float StringEnsemble::Tick()
         strings_[i].Tick(string_outs[i] + transmission * 0.25f);
     }
 
-    return string_outs[3] + transmission * 0.25f;
+    return output;
 }

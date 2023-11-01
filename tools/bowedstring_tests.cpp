@@ -6,7 +6,7 @@ void SimpleBowedString::Init(size_t samplerate)
 {
     samplerate_ = samplerate;
     string_.Init(static_cast<float>(samplerate));
-    string_.SetFrequency(440.f);
+    string_.SetFrequency(392.f);
     string_.SetForce(0.01f);
     string_.SetVelocity(0.5f);
     string_.SetNoteOn(true);

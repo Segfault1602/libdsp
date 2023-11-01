@@ -13,7 +13,7 @@ BowedString::BowedString(size_t max_size) : waveguide_(max_size, InterpolationTy
 {
 }
 
-void BowedString::Init(float samplerate)
+void BowedString::Init(float samplerate, float tuning)
 {
     samplerate_ = samplerate;
     SetFrequency(220);
@@ -22,7 +22,9 @@ void BowedString::Init(float samplerate)
     reflection_filter_.SetPole(0.75f - (0.2f * 22050.0f / samplerate_));
 
     bridge_.SetGain(1.f);
-    waveguide_.SetDelay(1024);
+
+    float string_length = (samplerate_ / tuning) * 0.5f;
+    waveguide_.SetDelay(string_length);
     bridge_.SetFilter(&reflection_filter_);
 
 
@@ -138,7 +140,7 @@ float BowedString::Tick(float input)
     if (note_on_)
     {
         float velocity_delta = velocity_ - (vsl_plus + vsr_plus);
-        constexpr float noise_db = -24;
+        constexpr float noise_db = -30;
         const float noise_gain = std::pow(10.f, noise_db / 20.f);
 
         float env = std::sqrt(decay_filter_.Tick(velocity_delta * velocity_delta));
@@ -148,7 +150,7 @@ float BowedString::Tick(float input)
     }
 
     waveguide_.TapIn(bow_position_, bow_output);
-    waveguide_.Tick(bridge_.Tick(-input), nut_.Tick(nut));
+    waveguide_.Tick(bridge_.Tick(-bridge), nut_.Tick(nut));
 
     return bridge;
 }

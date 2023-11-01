@@ -20,7 +20,10 @@ class BowedString
     BowedString(size_t max_size = 1024);
     ~BowedString() = default;
 
-    void Init(float samplerate);
+    /// @brief Initialize the string
+    /// @param samplerate The samplerate of the system
+    /// @param tuning The tuning of the open string in Hz, Default to G3
+    void Init(float samplerate, float tuning = 196.f);
 
     /// @brief Set the frequency of the string
     /// @param f The frequency of the string in Hz
