@@ -117,7 +117,7 @@
             "args": [
                 "-r",
                 "-t",
-                "1"
+                "8"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

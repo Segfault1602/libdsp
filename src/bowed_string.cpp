@@ -16,7 +16,7 @@ BowedString::BowedString(size_t max_size) : waveguide_(max_size, InterpolationTy
 void BowedString::Init(float samplerate, float tuning)
 {
     samplerate_ = samplerate;
-    SetFrequency(220);
+    SetFrequency(tuning); // open string
 
     reflection_filter_.SetGain(0.95f);
     reflection_filter_.SetPole(0.75f - (0.2f * 22050.0f / samplerate_));
@@ -24,7 +24,7 @@ void BowedString::Init(float samplerate, float tuning)
     bridge_.SetGain(1.f);
 
     float string_length = (samplerate_ / tuning) * 0.5f;
-    waveguide_.SetDelay(string_length);
+    waveguide_.SetDelay(string_length - 1.f);
     bridge_.SetFilter(&reflection_filter_);
 
 
@@ -41,6 +41,7 @@ void BowedString::SetFrequency(float f)
 {
     freq_ = f;
     float delay = (samplerate_ / freq_) * 0.5f;
+    delay -= 1.f; // delay compensation, tuned by ear
     waveguide_.SetJunctionDelay(delay);
     SetBowPosition(relative_bow_position_);
 }

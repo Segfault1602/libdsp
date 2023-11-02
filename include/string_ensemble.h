@@ -53,11 +53,17 @@ class StringEnsemble
     /// @return The force of the bow for the given string
     float GetForce(uint8_t string_number) const;
 
+    /// @brief Lift the finger off the string. Pitch of the string goes back to the open string pitch.
+    /// @param string_number
+    void FingerOff(uint8_t string_number);
+
     float Tick();
 
   private:
     std::array<dsp::BowedString, kStringCount> strings_;
+    std::array<float, kStringCount> openTuning_;
 
     OnePoleFilter transmission_filter_;
+    Biquad body_filters_[6];
 };
 } // namespace dsp

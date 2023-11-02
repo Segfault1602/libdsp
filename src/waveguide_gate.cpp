@@ -43,8 +43,7 @@ void WaveguideGate::SetCoeff(float c)
 
 void WaveguideGate::Process(Delayline& left_traveling_line, Delayline& right_traveling_line)
 {
-    assert(delay_ < left_traveling_line.GetDelay() - 2);
-    if (delay_ == 0)
+    if (delay_ == 0 || delay_ >= left_traveling_line.GetDelay() - 2)
     {
         return;
     }
