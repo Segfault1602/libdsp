@@ -14,7 +14,7 @@
 #include "dsp_base.h"
 #include <cmath>
 
-namespace dsp
+namespace sfdsp
 {
 /// @brief Simple chorus effect.
 class Chorus : public DspBase
@@ -79,4 +79,4 @@ class Chorus : public DspBase
     float chorus_mix_ = 0.5f;
     float input_mix_ = 0.5f;
 };
-} // namespace dsp
+} // namespace sfdsp

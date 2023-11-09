@@ -2,15 +2,14 @@
 
 #include <cmath>
 
-namespace dsp
+namespace sfdsp
 {
 
 Waveguide::Waveguide(size_t max_size, InterpolationType interpolation_type)
     : max_size_(max_size), right_traveling_line_(max_size, false, interpolation_type),
-      left_traveling_line_(max_size, true, interpolation_type), gate_(true, 0.f, 0.9f)
+      left_traveling_line_(max_size, true, interpolation_type)
 {
     SetDelay(static_cast<float>(max_size - 1));
-    SetJunctionDelay(0);
 }
 
 void Waveguide::SetDelay(float delay)
@@ -30,16 +29,6 @@ float Waveguide::GetDelay() const
     return current_delay_;
 }
 
-void Waveguide::SetJunctionDelay(float pos)
-{
-    gate_.SetDelay(pos);
-}
-
-float Waveguide::GetJunctionDelay() const
-{
-    return gate_.GetDelay();
-}
-
 void Waveguide::NextOut(float& right, float& left)
 {
     right = right_traveling_line_.NextOut();
@@ -48,9 +37,6 @@ void Waveguide::NextOut(float& right, float& left)
 
 void Waveguide::Tick(float right, float left)
 {
-    // Always tick the junction(s) first
-    gate_.Process(left_traveling_line_, right_traveling_line_);
-
     right_traveling_line_.Tick(right);
     left_traveling_line_.Tick(left);
 }
@@ -117,4 +103,25 @@ void Waveguide::TapOut(float delay, float& right_out, float& left_out, Interpola
     left_out = left_traveling_line_.TapOut(delay, interpolation_strategy);
 }
 
-} // namespace dsp
+const Delayline& Waveguide::operator[](size_t index) const
+{
+    if (index == 0)
+    {
+        return right_traveling_line_;
+    }
+
+    assert(index == 1);
+    return left_traveling_line_;
+}
+
+Delayline& Waveguide::operator[](size_t index)
+{
+    if (index == 0)
+    {
+        return right_traveling_line_;
+    }
+
+    assert(index == 1);
+    return left_traveling_line_;
+}
+} // namespace sfdsp

@@ -21,4 +21,4 @@ endif()
 
 add_test(NAME libdsp_tests COMMAND libdsp_tests)
 
-target_link_libraries(libdsp_tests PUBLIC dsp PRIVATE GTest::gtest_main GTest::gmock_main)
+target_link_libraries(libdsp_tests PUBLIC dsp PRIVATE sndfile GTest::gtest_main GTest::gmock_main)

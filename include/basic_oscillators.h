@@ -1,6 +1,6 @@
 #pragma once
 
-namespace dsp
+namespace sfdsp
 {
 /// @brief Simple sine wave
 /// @param phase Phase of the sine wave
@@ -25,4 +25,4 @@ float Square(float phase);
 /// @brief Simple noise generator
 /// @return
 float Noise();
-} // namespace dsp
+} // namespace sfdsp

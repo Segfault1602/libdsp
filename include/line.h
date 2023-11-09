@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace dsp
+namespace sfdsp
 {
 /// @brief Simple ramp generator.
 class Line
@@ -20,4 +20,4 @@ class Line
     float output_ = 0.f;
     float increment_ = 0.f;
 };
-} // namespace dsp
+} // namespace sfdsp

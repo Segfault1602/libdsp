@@ -7,7 +7,7 @@
 #include "delayline.h"
 #include "dsp_base.h"
 
-namespace dsp
+namespace sfdsp
 {
 
 /// @brief Implements a linear delayline with a maximum delay of MAX_DELAY
@@ -34,4 +34,4 @@ class LinearDelayline : public Delayline
     float next_out_ = 0.f;
     float last_out_ = 0.f;
 };
-} // namespace dsp
+} // namespace sfdsp

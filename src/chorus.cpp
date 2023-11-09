@@ -2,7 +2,7 @@
 
 #include "basic_oscillators.h"
 
-namespace dsp
+namespace sfdsp
 {
 Chorus::Chorus(size_t max_delay_size) : delay_(max_delay_size)
 {
@@ -81,4 +81,4 @@ float Chorus::Tick(float in)
 
     return delay_.Tick(xn) * FF + BL * xn;
 }
-} // namespace dsp
+} // namespace sfdsp

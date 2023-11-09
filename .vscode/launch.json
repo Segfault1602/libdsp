@@ -84,7 +84,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/tests/libdsp_tests.exe",
             "args": [
-                "--gtest_filter=WaveguideGatesTest.ClosedGates"
+                "--gtest_filter=WaveguideGatesTest.SineWave"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
@@ -115,9 +115,8 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/tools/effect_player.exe",
             "args": [
-                "-r",
                 "-t",
-                "8"
+                "10"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

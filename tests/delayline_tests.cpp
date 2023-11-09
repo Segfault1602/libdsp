@@ -7,19 +7,19 @@
 #include "test_resources.h"
 #include "test_utils.h"
 
-namespace dsp
+namespace sfdsp
 {
-std::ostream& operator<<(std::ostream& os, const dsp::InterpolationType& t)
+std::ostream& operator<<(std::ostream& os, const sfdsp::InterpolationType& t)
 {
     switch (t)
     {
-    case dsp::InterpolationType::None:
+    case sfdsp::InterpolationType::None:
         os << "None";
         break;
-    case dsp::InterpolationType::Linear:
+    case sfdsp::InterpolationType::Linear:
         os << "Linear";
         break;
-    case dsp::InterpolationType::Allpass:
+    case sfdsp::InterpolationType::Allpass:
         os << "Allpass";
         break;
     default:
@@ -28,15 +28,15 @@ std::ostream& operator<<(std::ostream& os, const dsp::InterpolationType& t)
 
     return os;
 }
-} // namespace dsp
+} // namespace sfdsp
 
-class DelayInterpolationTest : public ::testing::TestWithParam<dsp::InterpolationType>
+class DelayInterpolationTest : public ::testing::TestWithParam<sfdsp::InterpolationType>
 {
   public:
     DelayInterpolationTest() = default;
 };
 
-class DelayNotFractionalTest : public ::testing::TestWithParam<dsp::InterpolationType>
+class DelayNotFractionalTest : public ::testing::TestWithParam<sfdsp::InterpolationType>
 {
   public:
     DelayNotFractionalTest() = default;
@@ -47,8 +47,8 @@ TEST_P(DelayInterpolationTest, NoInterpolation)
     constexpr size_t max_delay_size = 100;
     constexpr size_t delay = 10;
 
-    dsp::InterpolationType interpolation_type = GetParam();
-    dsp::Delayline line(max_delay_size, false, interpolation_type);
+    sfdsp::InterpolationType interpolation_type = GetParam();
+    sfdsp::Delayline line(max_delay_size, false, interpolation_type);
 
     line.SetDelay(delay);
 
@@ -77,8 +77,8 @@ TEST_P(DelayInterpolationTest, WithInterpolation)
     constexpr size_t max_delay_size = 100;
     constexpr float delay = 10.5f;
 
-    dsp::InterpolationType interpolation_type = GetParam();
-    dsp::Delayline line(max_delay_size, false, interpolation_type);
+    sfdsp::InterpolationType interpolation_type = GetParam();
+    sfdsp::Delayline line(max_delay_size, false, interpolation_type);
 
     line.SetDelay(delay);
 
@@ -94,11 +94,11 @@ TEST_P(DelayInterpolationTest, WithInterpolation)
     size_t expected_result_size = 0;
     switch (interpolation_type)
     {
-    case dsp::InterpolationType::Linear:
+    case sfdsp::InterpolationType::Linear:
         expected_result = stkLinearInterpolationResult1.data();
         expected_result_size = stkLinearInterpolationResult1.size();
         break;
-    case dsp::InterpolationType::Allpass:
+    case sfdsp::InterpolationType::Allpass:
         expected_result = stkAllpassInterpolationResult.data();
         expected_result_size = stkAllpassInterpolationResult.size();
         break;
@@ -117,7 +117,7 @@ TEST_P(DelayInterpolationTest, WithInterpolation)
 TEST(LinearDelaylineTests, WithInterpolation2)
 {
     constexpr size_t max_delay_size = 100;
-    dsp::Delayline line(max_delay_size);
+    sfdsp::Delayline line(max_delay_size);
 
     constexpr float delay = 10.75f;
     line.SetDelay(delay);
@@ -141,7 +141,7 @@ TEST(LinearDelaylineTests, WithInterpolation2)
 TEST_P(DelayNotFractionalTest, TapOut)
 {
     constexpr size_t max_delay_size = 100;
-    dsp::Delayline line(max_delay_size, false);
+    sfdsp::Delayline line(max_delay_size, false);
 
     constexpr float delay = 10;
     line.SetDelay(delay);
@@ -171,7 +171,7 @@ TEST_P(DelayNotFractionalTest, TapOut)
 TEST_P(DelayNotFractionalTest, TapOutReverse)
 {
     constexpr size_t max_delay_size = 100;
-    dsp::Delayline line(max_delay_size, true);
+    sfdsp::Delayline line(max_delay_size, true);
 
     constexpr float delay = 10;
     line.SetDelay(delay);
@@ -198,7 +198,7 @@ TEST_P(DelayNotFractionalTest, TapOutReverse)
 TEST(LinearDelaylineTests, TapOutInterpolation)
 {
     constexpr size_t max_delay_size = 100;
-    dsp::Delayline line(max_delay_size);
+    sfdsp::Delayline line(max_delay_size);
 
     constexpr float delay = 10;
     line.SetDelay(delay);
@@ -227,7 +227,7 @@ TEST(LinearDelaylineTests, TapOutInterpolation)
 TEST_P(DelayNotFractionalTest, TapIn)
 {
     constexpr size_t max_delay_size = 100;
-    dsp::Delayline line(max_delay_size);
+    sfdsp::Delayline line(max_delay_size);
 
     constexpr float delay = 10;
     line.SetDelay(delay);
@@ -248,7 +248,7 @@ TEST_P(DelayNotFractionalTest, TapIn2)
 {
     constexpr size_t max_delay_size = 7;
     constexpr float delay = max_delay_size - 1;
-    dsp::Delayline line(max_delay_size);
+    sfdsp::Delayline line(max_delay_size);
     line.SetDelay(delay);
     constexpr float input[max_delay_size] = {1, 2, 3, 4, 5, 6};
 
@@ -263,7 +263,7 @@ TEST_P(DelayNotFractionalTest, TapIn2)
 TEST_P(DelayNotFractionalTest, TapInTick)
 {
     constexpr size_t max_delay_size = 100;
-    dsp::Delayline line(max_delay_size);
+    sfdsp::Delayline line(max_delay_size);
 
     constexpr float delay = max_delay_size - 1;
     line.SetDelay(delay);
@@ -284,7 +284,7 @@ TEST_P(DelayNotFractionalTest, TapInTick)
 TEST_P(DelayNotFractionalTest, SubscriptOperator)
 {
     constexpr size_t max_delay_size = 11;
-    dsp::Delayline line(max_delay_size);
+    sfdsp::Delayline line(max_delay_size);
 
     constexpr float delay = max_delay_size - 1;
     line.SetDelay(delay);
@@ -299,7 +299,7 @@ TEST_P(DelayNotFractionalTest, SubscriptOperator)
         ASSERT_EQ(i, out);
     }
 
-    dsp::Delayline line2(max_delay_size);
+    sfdsp::Delayline line2(max_delay_size);
     line2.SetDelay(delay);
 
     // This will give us a delay line that looks like
@@ -319,7 +319,7 @@ TEST_P(DelayNotFractionalTest, SubscriptOperator)
 TEST(LinearDelaylineTests, TapInFrac)
 {
     constexpr size_t max_delay_size = 100;
-    dsp::Delayline line(max_delay_size);
+    sfdsp::Delayline line(max_delay_size);
 
     constexpr float delay = max_delay_size - 1;
     line.SetDelay(delay);
@@ -330,9 +330,9 @@ TEST(LinearDelaylineTests, TapInFrac)
 }
 
 INSTANTIATE_TEST_SUITE_P(InterpolationTest, DelayInterpolationTest,
-                         ::testing::Values(dsp::InterpolationType::Linear, dsp::InterpolationType::Allpass));
+                         ::testing::Values(sfdsp::InterpolationType::Linear, sfdsp::InterpolationType::Allpass));
 
 INSTANTIATE_TEST_SUITE_P(DelaylineParamTest, DelayNotFractionalTest,
-                         ::testing::Values(dsp::InterpolationType::None, dsp::InterpolationType::Linear,
-                                           dsp::InterpolationType::Allpass),
+                         ::testing::Values(sfdsp::InterpolationType::None, sfdsp::InterpolationType::Linear,
+                                           sfdsp::InterpolationType::Allpass),
                          ::testing::PrintToStringParamName());

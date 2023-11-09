@@ -5,7 +5,7 @@
 #include "bowed_string.h"
 #include "dsp_base.h"
 
-namespace dsp
+namespace sfdsp
 {
 
 constexpr size_t kStringCount = 4;
@@ -57,13 +57,18 @@ class StringEnsemble
     /// @param string_number
     void FingerOff(uint8_t string_number);
 
+    /// @brief Set the amount of energy transmitted from one string to the others
+    /// @param t
+    void SetBridgeTransmission(float t);
+
     float Tick();
 
   private:
-    std::array<dsp::BowedString, kStringCount> strings_;
+    std::array<sfdsp::BowedString, kStringCount> strings_;
     std::array<float, kStringCount> openTuning_;
+    float bridgeTransmission_ = 0.1f;
 
     OnePoleFilter transmission_filter_;
     Biquad body_filters_[6];
 };
-} // namespace dsp
+} // namespace sfdsp

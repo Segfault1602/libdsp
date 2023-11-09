@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-namespace dsp
+namespace sfdsp
 {
 RMS::RMS(size_t size) : buffer_(size, false, InterpolationType::None), factor_(1.f / size)
 {
@@ -23,4 +23,4 @@ float RMS::GetRMS() const
     return last_out_;
 }
 
-} // namespace dsp
+} // namespace sfdsp

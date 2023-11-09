@@ -16,7 +16,7 @@ TEST(SincInterpolateTest, NoOp)
     std::array<float, array_size> output{0};
 
     size_t out_size = output.max_size();
-    dsp::sinc_resample(input.data(), array_size, 1, output.data(), out_size);
+    sfdsp::sinc_resample(input.data(), array_size, 1, output.data(), out_size);
 
     ASSERT_EQ(out_size, array_size);
 
@@ -47,7 +47,7 @@ TEST(SincInterpolateTest, Upsample2X)
     std::array<float, final_out_size> output{0};
 
     size_t out_size = output.max_size();
-    dsp::sinc_resample(input.data(), array_size, sample_ratio, output.data(), out_size);
+    sfdsp::sinc_resample(input.data(), array_size, sample_ratio, output.data(), out_size);
 
     for (auto& val : output)
     {
@@ -67,5 +67,5 @@ TEST(SincInterpolateTest, Downsample2X)
     std::array<float, final_out_size> output{0};
 
     size_t out_size = output.max_size();
-    dsp::sinc_resample(input.data(), array_size, sample_ratio, output.data(), out_size);
+    sfdsp::sinc_resample(input.data(), array_size, sample_ratio, output.data(), out_size);
 }

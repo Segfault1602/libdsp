@@ -3,8 +3,9 @@
 #include "dsp_base.h"
 
 #include "delayline.h"
+#include "waveguide.h"
 
-namespace dsp
+namespace sfdsp
 {
 
 /// @brief Implements a "reflection" point in a waveguide.
@@ -24,6 +25,8 @@ class WaveguideGate
 
     void Process(Delayline& left_traveling_line, Delayline& right_traveling_line);
 
+    void Process(Waveguide& wave);
+
   private:
     float coeff_ = 0.f;
     float delay_ = 0.f;
@@ -37,4 +40,4 @@ class WaveguideGate
     bool delay_decreased_ = false;
     bool delay_increased_ = false;
 };
-} // namespace dsp
+} // namespace sfdsp

@@ -5,7 +5,7 @@
 #include "dsp_base.h"
 #include "sin_table.h"
 
-namespace dsp
+namespace sfdsp
 {
 
 float Sine(float phase)
@@ -19,6 +19,7 @@ float Sine(float phase)
 
 float Tri(float phase)
 {
+    phase = std::fmod(phase, 1.f);
     if (phase < 0.5f)
     {
         return 2.f * phase - 1.f;
@@ -45,4 +46,4 @@ float Noise()
     return 2.f * rand() * kOneOverRandMax - 1.f;
 }
 
-} // namespace dsp
+} // namespace sfdsp

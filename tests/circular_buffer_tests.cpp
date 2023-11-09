@@ -5,7 +5,7 @@
 TEST(CircularBufferTests, Init)
 {
     const size_t max_size = 10;
-    dsp::CircularBuffer<max_size> buf;
+    sfdsp::CircularBuffer<max_size> buf;
 
     ASSERT_TRUE(buf.IsEmpty());
     ASSERT_EQ(buf.Count(), 0);
@@ -16,7 +16,7 @@ TEST(CircularBufferTests, Init)
 TEST(CircularBufferTests, CheckCount)
 {
     const size_t max_size = 10;
-    dsp::CircularBuffer<max_size> buf;
+    sfdsp::CircularBuffer<max_size> buf;
 
     for (size_t i = 0; i < buf.Size() - 1; ++i)
     {
@@ -34,7 +34,7 @@ TEST(CircularBufferTests, CheckCount)
 TEST(CircularBufferTests, CheckWrite)
 {
     const size_t max_size = 10;
-    dsp::CircularBuffer<max_size> buf;
+    sfdsp::CircularBuffer<max_size> buf;
 
     float test_values[max_size] = {0};
     for (size_t i = 0; i < max_size; ++i)
@@ -58,7 +58,7 @@ TEST(CircularBufferTests, CheckWrite)
 TEST(CircularBufferTests, CheckRead)
 {
     const size_t max_size = 10;
-    dsp::CircularBuffer<max_size> buf;
+    sfdsp::CircularBuffer<max_size> buf;
 
     float test_values[max_size] = {0};
     for (size_t i = 0; i < max_size; ++i)
@@ -84,7 +84,7 @@ TEST(CircularBufferTests, CheckRead)
 TEST(CircularBufferTests, CheckOverwrite)
 {
     const size_t max_size = 10;
-    dsp::CircularBuffer<max_size> buf;
+    sfdsp::CircularBuffer<max_size> buf;
 
     float test_values[max_size] = {0};
     for (size_t i = 0; i < max_size; ++i)

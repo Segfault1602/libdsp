@@ -16,7 +16,8 @@ add_executable(effect_player
     dsp_tester.cpp
     phaseshapers_tests.cpp
     stringensemble_tests.cpp
-    test_utils.cpp)
+    test_utils.cpp
+    waveguide_tests.cpp)
 
 target_link_libraries(effect_player PUBLIC dsp sndfile rtaudio)
 

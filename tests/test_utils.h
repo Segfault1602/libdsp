@@ -4,8 +4,8 @@
 
 #include "waveguide.h"
 
-void PrintWaveguide(dsp::Waveguide& wave, size_t delay_size);
+void PrintWaveguide(sfdsp::Waveguide& wave, size_t delay_size);
 
-void PrintDelayline(const dsp::Delayline& line);
+void PrintDelayline(const sfdsp::Delayline& line);
 
-float GetWaveguideTotalEnergy(dsp::Waveguide& wave, size_t delay_size);
+float GetWaveguideTotalEnergy(sfdsp::Waveguide& wave, size_t delay_size);

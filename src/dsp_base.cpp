@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-namespace dsp
+namespace sfdsp
 {
 
 float MidiToFreq(float midi_note)
@@ -45,4 +45,4 @@ float FreqToMidi(float freq)
 
     return (17.3123405046f * logf(.12231220585f * freq));
 }
-} // namespace dsp
+} // namespace sfdsp

@@ -14,7 +14,7 @@ class RMSTest : public ::testing::TestWithParam<float>
 TEST_P(RMSTest, PureSine)
 {
 
-    dsp::RMS rms(4096);
+    sfdsp::RMS rms(4096);
 
     const float kAmplitude = GetParam();
     constexpr float kFreq = 440.f;

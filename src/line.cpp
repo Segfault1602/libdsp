@@ -1,6 +1,6 @@
 #include "line.h"
 
-namespace dsp
+namespace sfdsp
 {
 Line::Line(float start, float end, uint32_t time_samples) : start_(start), end_(end), output_(start)
 {
@@ -28,4 +28,4 @@ float Line::Tick()
     }
 }
 
-} // namespace dsp
+} // namespace sfdsp

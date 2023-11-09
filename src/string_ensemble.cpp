@@ -2,7 +2,7 @@
 
 #include <span>
 
-using namespace dsp;
+using namespace sfdsp;
 
 void StringEnsemble::Init(float samplerate, const std::array<float, kStringCount>& frequencies)
 {
@@ -35,6 +35,7 @@ void StringEnsemble::TuneStrings(uint8_t string_number, float frequencies)
 void StringEnsemble::SetFrequency(uint8_t string_number, float f)
 {
     assert(string_number < kStringCount);
+    assert(f > 0.f);
     strings_[string_number].SetFrequency(f);
 }
 
@@ -89,27 +90,33 @@ void StringEnsemble::FingerOff(uint8_t string_number)
     strings_[string_number].SetFrequency(openTuning_[string_number]);
 }
 
+void StringEnsemble::SetBridgeTransmission(float t)
+{
+    assert(t >= 0.f && t <= 1.f);
+
+    bridgeTransmission_ = t;
+}
+
 float StringEnsemble::Tick()
 {
     std::array<float, kStringCount> string_outs;
 
-    constexpr float kTransmissionRatio = 0.10f;
     float transmission = 0.f;
     float output = 0.f;
     for (auto i = 0; i < kStringCount; ++i)
     {
         string_outs[i] = strings_[i].NextOut();
         output += string_outs[i];
-        transmission += string_outs[i] * kTransmissionRatio;
-        string_outs[i] *= (1.f - kTransmissionRatio);
+        transmission += string_outs[i] * bridgeTransmission_;
+        string_outs[i] *= (1.f - bridgeTransmission_);
     }
 
     // filter the bridge output
-    transmission = transmission_filter_.Tick(transmission);
+    transmission = transmission_filter_.Tick(transmission) * 0.25f;
 
     for (size_t i = 0; i < kStringCount; ++i)
     {
-        strings_[i].Tick(string_outs[i] + transmission * 0.25f);
+        strings_[i].Tick(string_outs[i] + transmission);
     }
 
     float out = 0.1248f * body_filters_[5].Tick(body_filters_[4].Tick(body_filters_[3].Tick(

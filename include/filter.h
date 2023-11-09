@@ -13,7 +13,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace dsp
+namespace sfdsp
 {
 /// @brief Base class for filters
 class Filter
@@ -112,4 +112,4 @@ class Biquad : public Filter
 
     float Tick(float in) override;
 };
-} // namespace dsp
+} // namespace sfdsp

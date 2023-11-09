@@ -4,7 +4,7 @@
 
 #include "sinc_table.h"
 
-namespace dsp
+namespace sfdsp
 {
 
 void sinc_resample(const float* in, size_t input_size, float ratio, float* out, size_t& out_size)
@@ -69,4 +69,4 @@ void sinc_resample(const float* in, size_t input_size, float ratio, float* out, 
     out_size = out_idx;
 }
 
-} // namespace dsp
+} // namespace sfdsp

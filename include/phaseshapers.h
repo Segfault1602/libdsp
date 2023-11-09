@@ -14,7 +14,7 @@
 
 #include "dsp_base.h"
 
-namespace dsp
+namespace sfdsp
 {
 
 /// @brief Phaseshaper oscillator that can morph between different waveforms
@@ -99,4 +99,4 @@ class Phaseshaper
 
     float m_mod = 0.f;
 };
-} // namespace dsp
+} // namespace sfdsp

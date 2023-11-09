@@ -1,6 +1,6 @@
 #pragma once
 
-namespace dsp
+namespace sfdsp
 {
 /// @brief Simple bowed string non-linear function taken from the STK.
 /// https://github.com/thestk/stk/blob/master/include/BowTable.h
@@ -14,7 +14,7 @@ class BowTable
     /// @param f Force of the bow
     void SetForce(float f)
     {
-        force_ = 5.f - (4.5f * f);
+        force_ = 5.f - (4.f * f);
     }
 
     /// @brief Returns the force of the bow
@@ -43,4 +43,4 @@ class BowTable
     float force_ = 3.f;
     float offset_ = 0.001f;
 };
-} // namespace dsp
+} // namespace sfdsp

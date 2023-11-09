@@ -47,7 +47,7 @@ int main(int argc, char** argv)
 
 bool Run(TestConfig config)
 {
-    dsp::BowedString string;
+    sfdsp::BowedString string;
     string.Init(static_cast<float>(kSampleRate));
 
     string.SetFrequency(config.frequency);

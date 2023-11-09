@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-namespace dsp
+namespace sfdsp
 {
 void Filter::SetGain(float gain)
 {
@@ -38,6 +38,7 @@ void OnePoleFilter::SetPole(float pole)
 
 void OnePoleFilter::SetDecayFilter(float decayDb, float timeMs, float samplerate)
 {
+    assert(decayDb < 0.f);
     const float lambda = std::log(std::pow(10.f, (decayDb / 20.f)));
     const float pole = std::exp(lambda / (timeMs / 1000.f) / samplerate);
     SetPole(pole);
@@ -93,4 +94,4 @@ float Biquad::Tick(float in)
     outputs_[1] = outputs_[0];
     return outputs_[0];
 }
-} // namespace dsp
+} // namespace sfdsp

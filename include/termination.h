@@ -5,7 +5,7 @@
 #include "delayline.h"
 #include "filter.h"
 
-namespace dsp
+namespace sfdsp
 {
 /// @brief Base class for termination points between two delaylines
 /// @note For now, a termination is simply a gain and a filter and the class mostly exists for readability.
@@ -35,4 +35,4 @@ class Termination
     float gain_ = -1.f;
     Filter* filter_ = nullptr;
 };
-} // namespace dsp
+} // namespace sfdsp

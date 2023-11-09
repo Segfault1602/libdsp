@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace dsp
+namespace sfdsp
 {
 
 float NoInterpolation::TapOut(float* buffer, size_t max_size, size_t write_ptr, float delay)
@@ -75,4 +75,4 @@ void AllpassInterpolation::CalculateCoeff(float delay)
     }
 }
 
-} // namespace dsp
+} // namespace sfdsp

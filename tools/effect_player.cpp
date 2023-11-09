@@ -85,7 +85,7 @@ int main(int argc, char** argv)
         }
     }
 
-    uint32_t samplerate = 48000;
+    uint32_t samplerate = 44100;
     uint32_t frame_count = 0;
 
     if (!input_file.empty())
@@ -139,7 +139,6 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
     size_t frameToRead = std::min(static_cast<size_t>(nBufferFrames), context->numFrames - context->readPtr);
 
     auto* output = static_cast<float*>(outputBuffer);
-
     // Write interleaved audio data.
     for (size_t i = 0; i < frameToRead; i++)
     {

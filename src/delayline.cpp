@@ -4,7 +4,7 @@
 #include <cmath>
 #include <cstdint>
 
-namespace dsp
+namespace sfdsp
 {
 Delayline::Delayline(size_t max_size, bool reverse, InterpolationType interpolation_type)
     : max_size_(max_size), reverse_(reverse)
@@ -123,11 +123,6 @@ void Delayline::SetIn(float delay, float input)
     }
 }
 
-void Delayline::Rewind()
-{
-    write_ptr_ = (write_ptr_ + 1) % max_size_;
-}
-
 float& Delayline::operator[](size_t index) const
 {
     if (reverse_)
@@ -148,4 +143,4 @@ float& Delayline::operator[](size_t index)
     return line_[read_ptr];
 }
 
-} // namespace dsp
+} // namespace sfdsp

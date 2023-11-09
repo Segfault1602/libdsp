@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-namespace dsp
+namespace sfdsp
 {
 void Junction::SetDelay(float delay)
 {
@@ -89,4 +89,4 @@ void Junction::Tick(Delayline& left_traveling_line, Delayline& right_traveling_l
         right_traveling_line.SetIn(read_ptr + 1, 0.f);
     }
 }
-} // namespace dsp
+} // namespace sfdsp
