@@ -13,11 +13,7 @@ Line::Line(float start, float end, uint32_t time_samples) : start_(start), end_(
 
 float Line::Tick()
 {
-    if (increment_ < 0 && output_ <= end_)
-    {
-        return end_;
-    }
-    else if (increment_ > 0 && output_ >= end_)
+    if ((increment_ < 0 && output_ <= end_) || (increment_ > 0 && output_ >= end_))
     {
         return end_;
     }

@@ -128,15 +128,16 @@ bool BowedString::GetNoteOn() const
 void BowedString::Pluck()
 {
     float L = gate_.GetDelay();
-    for (float i = 1; i < static_cast<float>(L); ++i)
+    for (size_t i = 1; i < static_cast<size_t>(L); ++i)
     {
-        waveguide_.TapIn(i, Hann(i - 1, L));
+        waveguide_.TapIn(static_cast<float>(i), Hann(static_cast<float>(i) - 1.f, L));
     }
 }
 
 float BowedString::NextOut()
 {
-    float bridge, nut;
+    float bridge;
+    float nut;
     waveguide_.NextOut(nut, bridge);
     return bridge;
 }
@@ -146,10 +147,12 @@ float BowedString::Tick(float input)
     float vel = velocity_filter_.Tick(velocity_);
     bow_table_.SetForce(force_filter_.Tick(bow_force_));
 
-    float bridge, nut;
+    float bridge;
+    float nut;
     waveguide_.NextOut(nut, bridge);
 
-    float vsl_plus, vsr_plus;
+    float vsl_plus;
+    float vsr_plus;
     waveguide_.TapOut(bow_position_, vsl_plus, vsr_plus, &bow_interpolation_strategy_);
 
     float bow_output = 0.f;

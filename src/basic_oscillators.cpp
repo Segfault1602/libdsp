@@ -1,9 +1,20 @@
 #include "basic_oscillators.h"
 
 #include <cmath>
+#include <cstdlib>
 
 #include "dsp_base.h"
 #include "sin_table.h"
+
+namespace
+{
+int gRandSeed = 1.f;
+float Fast_RandFloat()
+{
+    gRandSeed *= 16807;
+    return (float)gRandSeed * 4.6566129e-010f;
+}
+} // namespace
 
 namespace sfdsp
 {
@@ -45,7 +56,7 @@ float Square(float phase)
 float Noise()
 {
     constexpr float kOneOverRandMax = 1.f / static_cast<float>(RAND_MAX);
-    return 2.f * static_cast<float>(rand()) * kOneOverRandMax - 1.f;
+    return 2.f * static_cast<float>(Fast_RandFloat()) * kOneOverRandMax - 1.f;
 }
 
 } // namespace sfdsp
