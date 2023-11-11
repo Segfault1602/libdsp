@@ -74,7 +74,7 @@ jobs:
 
     - run: |
         echo "Run, Build Application using script"
-        ./location_of_script_within_repo/buildscript.shcmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DLIBDSP_LIB_ONLY=ON -DLIBDSP_BUILD_TESTS=ON
+        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DLIBDSP_LIB_ONLY=ON -DLIBDSP_BUILD_TESTS=ON
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
