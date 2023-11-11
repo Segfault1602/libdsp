@@ -76,7 +76,7 @@ jobs:
 
     - run: |
         echo "Run, Build Application using script"
-        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release -DLIBDSP_LIB_ONLY=ON -DLIBDSP_BUILD_TESTS=ON
+        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release -DLIBDSP_LIB_ONLY=ON
         cmake --build ${{github.workspace}}/build --config Release
 
     - name: Perform CodeQL Analysis
