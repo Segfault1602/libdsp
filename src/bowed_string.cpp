@@ -36,6 +36,13 @@ void BowedString::Init(float samplerate, float tuning)
     decay_filter_.SetGain(1.f);
 
     noise_lp_filter_.SetPole(0.8f);
+
+    // Smoothing filter
+    constexpr float smoothingDb = -24.f;
+    constexpr float smoothingTimeMs = 10.f;
+    velocity_filter_.SetDecayFilter(smoothingDb, smoothingTimeMs, samplerate);
+    force_filter_.SetDecayFilter(smoothingDb, smoothingTimeMs, samplerate);
+    bow_position_filter_.SetDecayFilter(smoothingDb, smoothingTimeMs, samplerate);
 }
 
 void BowedString::SetFrequency(float f)
@@ -74,12 +81,12 @@ void BowedString::SetVelocity(float v)
 
 void BowedString::SetForce(float f)
 {
-    bow_table_.SetForce(f);
+    bow_force_ = f;
 }
 
 float BowedString::GetForce() const
 {
-    return bow_table_.GetForce();
+    return bow_force_;
 }
 
 void BowedString::SetBowPosition(float pos)
@@ -136,6 +143,9 @@ float BowedString::NextOut()
 
 float BowedString::Tick(float input)
 {
+    float vel = velocity_filter_.Tick(velocity_);
+    bow_table_.SetForce(force_filter_.Tick(bow_force_));
+
     float bridge, nut;
     waveguide_.NextOut(nut, bridge);
 
@@ -145,7 +155,7 @@ float BowedString::Tick(float input)
     float bow_output = 0.f;
     if (note_on_)
     {
-        float velocity_delta = velocity_ - (vsl_plus + vsr_plus);
+        float velocity_delta = vel - (vsl_plus + vsr_plus);
         constexpr float noise_db = -30;
         const float noise_gain = std::pow(10.f, noise_db / 20.f);
 

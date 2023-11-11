@@ -10,6 +10,10 @@ namespace sfdsp
 
 float Sine(float phase)
 {
+    while (phase < 0.f)
+    {
+        phase += 1.f;
+    }
     phase = std::fmod(phase, 1.f);
     float idx = phase * SIN_LUT_SIZE;
     int idx0 = static_cast<int>(idx);

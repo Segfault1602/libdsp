@@ -46,16 +46,6 @@ void WaveguideGate::SetCoeff(float c)
     coeff_ = c;
 }
 
-void PrintDelayline(const sfdsp::Delayline& line)
-{
-    printf("    ");
-    for (auto i = 0; i < 4; ++i)
-    {
-        printf("%5.2f ", line[i + 1]);
-    }
-    printf("\n");
-}
-
 void WaveguideGate::Process(Delayline& left_traveling_line, Delayline& right_traveling_line)
 {
     if (delay_ == 0 || delay_ >= left_traveling_line.GetDelay() - 2)

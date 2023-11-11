@@ -1,12 +1,10 @@
 #include "string_ensemble.h"
 
-#include <span>
-
 using namespace sfdsp;
 
 void StringEnsemble::Init(float samplerate, const std::array<float, kStringCount>& frequencies)
 {
-    for (auto i = 0; i < kStringCount; ++i)
+    for (size_t i = 0; i < kStringCount; ++i)
     {
         strings_[i].Init(samplerate, frequencies[i]);
     }
@@ -32,57 +30,6 @@ void StringEnsemble::TuneStrings(uint8_t string_number, float frequencies)
     strings_[string_number].SetFrequency(frequencies);
 }
 
-void StringEnsemble::SetFrequency(uint8_t string_number, float f)
-{
-    assert(string_number < kStringCount);
-    assert(f > 0.f);
-    strings_[string_number].SetFrequency(f);
-}
-
-float StringEnsemble::GetFrequency(uint8_t string_number) const
-{
-    assert(string_number < kStringCount);
-
-    return strings_[string_number].GetFrequency();
-}
-
-void StringEnsemble::SetVelocity(uint8_t string_number, float v)
-{
-    assert(string_number < kStringCount);
-
-    strings_[string_number].SetVelocity(v);
-}
-
-float StringEnsemble::GetVelocity(uint8_t string_number) const
-{
-    assert(string_number < kStringCount);
-
-    return strings_[string_number].GetVelocity();
-}
-
-void StringEnsemble::SetForce(uint8_t string_number, float f)
-{
-    assert(string_number < kStringCount);
-
-    strings_[string_number].SetForce(f);
-
-    if (f > 0.f)
-    {
-        strings_[string_number].SetNoteOn(true);
-    }
-    else
-    {
-        strings_[string_number].SetNoteOn(false);
-    }
-}
-
-float StringEnsemble::GetForce(uint8_t string_number) const
-{
-    assert(string_number < kStringCount);
-
-    return strings_[string_number].GetForce();
-}
-
 void StringEnsemble::FingerOff(uint8_t string_number)
 {
     assert(string_number < kStringCount);
@@ -97,30 +44,59 @@ void StringEnsemble::SetBridgeTransmission(float t)
     bridgeTransmission_ = t;
 }
 
+float StringEnsemble::GetBridgeTransmission() const
+{
+    return bridgeTransmission_;
+}
+
 float StringEnsemble::Tick()
 {
-    std::array<float, kStringCount> string_outs;
-
-    float transmission = 0.f;
-    float output = 0.f;
-    for (auto i = 0; i < kStringCount; ++i)
-    {
-        string_outs[i] = strings_[i].NextOut();
-        output += string_outs[i];
-        transmission += string_outs[i] * bridgeTransmission_;
-        string_outs[i] *= (1.f - bridgeTransmission_);
-    }
-
-    // filter the bridge output
-    transmission = transmission_filter_.Tick(transmission) * 0.25f;
-
-    for (size_t i = 0; i < kStringCount; ++i)
-    {
-        strings_[i].Tick(string_outs[i] + transmission);
-    }
-
-    float out = 0.1248f * body_filters_[5].Tick(body_filters_[4].Tick(body_filters_[3].Tick(
-                              body_filters_[2].Tick(body_filters_[1].Tick(body_filters_[0].Tick(output))))));
-
+    float out = 0;
+    ProcessBlock(&out, 1);
     return out;
+}
+
+void StringEnsemble::ProcessBlock(float* out, size_t size)
+{
+    assert(out != nullptr);
+
+    for (size_t i = 0; i < size; ++i)
+    {
+        std::array<float, kStringCount> string_outs;
+
+        float transmission = 0.f;
+        float output = 0.f;
+        for (size_t j = 0; i < kStringCount; ++j)
+        {
+            string_outs[j] = strings_[j].NextOut();
+            output += string_outs[j];
+            transmission += string_outs[j] * bridgeTransmission_;
+            string_outs[j] *= (1.f - bridgeTransmission_);
+        }
+
+        // filter the bridge output
+        transmission = transmission_filter_.Tick(transmission) * 0.25f;
+
+        for (size_t j = 0; i < kStringCount; ++j)
+        {
+            strings_[j].Tick(string_outs[j] + transmission);
+        }
+
+        out[i] = 0.1248f * body_filters_[5].Tick(body_filters_[4].Tick(body_filters_[3].Tick(
+                               body_filters_[2].Tick(body_filters_[1].Tick(body_filters_[0].Tick(output))))));
+    }
+}
+
+const BowedString& StringEnsemble::operator[](uint8_t string_number) const
+{
+    assert(string_number < kStringCount);
+
+    return strings_[string_number];
+}
+
+BowedString& StringEnsemble::operator[](uint8_t string_number)
+{
+    assert(string_number < kStringCount);
+
+    return strings_[string_number];
 }

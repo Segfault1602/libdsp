@@ -25,7 +25,7 @@ TEST_P(RMSTest, PureSine)
 
     float phase = 0.f;
 
-    for (auto i = 0; i < kLoopLength; i++)
+    for (size_t i = 0; i < kLoopLength; i++)
     {
         auto s = kAmplitude * std::sin(phase * TWO_PI);
         phase = std::fmod(phase + kPhaseInc, 1.f);

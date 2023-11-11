@@ -6,7 +6,7 @@ void SimpleBowedString::Init(size_t samplerate)
 {
     samplerate_ = samplerate;
     string_.Init(static_cast<float>(samplerate));
-    string_.SetFrequency(392.f);
+    string_.SetFrequency(220.f);
     string_.SetForce(0.5f);
     string_.SetVelocity(1.f);
     string_.SetNoteOn(true);
@@ -16,7 +16,8 @@ void SimpleBowedString::Init(size_t samplerate)
 
 float SimpleBowedString::Tick()
 {
-    return string_.Tick();
+    float bridge = string_.NextOut();
+    return string_.Tick(bridge);
 }
 
 float SimpleBowedString::Tick(float)
@@ -60,7 +61,8 @@ float CrescendoBowedStringTester::Tick()
     ++current_frame_;
     string_.SetVelocity(current_velocity_);
     string_.SetForce(current_force_);
-    return string_.Tick();
+    float bridge = string_.NextOut();
+    return string_.Tick(bridge);
 }
 
 float CrescendoBowedStringTester::Tick(float)
@@ -93,7 +95,9 @@ float OscVelocityBowedStringTester::Tick()
 
     string_.SetVelocity(param);
     string_.SetForce(param);
-    return string_.Tick();
+
+    float bridge = string_.NextOut();
+    return string_.Tick(bridge);
 }
 
 float OscVelocityBowedStringTester::Tick(float)
@@ -130,7 +134,8 @@ float PitchSlideBowedStringTester::Tick()
     }
     ++current_frame_;
 
-    return string_.Tick();
+    float bridge = string_.NextOut();
+    return string_.Tick(bridge);
 }
 
 float PitchSlideBowedStringTester::Tick(float)
@@ -161,7 +166,8 @@ float VibratoBowedStringTester::Tick()
     phase_ += phase_dt_;
 
     string_.SetFrequency(freq);
-    return string_.Tick();
+    float bridge = string_.NextOut();
+    return string_.Tick(bridge);
 }
 
 float VibratoBowedStringTester::Tick(float)
@@ -220,7 +226,8 @@ float ScaleBowedStringTester::Tick()
     }
 
     ++current_frame_;
-    return string_.Tick();
+    float bridge = string_.NextOut();
+    return string_.Tick(bridge);
 }
 
 float ScaleBowedStringTester::Tick(float)
@@ -263,7 +270,8 @@ float FingerPressBowedStringTester::Tick()
         string_.SetBowPosition(0.30f);
     }
 
-    return string_.Tick();
+    float bridge = string_.NextOut();
+    return string_.Tick(bridge);
 }
 
 float FingerPressBowedStringTester::Tick(float)

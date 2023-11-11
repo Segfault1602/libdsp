@@ -11,7 +11,7 @@
 TEST(BasicOscillatorsTest, Sine)
 {
     float inc = 1.f / 1024;
-    for (auto i = 0.f; i < TWO_PI; i += inc)
+    for (auto i = -TWO_PI; i < TWO_PI * 4; i += inc)
     {
         auto s = sfdsp::Sine(i);
         auto t = std::sin(i * TWO_PI);

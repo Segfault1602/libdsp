@@ -1,5 +1,7 @@
 #include "test_utils.h"
 
+#include <cstdio>
+
 void PrintWaveguide(sfdsp::Waveguide& wave, size_t delay_size)
 {
     std::vector<float> right_samples, left_samples;

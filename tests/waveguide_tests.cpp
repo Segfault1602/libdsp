@@ -203,7 +203,7 @@ TEST(WaveguideTests, GainTest)
     // Left                    Right
     //    ▲  -6 -5 -4 -3 -2 -1  ◀
 
-    for (int i = 1; i <= DELAY_SIZE; ++i)
+    for (size_t i = 1; i <= DELAY_SIZE; ++i)
     {
         float out = wave.TapOut(i);
         ASSERT_THAT(out, ::testing::Eq(-1 * (input[DELAY_SIZE - i] * 2)));
@@ -221,7 +221,7 @@ TEST(WaveguideTests, GainTest)
     // Left                    Right
     //    ▲  1  2  3  4  5  6   ◀
 
-    for (int i = 1; i <= DELAY_SIZE; ++i)
+    for (size_t i = 1; i <= DELAY_SIZE; ++i)
     {
         float out = wave.TapOut(i);
         ASSERT_THAT(out, ::testing::Eq(input[i - 1] * 2));

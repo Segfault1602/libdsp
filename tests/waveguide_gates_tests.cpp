@@ -28,7 +28,7 @@ TEST(WaveguideGatesTest, OpenGates)
     sfdsp::WaveguideGate gate(true, kGatePos, kCoeff);
 
     // Looping for 2 * kDelay should bring us back to initial state
-    for (auto i = 0; i < kDelay * 2; ++i)
+    for (size_t i = 0; i < kDelay * 2; ++i)
     {
         gate.Process(left_traveling_line, right_traveling_line);
 
@@ -39,7 +39,7 @@ TEST(WaveguideGatesTest, OpenGates)
         right_traveling_line.Tick(left_sample * -1.f);
     }
 
-    for (auto i = 1; i <= kDelaySize; ++i)
+    for (size_t i = 1; i <= kDelaySize; ++i)
     {
         if (i == 2)
         {
@@ -77,7 +77,7 @@ TEST(WaveguideGatesTest, HalfOpenGates)
     sfdsp::WaveguideGate gate(true, kGatePos, kCoeff);
 
     // Looping for 2 * kDelay should bring us back to initial state
-    for (auto i = 0; i < kDelay * 2; ++i)
+    for (size_t i = 0; i < kDelay * 2; ++i)
     {
         gate.Process(left_traveling_line, right_traveling_line);
 
@@ -87,12 +87,12 @@ TEST(WaveguideGatesTest, HalfOpenGates)
         left_traveling_line.Tick(right_sample * -1.f);
         right_traveling_line.Tick(left_sample * -1.f);
 
-        printf("Iteration %d\n", i);
+        printf("Iteration %zu\n", i);
         PrintDelayline(right_traveling_line);
         PrintDelayline(left_traveling_line);
     }
 
-    for (auto i = 1; i <= kDelaySize; ++i)
+    for (size_t i = 1; i <= kDelaySize; ++i)
     {
         if (i == 2 || i == 9)
         {
@@ -133,7 +133,7 @@ TEST(WaveguideGatesTest, ClosedGates)
     sfdsp::WaveguideGate gate(true, kGatePos, kCoeff);
 
     // Looping for kDelay should bring us back to initial state
-    for (auto i = 0; i < kDelay; ++i)
+    for (size_t i = 0; i < kDelay; ++i)
     {
         gate.Process(left_traveling_line, right_traveling_line);
 
@@ -143,12 +143,12 @@ TEST(WaveguideGatesTest, ClosedGates)
         left_traveling_line.Tick(right_sample * -1.f);
         right_traveling_line.Tick(left_sample * -1.f);
 
-        printf("Iteration %d\n", i);
+        printf("Iteration %zu\n", i);
         PrintDelayline(right_traveling_line);
         PrintDelayline(left_traveling_line);
     }
 
-    for (auto i = 1; i <= kDelaySize; ++i)
+    for (size_t i = 1; i <= kDelaySize; ++i)
     {
         if (i == 2 || i == 8)
         {
@@ -189,7 +189,7 @@ TEST(WaveguideGatesTest, FractionalGates)
     sfdsp::WaveguideGate gate(true, kGatePos, kCoeff);
 
     // Looping for kGatePos*2 should bring us back to initial state
-    for (auto i = 0; i < kGatePos * 2; ++i)
+    for (size_t i = 0; i < kGatePos * 2; ++i)
     {
         gate.Process(left_traveling_line, right_traveling_line);
 
@@ -199,7 +199,7 @@ TEST(WaveguideGatesTest, FractionalGates)
         left_traveling_line.Tick(right_sample * -1.f);
         right_traveling_line.Tick(left_sample * -1.f);
 
-        printf("Iteration %d\n", i);
+        printf("Iteration %zu\n", i);
         PrintDelayline(right_traveling_line);
         PrintDelayline(left_traveling_line);
     }
@@ -236,7 +236,7 @@ TEST(WaveguideGatesTest, MovingGate)
     PrintDelayline(left_traveling_line);
 
     sfdsp::WaveguideGate gate(false, kGatePos, kCoeff);
-    for (auto i = 0; i < 2; ++i)
+    for (size_t i = 0; i < 2; ++i)
     {
         gate.Process(left_traveling_line, right_traveling_line);
 
@@ -246,7 +246,7 @@ TEST(WaveguideGatesTest, MovingGate)
         left_traveling_line.Tick(right_sample);
         right_traveling_line.Tick(left_sample);
 
-        printf("Iteration %d\n", i);
+        printf("Iteration %zu\n", i);
         PrintDelayline(right_traveling_line);
         PrintDelayline(left_traveling_line);
     }
@@ -255,7 +255,7 @@ TEST(WaveguideGatesTest, MovingGate)
     gate.SetDelay(kGatePos + 0.25f);
     printf("\nMoving the delay\n");
 
-    for (auto i = 0; i < 1; ++i)
+    for (size_t i = 0; i < 1; ++i)
     {
         gate.Process(left_traveling_line, right_traveling_line);
 
@@ -265,14 +265,14 @@ TEST(WaveguideGatesTest, MovingGate)
         left_traveling_line.Tick(right_sample);
         right_traveling_line.Tick(left_sample);
 
-        printf("Iteration %d\n", i);
+        printf("Iteration %zu\n", i);
         PrintDelayline(right_traveling_line);
         PrintDelayline(left_traveling_line);
     }
 
     gate.SetDelay(kGatePos + 0.5f);
     printf("\nMoving the delay\n");
-    for (auto i = 0; i < 1; ++i)
+    for (size_t i = 0; i < 1; ++i)
     {
         gate.Process(left_traveling_line, right_traveling_line);
 
@@ -282,14 +282,14 @@ TEST(WaveguideGatesTest, MovingGate)
         left_traveling_line.Tick(right_sample);
         right_traveling_line.Tick(left_sample);
 
-        printf("Iteration %d\n", i);
+        printf("Iteration %zu\n", i);
         PrintDelayline(right_traveling_line);
         PrintDelayline(left_traveling_line);
     }
 
     gate.SetDelay(kGatePos + 0.75f);
     printf("\nMoving the delay\n");
-    for (auto i = 0; i < 1; ++i)
+    for (size_t i = 0; i < 1; ++i)
     {
         gate.Process(left_traveling_line, right_traveling_line);
 
@@ -299,14 +299,14 @@ TEST(WaveguideGatesTest, MovingGate)
         left_traveling_line.Tick(right_sample);
         right_traveling_line.Tick(left_sample);
 
-        printf("Iteration %d\n", i);
+        printf("Iteration %zu\n", i);
         PrintDelayline(right_traveling_line);
         PrintDelayline(left_traveling_line);
     }
 
     gate.SetDelay(kGatePos + 1.f);
     printf("\nMoving the delay\n");
-    for (auto i = 0; i < 10; ++i)
+    for (size_t i = 0; i < 10; ++i)
     {
         gate.Process(left_traveling_line, right_traveling_line);
 
@@ -316,7 +316,7 @@ TEST(WaveguideGatesTest, MovingGate)
         left_traveling_line.Tick(right_sample);
         right_traveling_line.Tick(left_sample);
 
-        printf("Iteration %d\n", i);
+        printf("Iteration %zu\n", i);
         PrintDelayline(right_traveling_line);
         PrintDelayline(left_traveling_line);
     }
@@ -362,7 +362,7 @@ TEST(DISABLED_WaveguideGatesTest, SineWave)
     std::array<float, outSize> output;
 
     float currentGatePos = kGatePos;
-    for (auto i = 0; i < outSize; ++i)
+    for (size_t i = 0; i < outSize; ++i)
     {
         if (currentGatePos >= 12.f)
         {
@@ -393,7 +393,7 @@ TEST(DISABLED_WaveguideGatesTest, SineWave)
         left_traveling_line.Tick(x);
         output[i] = right_traveling_line.NextOut();
 
-        // printf("Iteration %d, gatePos: %f\n", i, currentGatePos);
+        // printf("Iteration %zu, gatePos: %f\n", i, currentGatePos);
         // PrintDelayline(right_traveling_line);
         // PrintDelayline(left_traveling_line);
     }
