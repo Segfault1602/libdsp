@@ -162,7 +162,7 @@ float BowedString::Tick(float input)
         float env = std::sqrt(decay_filter_.Tick(velocity_delta * velocity_delta));
         float additive_noise = noise_lp_filter_.Tick(Noise()) * env * noise_gain;
 
-        bow_output = (velocity_delta+additive_noise) * bow_table_.Tick(velocity_delta + additive_noise);
+        bow_output = (velocity_delta + additive_noise) * bow_table_.Tick(velocity_delta + additive_noise);
     }
 
     waveguide_.TapIn(bow_position_, bow_output);
