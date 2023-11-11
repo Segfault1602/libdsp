@@ -6,10 +6,11 @@
 #include "rms.h"
 #include "termination.h"
 #include "waveguide.h"
+#include "waveguide_gate.h"
 
 #include <algorithm>
 
-namespace dsp
+namespace sfdsp
 {
 
 /// @brief Implements a bowed string model using a waveguide composed of a right traveling wave and a left traveling
@@ -82,13 +83,18 @@ class BowedString
     /// @brief Tick the string.
     /// @param input Energy coming from the bridge. Optional.
     /// @return The output sample at the bridge.
-    float Tick(float input = 0.f);
+    float Tick(float input);
+
+    /// @brief Set the finger pressure.
+    /// @param pressure 0 is no pressure, 1 is full pressure.
+    void SetFingerPressure(float pressure);
 
   private:
     Waveguide waveguide_;
+    WaveguideGate gate_;
 
     float bow_position_ = 0.f;
-    float relative_bow_position_ = 0.2f;
+    float relative_bow_position_ = 0.15f;
 
     Termination nut_;
     Termination bridge_;
@@ -99,6 +105,7 @@ class BowedString
     float samplerate_;
     float freq_;
     float velocity_ = 0.f;
+    float bow_force_ = 0.f;
     bool note_on_ = false;
 
     constexpr static float max_velocity_ = 0.2f;
@@ -106,5 +113,10 @@ class BowedString
 
     OnePoleFilter decay_filter_;
     OnePoleFilter noise_lp_filter_;
+
+    // Smoothing filters
+    OnePoleFilter velocity_filter_;
+    OnePoleFilter force_filter_;
+    OnePoleFilter bow_position_filter_;
 };
-} // namespace dsp
+} // namespace sfdsp

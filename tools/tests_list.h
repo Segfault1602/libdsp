@@ -6,6 +6,7 @@
 #include "dsp_tester.h"
 #include "phaseshapers_tests.h"
 #include "stringensemble_tests.h"
+#include "waveguide_tests.h"
 
 #define FOREACH_TESTS(TEST)                                                                                            \
     TEST(ChorusTester)                                                                                                 \
@@ -16,7 +17,9 @@
     TEST(VibratoBowedStringTester)                                                                                     \
     TEST(ScaleBowedStringTester)                                                                                       \
     TEST(PhaseShaperTest)                                                                                              \
-    TEST(StringEnsembleTest)
+    TEST(StringEnsembleTest)                                                                                           \
+    TEST(WaveguideTest)                                                                                                \
+    TEST(FingerPressBowedStringTester)
 
 #define GENERATE_ENUM(ENUM) ENUM,
 #define GENERATE_STRING(STRING) #STRING,

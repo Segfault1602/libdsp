@@ -7,7 +7,7 @@
 
 #include "dsp_base.h"
 
-namespace dsp
+namespace sfdsp
 {
 /// @brief Simple circular buffer.
 /// @tparam CONTAINER_SIZE
@@ -141,4 +141,4 @@ const float& CircularBuffer<CONTAINER_SIZE>::operator[](size_t idx) const
     auto real_idx = (read_ + idx) % CONTAINER_SIZE;
     return buffer_[real_idx];
 }
-} // namespace dsp
+} // namespace sfdsp

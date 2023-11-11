@@ -14,7 +14,7 @@ class RMSTest : public ::testing::TestWithParam<float>
 TEST_P(RMSTest, PureSine)
 {
 
-    dsp::RMS rms(4096);
+    sfdsp::RMS rms(4096);
 
     const float kAmplitude = GetParam();
     constexpr float kFreq = 440.f;
@@ -25,7 +25,7 @@ TEST_P(RMSTest, PureSine)
 
     float phase = 0.f;
 
-    for (auto i = 0; i < kLoopLength; i++)
+    for (size_t i = 0; i < kLoopLength; i++)
     {
         auto s = kAmplitude * std::sin(phase * TWO_PI);
         phase = std::fmod(phase + kPhaseInc, 1.f);

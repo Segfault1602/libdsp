@@ -14,7 +14,7 @@ class SimpleBowedString : public DspTester
     float Tick(float input) override;
 
   private:
-    dsp::BowedString string_;
+    sfdsp::BowedString string_;
 };
 
 class CrescendoBowedStringTester : public DspTester
@@ -28,7 +28,7 @@ class CrescendoBowedStringTester : public DspTester
     float Tick(float input) override;
 
   private:
-    dsp::BowedString string_;
+    sfdsp::BowedString string_;
 
     size_t midway_frame_ = 0;
     size_t current_frame_ = 0;
@@ -36,7 +36,7 @@ class CrescendoBowedStringTester : public DspTester
     float current_velocity_ = 0.f;
     float current_force_ = 0.f;
     float param_delta_ = 0.f;
-    dsp::Line param_value_;
+    sfdsp::Line param_value_;
 };
 
 class PitchSlideBowedStringTester : public DspTester
@@ -50,8 +50,8 @@ class PitchSlideBowedStringTester : public DspTester
     float Tick(float input) override;
 
   private:
-    dsp::BowedString string_;
-    dsp::Line param_value_;
+    sfdsp::BowedString string_;
+    sfdsp::Line param_value_;
     size_t current_frame_;
 };
 
@@ -66,7 +66,7 @@ class OscVelocityBowedStringTester : public DspTester
     float Tick(float input) override;
 
   private:
-    dsp::BowedString string_;
+    sfdsp::BowedString string_;
     const float kFrequency = 7.f;
     float phase_dt_ = 0.f;
     float phase_ = 0.f;
@@ -83,10 +83,10 @@ class VibratoBowedStringTester : public DspTester
     float Tick(float input) override;
 
   private:
-    dsp::BowedString string_;
-    const float kFrequency = 440.f;
-    const float kVibratoFrequency = 5.f;
-    const float kVibratoDepth = 0.7f;
+    sfdsp::BowedString string_;
+    const float kFrequency = 400.f;
+    const float kVibratoFrequency = 4.f;
+    const float kVibratoDepth = 40.f;
     float phase_dt_ = 0.f;
     float phase_ = 0.f;
 };
@@ -102,7 +102,7 @@ class ScaleBowedStringTester : public DspTester
     float Tick(float input) override;
 
   private:
-    dsp::BowedString string_;
+    sfdsp::BowedString string_;
     const float kVelSpeed = 7.f;
     float vel_phase_dt_ = 0.f;
     float vel_phase_ = 0.f;
@@ -115,4 +115,21 @@ class ScaleBowedStringTester : public DspTester
     const float kVibratoDepth = 1.2f;
     float vib_phase_dt_ = 0.f;
     float vib_phase_ = 0.f;
+};
+
+class FingerPressBowedStringTester : public DspTester
+{
+  public:
+    FingerPressBowedStringTester() = default;
+    ~FingerPressBowedStringTester() override = default;
+
+    void Init(size_t samplerate) override;
+    float Tick() override;
+    float Tick(float input) override;
+
+  private:
+    sfdsp::BowedString string_;
+    sfdsp::Line pressure_;
+
+    size_t current_frame_ = 0;
 };

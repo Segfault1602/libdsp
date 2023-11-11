@@ -15,5 +15,5 @@ class StringEnsembleTest : public DspTester
     float Tick(float input) override;
 
   private:
-    dsp::StringEnsemble ensemble_;
+    sfdsp::StringEnsemble ensemble_;
 };

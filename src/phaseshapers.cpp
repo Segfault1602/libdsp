@@ -14,11 +14,11 @@
 
 #include <algorithm>
 #include <cmath>
-#include <stdint.h>
+#include <cstdint>
 
 #include "basic_oscillators.h"
 
-#define G_B(x) (2 * x - 1)
+#define G_B(x) (2 * (x)-1)
 #define MODM(x, m) (std::fmod(x, m))
 #define MOD1(x) (std::fmod(x, 1.f))
 
@@ -51,10 +51,8 @@ inline float s_tri(float x)
     {
         return 2.f * x;
     }
-    else
-    {
-        return 2.f - 2.f * x;
-    }
+
+    return 2.f - 2.f * x;
 }
 
 inline float s_vtri(float x, float phaseIncrement, float w = 0.5f, float P = 100)
@@ -116,7 +114,7 @@ float polyBLEP(float x, float phase, float T, float h = -1.f)
     return s;
 }
 
-namespace dsp
+namespace sfdsp
 {
 
 void Phaseshaper::Init(float sampleRate)
@@ -160,7 +158,7 @@ float Phaseshaper::ProcessWaveSlice() const
     // a1 vary from 0.25  to 0.40
     float a1 = 0.25f + (m_mod * 0.15f);
     float slicePhase = g_lin(m_phase, a1);
-    float trivial = G_B(dsp::Sine(slicePhase));
+    float trivial = G_B(sfdsp::Sine(slicePhase));
 
     float blep = polyBLEP(trivial, m_phase, m_phaseIncrement, -2);
     return blep;
@@ -184,7 +182,7 @@ float Phaseshaper::ProcessSoftSync() const
 float Phaseshaper::ProcessTriMod() const
 {
     // atm vary from 0.5 to 1.5
-    float mod = 0.5 + m_mod;
+    float mod = 0.5f + m_mod;
     float trimodPhase = mod * G_B(g_tri(m_phase));
     return 2 * (trimodPhase - std::ceil(trimodPhase - 0.5f));
 }
@@ -199,10 +197,10 @@ float Phaseshaper::ProcessSupersaw() const
 
     float supersawPhase = MODM(xs, m1) + MODM(xs, m2);
 
-    // Original equation was sin(supersawPhase) but since dsp::Sine expects a value between 0 and 1
+    // Original equation was sin(supersawPhase) but since sfdsp::Sine expects a value between 0 and 1
     // we need to remove the implied 2pi factor.
     constexpr float one_over_2pi = 1.f / TWO_PI;
-    return G_B(dsp::Sine(supersawPhase * one_over_2pi));
+    return G_B(sfdsp::Sine(supersawPhase * one_over_2pi));
 }
 
 float Phaseshaper::ProcessVarSlope() const
@@ -212,16 +210,16 @@ float Phaseshaper::ProcessVarSlope() const
 
     float pulse = g_pulse(m_phase, m_phaseIncrement, width, m_period);
     float vslope = 0.5f * m_phase * (1.0f - pulse) / width + pulse * (m_phase - width) / (1 - width);
-    return dsp::Sine(vslope);
+    return sfdsp::Sine(vslope);
 }
 
 float Phaseshaper::ProcessVarTri() const
 {
     // a1 can vary from 1.25 to 1.75
-    float a1 = 1.25 + (m_mod * 0.5f);
+    float a1 = 1.25f + (m_mod * 0.5f);
     float w3 = 0.50;
     float vtri = g_vtri(m_phase, m_phaseIncrement, w3, a1, 0, m_period);
-    return dsp::Sine(vtri);
+    return sfdsp::Sine(vtri);
 }
 
 float Phaseshaper::ProcessRipple() const
@@ -266,4 +264,4 @@ float Phaseshaper::ProcessWave(Waveform wave) const
     return out;
 }
 
-} // namespace dsp
+} // namespace sfdsp

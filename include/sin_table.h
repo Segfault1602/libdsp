@@ -1,7 +1,7 @@
 // Auto-generated file from make_sine_table.py
 #pragma once
 
-namespace dsp
+namespace sfdsp
 {
 constexpr size_t SIN_LUT_SIZE = 512;
 const float sin_lut[SIN_LUT_SIZE + 1] = {
@@ -72,4 +72,4 @@ const float sin_lut[SIN_LUT_SIZE + 1] = {
     -0.09801714f, -0.08579731f, -0.07356456f, -0.06132074f, -0.04906767f, -0.03680722f, -0.02454123f, -0.01227154f,
     -0.00000000f,
 };
-} // namespace dsp
+} // namespace sfdsp

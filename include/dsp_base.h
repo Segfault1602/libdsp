@@ -9,7 +9,7 @@
 
 #define TWO_PI (2.0f * PI_F)
 
-namespace dsp
+namespace sfdsp
 {
 class DspBase
 {
@@ -66,4 +66,4 @@ constexpr float midi_to_freq[128] = {
     7902.1328201f,  8372.01808962f, 8869.84419126f, 9397.27257336f, 9956.06347911f, 10548.0818212f, 11175.3034059f,
     11839.8215268f,
 };
-} // namespace dsp
+} // namespace sfdsp

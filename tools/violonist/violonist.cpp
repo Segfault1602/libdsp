@@ -1,4 +1,5 @@
 #include <array>
+#include <cstring>
 #include <string>
 #include <vector>
 
@@ -29,7 +30,7 @@ constexpr std::array Frequencies{196.f, 293.7f, 440.f, 659.3f, 1567.f};
 
 bool Run(TestConfig config);
 
-int main(int argc, char** argv)
+int main(int, char**)
 {
     for (auto force : Forces)
     {
@@ -47,7 +48,7 @@ int main(int argc, char** argv)
 
 bool Run(TestConfig config)
 {
-    dsp::BowedString string;
+    sfdsp::BowedString string;
     string.Init(static_cast<float>(kSampleRate));
 
     string.SetFrequency(config.frequency);

@@ -6,9 +6,9 @@ void SimpleBowedString::Init(size_t samplerate)
 {
     samplerate_ = samplerate;
     string_.Init(static_cast<float>(samplerate));
-    string_.SetFrequency(392.f);
-    string_.SetForce(0.01f);
-    string_.SetVelocity(0.5f);
+    string_.SetFrequency(220.f);
+    string_.SetForce(0.5f);
+    string_.SetVelocity(1.f);
     string_.SetNoteOn(true);
 
     name_ = "bowedstring.wav";
@@ -16,7 +16,8 @@ void SimpleBowedString::Init(size_t samplerate)
 
 float SimpleBowedString::Tick()
 {
-    return string_.Tick();
+    float bridge = string_.NextOut();
+    return string_.Tick(bridge);
 }
 
 float SimpleBowedString::Tick(float)
@@ -35,10 +36,10 @@ void CrescendoBowedStringTester::Init(size_t samplerate)
     current_velocity_ = 0.f;
     current_force_ = 0.f;
     param_delta_ = 1.f / static_cast<float>(midway_frame_);
-    param_value_ = dsp::Line(0.f, 1.f, midway_frame_);
+    param_value_ = sfdsp::Line(0.f, 1.f, midway_frame_);
 
     string_.Init(static_cast<float>(samplerate));
-    string_.SetFrequency(220.f);
+    string_.SetFrequency(440.f);
     string_.SetForce(0.f);
     string_.SetVelocity(0.f);
     string_.SetNoteOn(true);
@@ -51,7 +52,7 @@ float CrescendoBowedStringTester::Tick()
 {
     if (current_frame_ == midway_frame_)
     {
-        param_value_ = dsp::Line(1.f, 0.f, midway_frame_);
+        param_value_ = sfdsp::Line(1.f, 0.f, midway_frame_);
     }
 
     current_velocity_ = param_value_.Tick();
@@ -60,7 +61,8 @@ float CrescendoBowedStringTester::Tick()
     ++current_frame_;
     string_.SetVelocity(current_velocity_);
     string_.SetForce(current_force_);
-    return string_.Tick();
+    float bridge = string_.NextOut();
+    return string_.Tick(bridge);
 }
 
 float CrescendoBowedStringTester::Tick(float)
@@ -83,7 +85,7 @@ void OscVelocityBowedStringTester::Init(size_t samplerate)
 
 float OscVelocityBowedStringTester::Tick()
 {
-    float param = (dsp::Sine(phase_) + 1) * 2.f;
+    float param = (sfdsp::Sine(phase_) + 1) * 2.f;
     param = std::clamp(param, 0.f, 1.f);
     phase_ += phase_dt_;
     if (phase_ >= 1.f)
@@ -93,7 +95,9 @@ float OscVelocityBowedStringTester::Tick()
 
     string_.SetVelocity(param);
     string_.SetForce(param);
-    return string_.Tick();
+
+    float bridge = string_.NextOut();
+    return string_.Tick(bridge);
 }
 
 float OscVelocityBowedStringTester::Tick(float)
@@ -106,12 +110,12 @@ void PitchSlideBowedStringTester::Init(size_t samplerate)
     samplerate_ = samplerate;
 
     frame_count_ = samplerate * 4;
-    constexpr float kStartNote = 69;
-    constexpr float kEndNote = 76;
-    param_value_ = dsp::Line(kStartNote, kEndNote, samplerate / 2);
+    constexpr float kStartNote = 76;
+    constexpr float kEndNote = 69;
+    param_value_ = sfdsp::Line(kStartNote, kEndNote, samplerate / 2);
 
     string_.Init(static_cast<float>(samplerate));
-    string_.SetFrequency(dsp::FastMidiToFreq(kStartNote));
+    string_.SetFrequency(sfdsp::FastMidiToFreq(kStartNote));
     string_.SetForce(0.5f);
     string_.SetVelocity(0.5f);
     string_.SetNoteOn(true);
@@ -126,11 +130,12 @@ float PitchSlideBowedStringTester::Tick()
     // Stay on the first note for one second before the glissando
     if (current_frame_ > samplerate_)
     {
-        string_.SetFrequency(dsp::FastMidiToFreq(param_value_.Tick()));
+        string_.SetFrequency(sfdsp::FastMidiToFreq(param_value_.Tick()));
     }
     ++current_frame_;
 
-    return string_.Tick();
+    float bridge = string_.NextOut();
+    return string_.Tick(bridge);
 }
 
 float PitchSlideBowedStringTester::Tick(float)
@@ -157,15 +162,12 @@ void VibratoBowedStringTester::Init(size_t samplerate)
 // Velocity and Force will gradually increase over the first 3 seconds and then decrease until the end.
 float VibratoBowedStringTester::Tick()
 {
-    float freq = kFrequency + (dsp::Sine(phase_) * kVibratoDepth);
+    float freq = kFrequency + (sfdsp::Sine(phase_) * kVibratoDepth);
     phase_ += phase_dt_;
-    if (phase_ >= 1.f)
-    {
-        phase_ -= 1.f;
-    }
 
     string_.SetFrequency(freq);
-    return string_.Tick();
+    float bridge = string_.NextOut();
+    return string_.Tick(bridge);
 }
 
 float VibratoBowedStringTester::Tick(float)
@@ -187,7 +189,7 @@ void ScaleBowedStringTester::Init(size_t samplerate)
     arp_.SetNotes({60, 62, 64, 65, 67, 69, 71, 72, 71, 69, 67, 65, 64, 62});
 
     string_.Init(static_cast<float>(samplerate));
-    string_.SetFrequency(dsp::midi_to_freq[static_cast<size_t>(arp_.Next())]);
+    string_.SetFrequency(sfdsp::midi_to_freq[static_cast<size_t>(arp_.Next())]);
     string_.SetForce(0.5f);
     string_.SetVelocity(0.5f);
     string_.SetNoteOn(true);
@@ -198,7 +200,7 @@ void ScaleBowedStringTester::Init(size_t samplerate)
 // Velocity and Force will gradually increase over the first 3 seconds and then decrease until the end.
 float ScaleBowedStringTester::Tick()
 {
-    float vel_param = (dsp::Tri(vel_phase_) + 1) * 2.f;
+    float vel_param = (sfdsp::Tri(vel_phase_) + 1) * 2.f;
     vel_param = std::clamp(vel_param, 0.f, 1.f);
     vel_phase_ += vel_phase_dt_;
     if (vel_phase_ >= 1.f)
@@ -208,7 +210,7 @@ float ScaleBowedStringTester::Tick()
 
     string_.SetVelocity(vel_param);
 
-    float vibrato = (dsp::Sine(vib_phase_) * kVibratoDepth);
+    float vibrato = (sfdsp::Sine(vib_phase_) * kVibratoDepth);
     vib_phase_ += vib_phase_dt_;
     if (vib_phase_ >= 1.f)
     {
@@ -219,15 +221,60 @@ float ScaleBowedStringTester::Tick()
     if (current_frame_ >= frame_per_note_)
     {
         current_frame_ -= frame_per_note_;
-        float freq = dsp::FastMidiToFreq(arp_.Next());
+        float freq = sfdsp::FastMidiToFreq(arp_.Next());
         string_.SetFrequency(freq);
     }
 
     ++current_frame_;
-    return string_.Tick();
+    float bridge = string_.NextOut();
+    return string_.Tick(bridge);
 }
 
 float ScaleBowedStringTester::Tick(float)
+{
+    return Tick();
+}
+
+void FingerPressBowedStringTester::Init(size_t samplerate)
+{
+    samplerate_ = samplerate;
+    frame_count_ = samplerate * 4;
+    string_.Init(static_cast<float>(samplerate), 220.f);
+    string_.SetFrequency(440.f);
+    string_.SetForce(0.8f);
+    string_.SetVelocity(0.7f);
+    string_.SetNoteOn(true);
+    string_.SetFingerPressure(0.f);
+
+    constexpr size_t press_time_ms = 10;
+    const size_t press_time_sample = press_time_ms * samplerate / 1000;
+
+    pressure_ = sfdsp::Line(0.f, 0.2f, press_time_sample);
+
+    name_ = "fingerpress.wav";
+}
+
+float FingerPressBowedStringTester::Tick()
+{
+    ++current_frame_;
+
+    if (current_frame_ > samplerate_)
+    {
+        string_.SetFingerPressure(pressure_.Tick());
+    }
+
+    if (current_frame_ == samplerate_ * 2)
+    {
+        constexpr size_t depress_time = 1;
+        pressure_ = sfdsp::Line(0.2f, 0.f, depress_time);
+        string_.SetBowPosition(0.30f);
+    }
+
+    float bridge = string_.NextOut();
+    return string_.Tick(bridge);
+}
+
+float FingerPressBowedStringTester::Tick(float)
 {
     return Tick();
 }

@@ -16,8 +16,8 @@ class PhaseShaperTest : public DspTester
     float Tick(float input) override;
 
   private:
-    dsp::Phaseshaper phaseshaper_;
+    sfdsp::Phaseshaper phaseshaper_;
     size_t current_frame_ = 0;
     size_t frame_per_wave_ = 0;
-    float current_waveform_ = static_cast<float>(dsp::Phaseshaper::Waveform::VARIABLE_SLOPE);
+    float current_waveform_ = static_cast<float>(sfdsp::Phaseshaper::Waveform::VARIABLE_SLOPE);
 };

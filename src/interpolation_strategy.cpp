@@ -1,8 +1,9 @@
 #include "interpolation_strategy.h"
 
+#include <cmath>
 #include <cstdint>
 
-namespace dsp
+namespace sfdsp
 {
 
 float NoInterpolation::TapOut(float* buffer, size_t max_size, size_t write_ptr, float delay)
@@ -17,7 +18,7 @@ void NoInterpolation::TapIn(float* buffer, size_t max_size, size_t write_ptr, fl
 
 float LinearInterpolation::TapOut(float* buffer, size_t max_size, size_t write_ptr, float delay)
 {
-    uint32_t delay_integer = static_cast<uint32_t>(delay);
+    auto delay_integer = static_cast<uint32_t>(delay);
     float frac = delay - static_cast<float>(delay_integer);
 
     float a = buffer[(write_ptr + delay_integer) % max_size];
@@ -28,7 +29,7 @@ float LinearInterpolation::TapOut(float* buffer, size_t max_size, size_t write_p
 
 void LinearInterpolation::TapIn(float* buffer, size_t max_size, size_t write_ptr, float delay, float input)
 {
-    uint32_t delay_integer = static_cast<uint32_t>(delay);
+    auto delay_integer = static_cast<uint32_t>(delay);
     float frac = delay - static_cast<float>(delay_integer);
 
     buffer[(write_ptr + delay_integer) % max_size] += input * (1.f - frac);
@@ -50,7 +51,7 @@ float AllpassInterpolation::TapOut(float* buffer, size_t max_size, size_t write_
 
 void AllpassInterpolation::TapIn(float* buffer, size_t max_size, size_t write_ptr, float delay, float input)
 {
-    uint32_t delay_integer = static_cast<uint32_t>(delay);
+    auto delay_integer = static_cast<uint32_t>(delay);
     float frac = delay - static_cast<float>(delay_integer);
 
     buffer[(write_ptr + delay_integer) % max_size] += input * (1.f - frac);
@@ -63,7 +64,7 @@ void AllpassInterpolation::CalculateCoeff(float delay)
     {
         delay_ = delay;
         allpass_delay_ = static_cast<size_t>(delay);
-        float alpha = delay - static_cast<uint32_t>(delay);
+        float alpha = delay - std::floor(delay);
 
         if (alpha < 0.5f)
         {
@@ -75,4 +76,4 @@ void AllpassInterpolation::CalculateCoeff(float delay)
     }
 }
 
-} // namespace dsp
+} // namespace sfdsp

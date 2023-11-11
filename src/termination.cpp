@@ -1,6 +1,6 @@
 #include "termination.h"
 
-namespace dsp
+namespace sfdsp
 {
 Termination::Termination(float gain) : gain_(gain)
 {
@@ -25,4 +25,4 @@ float Termination::Tick(float in)
 
     return in * gain_;
 }
-} // namespace dsp
+} // namespace sfdsp

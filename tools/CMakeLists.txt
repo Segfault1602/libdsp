@@ -2,8 +2,6 @@ add_executable(resampler resampler.cpp test_utils.cpp)
 target_include_directories(resampler PRIVATE externals/libsamplerate/include)
 target_link_libraries(resampler PUBLIC dsp sndfile samplerate)
 
-set_target_properties(resampler PROPERTIES CXX_CLANG_TIDY
-                                           "${CLANG_TIDY_COMMAND}")
 if(NOT MSVC)
   target_compile_options(resampler PRIVATE -Wall -Wpedantic -Werror)
 endif()
@@ -16,12 +14,11 @@ add_executable(effect_player
     dsp_tester.cpp
     phaseshapers_tests.cpp
     stringensemble_tests.cpp
-    test_utils.cpp)
+    test_utils.cpp
+    waveguide_tests.cpp)
 
 target_link_libraries(effect_player PUBLIC dsp sndfile rtaudio)
 
-set_target_properties(effect_player PROPERTIES CXX_CLANG_TIDY
-                                               "${CLANG_TIDY_COMMAND}")
 if(NOT MSVC)
   target_compile_options(effect_player PRIVATE ${CLANG_COMPILER_OPTION})
 endif()

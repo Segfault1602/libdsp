@@ -59,5 +59,5 @@ class ChorusTester : public DspTester
     float Tick(float input) override;
 
   private:
-    dsp::Chorus chorus_;
+    sfdsp::Chorus chorus_;
 };

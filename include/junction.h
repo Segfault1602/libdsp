@@ -5,7 +5,7 @@
 #include "delayline.h"
 #include <array>
 
-namespace dsp
+namespace sfdsp
 {
 
 /// @brief Implements a junction point between two delaylines
@@ -24,4 +24,4 @@ class Junction
     float delay_ = 0;
     // float gain_ = 1.f;
 };
-} // namespace dsp
+} // namespace sfdsp

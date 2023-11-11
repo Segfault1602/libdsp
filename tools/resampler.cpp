@@ -19,7 +19,7 @@ int main(int argc, char** argv)
 
     std::string input_file;
     std::string output_file;
-    uint32_t target_fs;
+    uint32_t target_fs = 44100;
     bool use_libsamplerate = false;
 
     if (args.size() < 6)
@@ -97,7 +97,7 @@ int main(int argc, char** argv)
 
 void UseSincResample(const float* buffer, size_t input_size, float resampling_ratio, float* out, size_t& out_size)
 {
-    dsp::sinc_resample(buffer, input_size, resampling_ratio, out, out_size);
+    sfdsp::sinc_resample(buffer, input_size, resampling_ratio, out, out_size);
 }
 
 void UseLibSamplerate(const float* buffer, size_t input_size, double resampling_ratio, float* out, size_t& out_size)

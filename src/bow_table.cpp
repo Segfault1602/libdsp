@@ -6,7 +6,7 @@
 /// @brief Simple bowed string non-linear function taken from the STK.
 /// https://github.com/thestk/stk/blob/master/include/BowTable.cpp
 
-using namespace dsp;
+using namespace sfdsp;
 
 float BowTable::Tick(float in) const
 {

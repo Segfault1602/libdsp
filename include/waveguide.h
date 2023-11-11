@@ -6,9 +6,8 @@
 #include "dsp_base.h"
 #include "interpolation_strategy.h"
 #include "junction.h"
-#include "waveguide_gate.h"
 
-namespace dsp
+namespace sfdsp
 {
 
 /// @brief Simple waveguide model composed of a right traveling wave and a left traveling wave.
@@ -28,16 +27,6 @@ class Waveguide
     /// @brief Returns the delay of the waveguide.
     /// @return
     float GetDelay() const;
-
-    /// @brief Set the junction position.
-    /// @param pos position of the junction in sample
-    /// @note Junction isn't the right name for this, at least for now. This is basically a sliding nut and is used to
-    /// change the length of the waveguide in a physically sensible way.
-    void SetJunctionDelay(float pos);
-
-    /// @brief Returns the junction position.
-    /// @return The junction position.
-    float GetJunctionDelay() const;
 
     /// @brief Returns the output sample of the right traveling wave and left traveling wave.
     /// @param right Output sample of the right traveling wave.
@@ -85,14 +74,19 @@ class Waveguide
     /// @param interpolation_strategy
     void TapOut(float delay, float& right_out, float& left_out, InterpolationStrategy* interpolation_strategy);
 
+    /// @brief Subscript operator to access the delaylines.
+    /// @param index 0 is the right traveling wave, 1 is the left traveling wave.
+    /// @return
+    const Delayline& operator[](size_t index) const;
+    Delayline& operator[](size_t index);
+
   private:
     const size_t max_size_ = 0;
     float current_delay_ = 0.f;
     Delayline right_traveling_line_;
     Delayline left_traveling_line_;
 
-    Junction junction_;
-    WaveguideGate gate_;
+    friend class WaveguideGate;
 };
 
-} // namespace dsp
+} // namespace sfdsp

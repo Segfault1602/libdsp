@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-namespace dsp
+namespace sfdsp
 {
 void Junction::SetDelay(float delay)
 {
@@ -21,31 +21,6 @@ float Junction::GetDelay() const
 {
     return delay_;
 }
-
-#if 0
-void Junction::Tick(Delayline& left_traveling_line, Delayline& right_traveling_line)
-{
-    if (delay_ == 0 || delay_ == left_traveling_line.GetDelay())
-    {
-        return;
-    }
-
-    // full reflection at the junction
-    constexpr float k = -1.f;
-
-    // Linear interpolator does not have any state so it can be reused for everything.
-    LinearInterpolation interpolator;
-
-    float right_sample = right_traveling_line.TapOut(delay_, &interpolator);
-    float left_sample = left_traveling_line.TapOut(delay_ + 1, &interpolator);
-
-    float scattering_into_left = right_sample * k + left_sample * (1.f - k);
-    float scattering_into_right = right_sample * (1 + k) + left_sample * (-k);
-
-    right_traveling_line.SetIn(std::floor(delay_), scattering_into_right);
-    left_traveling_line.SetIn(std::floor(delay_) - 1, scattering_into_left);
-}
-#endif
 
 void Junction::Tick(Delayline& left_traveling_line, Delayline& right_traveling_line)
 {
@@ -89,4 +64,4 @@ void Junction::Tick(Delayline& left_traveling_line, Delayline& right_traveling_l
         right_traveling_line.SetIn(read_ptr + 1, 0.f);
     }
 }
-} // namespace dsp
+} // namespace sfdsp

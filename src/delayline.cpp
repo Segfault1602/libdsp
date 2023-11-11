@@ -4,7 +4,7 @@
 #include <cmath>
 #include <cstdint>
 
-namespace dsp
+namespace sfdsp
 {
 Delayline::Delayline(size_t max_size, bool reverse, InterpolationType interpolation_type)
     : max_size_(max_size), reverse_(reverse)
@@ -113,7 +113,7 @@ void Delayline::SetIn(float delay, float input)
         delay = std::floor(delay_) - delay + 1.f;
     }
 
-    uint32_t delay_integer = static_cast<uint32_t>(delay);
+    auto delay_integer = static_cast<uint32_t>(delay);
     float frac = delay - static_cast<float>(delay_integer);
 
     line_[(write_ptr_ + delay_integer) % max_size_] = input * (1.f - frac);
@@ -123,16 +123,11 @@ void Delayline::SetIn(float delay, float input)
     }
 }
 
-void Delayline::Rewind()
-{
-    write_ptr_ = (write_ptr_ + 1) % max_size_;
-}
-
 float& Delayline::operator[](size_t index) const
 {
     if (reverse_)
     {
-        index = std::floor(delay_) - index + 1.f;
+        index = static_cast<size_t>(delay_) - index + 1;
     }
     size_t read_ptr = (write_ptr_ + index) % max_size_;
     return line_[read_ptr];
@@ -142,10 +137,10 @@ float& Delayline::operator[](size_t index)
 {
     if (reverse_)
     {
-        index = std::floor(delay_) - index + 1.f;
+        index = static_cast<size_t>(delay_) - index + 1;
     }
     size_t read_ptr = (write_ptr_ + index) % max_size_;
     return line_[read_ptr];
 }
 
-} // namespace dsp
+} // namespace sfdsp

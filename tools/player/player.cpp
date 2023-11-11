@@ -20,8 +20,8 @@ size_t g_period_microseconds = DEFAULT_BUFFER_FRAMES * 1000000 / DEFAULT_SAMPLE_
 
 std::atomic_bool g_exit = false;
 std::unique_ptr<Gamepad> g_gamepad;
-std::unique_ptr<dsp::BowedString> g_bowed_string;
-std::unique_ptr<dsp::BowTable> g_bow_table;
+std::unique_ptr<sfdsp::BowedString> g_bowed_string;
+std::unique_ptr<sfdsp::BowTable> g_bow_table;
 MidiController g_midi_controller;
 bool g_save_wav = false;
 
@@ -90,7 +90,7 @@ int main(int argc, char** argv)
     }
 
     g_gamepad = std::make_unique<Gamepad>();
-    g_bowed_string = std::make_unique<dsp::BowedString>();
+    g_bowed_string = std::make_unique<sfdsp::BowedString>();
     g_bowed_string->Init(DEFAULT_SAMPLE_RATE);
 
     AudioContext audio_context;
@@ -157,7 +157,7 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
     MidiMessage message;
     bool more_messages = true;
     size_t midi_poll = 0;
-    dsp::Line pitch_bend(0.f, 1.f, 1.f);
+    sfdsp::Line pitch_bend(0.f, 1.f, 1.f);
 
     while (more_messages && midi_poll < MAX_MIDI_POLL)
     {
@@ -174,7 +174,7 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
             case MidiType::NoteOn:
             {
                 audio_context->current_playing_midi_note = message.byte1;
-                g_bowed_string->SetFrequency(dsp::midi_to_freq[message.byte1]);
+                g_bowed_string->SetFrequency(sfdsp::midi_to_freq[message.byte1]);
                 audio_context->note_on = true;
 
                 float velocity = static_cast<float>(message.byte2) / 127.f;
@@ -212,9 +212,9 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
                 float normalized_value = (pitchbend_value - 8192.f) / 8192.f * PITCHBEND_RANGE;
 
                 float new_midi_pitch = static_cast<float>(audio_context->current_playing_midi_note) + normalized_value;
-                float new_freq = dsp::MidiToFreq(new_midi_pitch);
+                float new_freq = sfdsp::MidiToFreq(new_midi_pitch);
                 float old_freq = g_bowed_string->GetFrequency();
-                pitch_bend = dsp::Line(old_freq, new_freq, nBufferFrames);
+                pitch_bend = sfdsp::Line(old_freq, new_freq, nBufferFrames);
                 audio_context->do_pitch_bend = true;
                 break;
             }

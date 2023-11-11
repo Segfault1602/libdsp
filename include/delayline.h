@@ -7,7 +7,7 @@
 #include "dsp_base.h"
 #include "interpolation_strategy.h"
 
-namespace dsp
+namespace sfdsp
 {
 
 /// @brief Simple delayline.
@@ -69,9 +69,6 @@ class Delayline
     /// @param input Input sample
     void SetIn(float delay, float input);
 
-    /// @brief Move the write pointer of the delayline back one sample.
-    void Rewind();
-
     float& operator[](size_t index) const;
     float& operator[](size_t index);
 
@@ -89,4 +86,4 @@ class Delayline
     std::unique_ptr<InterpolationStrategy> interpolation_strategy_;
     std::unique_ptr<float[]> line_;
 };
-} // namespace dsp
+} // namespace sfdsp

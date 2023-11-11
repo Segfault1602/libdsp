@@ -2,7 +2,7 @@
 
 #include <cstddef>
 
-namespace dsp
+namespace sfdsp
 {
 
 enum class InterpolationType
@@ -60,4 +60,4 @@ class AllpassInterpolation : public InterpolationStrategy
     float last_out_;
     float allpass_input_;
 };
-} // namespace dsp
+} // namespace sfdsp

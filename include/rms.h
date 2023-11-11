@@ -2,7 +2,7 @@
 
 #include "delayline.h"
 
-namespace dsp
+namespace sfdsp
 {
 
 /// @brief Root Mean Square calculator
@@ -30,4 +30,4 @@ class RMS
     float last_out_ = 0.f;
 };
 
-} // namespace dsp
+} // namespace sfdsp
