@@ -19,7 +19,7 @@ set(LIB_SOURCES
 
 add_library(dsp STATIC ${LIB_SOURCES})
 
-if (NOT CLANG_TIDY_EXE-NOTFOUND)
+if (CLANG_TIDY_EXE)
     set_target_properties(dsp PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
 endif()
 
