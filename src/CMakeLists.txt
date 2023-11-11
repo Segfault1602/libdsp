@@ -19,6 +19,10 @@ set(LIB_SOURCES
 
 add_library(dsp STATIC ${LIB_SOURCES})
 
+if (CLANG_TIDY_EXE-FOUND)
+set_target_properties(dsp PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
+endif()
+
 target_include_directories(dsp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")

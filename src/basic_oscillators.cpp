@@ -16,8 +16,8 @@ float Sine(float phase)
     }
     phase = std::fmod(phase, 1.f);
     float idx = phase * SIN_LUT_SIZE;
-    int idx0 = static_cast<int>(idx);
-    float frac = idx - idx0;
+    auto idx0 = static_cast<size_t>(idx);
+    auto frac = idx - static_cast<float>(idx0);
     return sin_lut[idx0] + frac * (sin_lut[idx0 + 1] - sin_lut[idx0]);
 }
 
@@ -28,10 +28,8 @@ float Tri(float phase)
     {
         return 2.f * phase - 1.f;
     }
-    else
-    {
-        return 2.f - 2.f * phase - 1.f;
-    }
+
+    return 2.f - 2.f * phase - 1.f;
 }
 
 float Saw(float phase)
@@ -46,8 +44,8 @@ float Square(float phase)
 
 float Noise()
 {
-    constexpr float kOneOverRandMax = 1.f / RAND_MAX;
-    return 2.f * rand() * kOneOverRandMax - 1.f;
+    constexpr float kOneOverRandMax = 1.f / static_cast<float>(RAND_MAX);
+    return 2.f * static_cast<float>(rand()) * kOneOverRandMax - 1.f;
 }
 
 } // namespace sfdsp

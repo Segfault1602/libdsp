@@ -25,6 +25,14 @@ if(LIBDSP_BUILD_TESTS)
       ON
       CACHE BOOL "" FORCE)
   add_subdirectory(externals/googletest)
+  endif()
+
+if (NOT LIBDSP_LIB_ONLY OR LIBDSP_BUILD_TESTS)
+  add_subdirectory(externals/libsndfile)
+  target_compile_definitions(sndfile PRIVATE _CRT_SECURE_NO_WARNINGS _USE_MATH_DEFINES)
+  if(NOT MSVC)
+    target_compile_options(sndfile PRIVATE -Wno-deprecated-declarations)
+  endif()
 endif()
 
 if(NOT LIBDSP_LIB_ONLY)
@@ -62,12 +70,4 @@ if(NOT LIBDSP_LIB_ONLY)
   set(BUILD_TESTING
       OFF
       CACHE BOOL "Don't build libsndfile tests!" FORCE)
-
-  add_subdirectory(externals/libsndfile)
-  target_compile_definitions(sndfile PRIVATE _CRT_SECURE_NO_WARNINGS
-                                             _USE_MATH_DEFINES)
-  if(NOT MSVC)
-    target_compile_options(sndfile PRIVATE -Wno-deprecated-declarations)
-  endif()
-
 endif()

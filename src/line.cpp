@@ -21,11 +21,9 @@ float Line::Tick()
     {
         return end_;
     }
-    else
-    {
-        output_ += increment_;
-        return output_;
-    }
+
+    output_ += increment_;
+    return output_;
 }
 
 } // namespace sfdsp
