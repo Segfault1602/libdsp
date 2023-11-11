@@ -25,6 +25,7 @@ if(LIBDSP_BUILD_TESTS)
       ON
       CACHE BOOL "" FORCE)
   add_subdirectory(externals/googletest)
+  add_subdirectory(externls/libsndfile)
 endif()
 
 if(NOT LIBDSP_LIB_ONLY)
