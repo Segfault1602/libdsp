@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.25)
 project(libdsp)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED On)
 
 find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
-set(CLANG_TIDY_COMMAND "${CLANG_TIDY_EXE}" "-checks=clang-analyzer-*,-clang-analyzer-cplusplus*,bugprone-*,-bugprone-easily-swappable-parameters")
+set(CLANG_TIDY_COMMAND "${CLANG_TIDY_EXE}")
 set(CMAKE_OSX_DEPLOYMENT_TARGET "13")
 
 set(CLANG_COMPILER_OPTION ${CLANG_COMPILER_OPTION} -Wall -Wpedantic -Werror)

@@ -26,6 +26,7 @@ void StringEnsemble::Init(float samplerate, const std::array<float, kStringCount
     body_filters_[3].SetCoefficients(1.0f, -1.8585f, 0.9653f, -1.8498f, 0.9516f);
     body_filters_[4].SetCoefficients(1.0f, -1.9299f, 0.9621f, -1.9354f, 0.9590f);
     body_filters_[5].SetCoefficients(1.0f, -1.9800f, 0.9888f, -1.9867f, 0.9923f);
+    body_filters_[5].SetGain(0.1248f);
 }
 
 void StringEnsemble::TuneStrings(uint8_t string_number, float frequencies)
@@ -72,6 +73,7 @@ void StringEnsemble::ProcessBlock(float* out, size_t size)
         for (size_t j = 0; j < kStringCount; ++j)
         {
             string_outs[j] = strings_[j].NextOut();
+            out[i] += string_outs[j];
             transmission += string_outs[j] * bridgeTransmission_;
             string_outs[j] *= (1.f - bridgeTransmission_);
         }
@@ -86,10 +88,10 @@ void StringEnsemble::ProcessBlock(float* out, size_t size)
     }
 
     // filter the body output
-    for (size_t i = 0; i < body_filters_.size(); ++i)
-    {
-        body_filters_[i].ProcessBlock(out, out, size);
-    }
+    // for (size_t i = 0; i < body_filters_.size(); ++i)
+    // {
+    //     body_filters_[i].ProcessBlock(out, out, size);
+    // }
 }
 
 const BowedString& StringEnsemble::operator[](uint8_t string_number) const
@@ -104,4 +106,19 @@ BowedString& StringEnsemble::operator[](uint8_t string_number)
     assert(string_number < kStringCount);
 
     return strings_[string_number];
+}
+
+void StringEnsemble::SetParameter(ParamId param_id, float value)
+{
+    switch (param_id)
+    {
+    case ParamId::BridgeTransmission:
+        SetBridgeTransmission(value);
+        break;
+    case ParamId::BridgeTransmissionFilterCutoff:
+        transmission_filter_.SetLowpass(value);
+        break;
+    default:
+        break;
+    }
 }

@@ -200,6 +200,7 @@ void BowedString::SetFingerPressure(float pressure)
 
 void BowedString::SetParameter(ParamId param_id, float value)
 {
+    assert(value >= 0.f && value <= 1.f);
     switch (param_id)
     {
     case ParamId::Velocity:
@@ -218,7 +219,7 @@ void BowedString::SetParameter(ParamId param_id, float value)
         nut_.SetGain(value);
         break;
     case ParamId::BridgeFilterCutoff:
-        reflection_filter_.SetCutOff(value, samplerate_);
+        reflection_filter_.SetLowpass(value);
         break;
     }
 }

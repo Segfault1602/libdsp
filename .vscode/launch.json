@@ -116,7 +116,7 @@
             "program": "${workspaceFolder}/build/tools/effect_player.exe",
             "args": [
                 "-t",
-                "10"
+                "8"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

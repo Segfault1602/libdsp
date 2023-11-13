@@ -55,11 +55,13 @@ void OnePoleFilter::SetDecayFilter(float decayDb, float timeMs, float samplerate
     SetPole(pole);
 }
 
-void OnePoleFilter::SetCutOff(float cutoff, float samplerate)
+void OnePoleFilter::SetLowpass(float cutoff)
 {
-    assert(cutoff > 0.f && cutoff < samplerate * 0.5f);
-    const float pole = std::cos(2.f * M_PI * cutoff / samplerate);
-    SetPole(pole);
+    assert(cutoff > 0.f && cutoff < 1.f);
+    const float wc = TWO_PI * cutoff;
+    const float y = 1 - std::cos(wc);
+    const float p = -y + std::sqrt(y * y + 2 * y);
+    SetPole(1 - p);
 }
 
 float OnePoleFilter::Tick(float in)

@@ -8,7 +8,10 @@
 
 namespace
 {
+
 int gRandSeed = 1.f;
+/// @brief Fast random number generator from https://www.musicdsp.org/en/latest/Other/273-fast-float-random-numbers.html
+/// @return
 float Fast_RandFloat()
 {
     gRandSeed *= 16807;
@@ -55,8 +58,7 @@ float Square(float phase)
 
 float Noise()
 {
-    constexpr float kOneOverRandMax = 1.f / static_cast<float>(RAND_MAX);
-    return 2.f * static_cast<float>(Fast_RandFloat()) * kOneOverRandMax - 1.f;
+    return Fast_RandFloat();
 }
 
 } // namespace sfdsp

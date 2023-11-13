@@ -41,10 +41,18 @@ class StringEnsemble
 
     BowedString& operator[](uint8_t string_number);
 
+    enum class ParamId
+    {
+        BridgeTransmission,
+        BridgeTransmissionFilterCutoff,
+    };
+
+    void SetParameter(ParamId param_id, float value);
+
   private:
     std::array<BowedString, kStringCount> strings_;
     std::array<float, kStringCount> openTuning_;
-    float bridgeTransmission_ = 0.1f;
+    float bridgeTransmission_ = 0.0f;
 
     OnePoleFilter transmission_filter_;
     std::array<Biquad, 6> body_filters_;

@@ -73,7 +73,9 @@ class OnePoleFilter : public Filter
     /// @param samplerate The samplerate.
     void SetDecayFilter(float decayDb, float timeMs, float samplerate);
 
-    void SetCutOff(float cutoff, float samplerate);
+    /// @brief Set the pole of the filter to obtain a lowpass filter with a 3dB cutoff frequency.
+    /// @param cutoff The cutoff frequency, normalized between 0 and 1.
+    void SetLowpass(float cutoff);
 
     float Tick(float in) override;
 };
