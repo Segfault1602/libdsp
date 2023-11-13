@@ -75,7 +75,14 @@ int main(int argc, char** argv)
                 printf("Missing midi port number!\n");
                 return -1;
             }
-            midi_port = static_cast<uint8_t>(std::stoi(args[i + 1]));
+            try
+            {
+                midi_port = static_cast<uint8_t>(std::stoi(args[i + 1]));
+            }
+            catch (const std::exception& e)
+            {
+                std::cerr << e.what() << '\n';
+            }
         }
     }
 
@@ -91,7 +98,9 @@ int main(int argc, char** argv)
 
     g_gamepad = std::make_unique<Gamepad>();
     g_bowed_string = std::make_unique<sfdsp::BowedString>();
-    g_bowed_string->Init(DEFAULT_SAMPLE_RATE);
+    sfdsp::BowedStringConfig config = sfdsp::kDefaultStringConfig;
+    config.samplerate = DEFAULT_SAMPLE_RATE;
+    g_bowed_string->Init(config);
 
     AudioContext audio_context;
 
@@ -127,43 +136,45 @@ int main(int argc, char** argv)
         printf("rtaudio::startStream failed with error %u!", rtError);
     }
 
-    while (!g_exit)
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
+        while (!g_exit)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
 
-    printf("Stopping stream...\n");
-    dac_wrapper.dac.stopStream();
-    dac_wrapper.dac.closeStream();
+        printf("Stopping stream...\n");
+        dac_wrapper.dac.stopStream();
+        dac_wrapper.dac.closeStream();
 
-    printf("Goodbye!\n");
-    return 0;
+        printf("Goodbye!\n");
+        return 0;
 }
 
-int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBufferFrames, double /*streamTime*/,
+int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBufferFrames,
+                     double
+                     /*streamTime*/,
                      RtAudioStreamStatus status, void* data)
 {
-    auto start = std::chrono::high_resolution_clock::now();
-    if (status)
-    {
-        std::cout << "Stream underflow detected!" << std::endl;
-    }
-
-    auto* audio_context = static_cast<AudioContext*>(data);
-
-    // For bigger buffer sizes we might want to move this code inside the for loop and poll every x frames where
-    // x < nBufferFrames.
-    constexpr size_t MAX_MIDI_POLL = 10;
-    MidiMessage message;
-    bool more_messages = true;
-    size_t midi_poll = 0;
-    sfdsp::Line pitch_bend(0.f, 1.f, 1.f);
-
-    while (more_messages && midi_poll < MAX_MIDI_POLL)
-    {
-        more_messages = g_midi_controller.GetMidiMessage(message);
-        if (more_messages)
+        auto start = std::chrono::high_resolution_clock::now();
+        if (status)
         {
+            std::cout << "Stream underflow detected!" << std::endl;
+        }
+
+        auto* audio_context = static_cast<AudioContext*>(data);
+
+        // For bigger buffer sizes we might want to move this code inside the for loop and poll every x frames where
+        // x < nBufferFrames.
+        constexpr size_t MAX_MIDI_POLL = 10;
+        MidiMessage message;
+        bool more_messages = true;
+        size_t midi_poll = 0;
+        sfdsp::Line pitch_bend(0.f, 1.f, 1.f);
+
+        while (more_messages && midi_poll < MAX_MIDI_POLL)
+        {
+            more_messages = g_midi_controller.GetMidiMessage(message);
+            if (more_messages)
+            {
             switch (message.type)
             {
             case MidiType::NoteOff:
@@ -221,36 +232,36 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
             default:
                 break;
             }
+            }
+
+            ++midi_poll;
         }
 
-        ++midi_poll;
-    }
+        auto* output = static_cast<float*>(outputBuffer);
 
-    auto* output = static_cast<float*>(outputBuffer);
-
-    // Write interleaved audio data.
-    for (size_t i = 0; i < nBufferFrames; i++)
-    {
-        if (audio_context->do_pitch_bend)
+        // Write interleaved audio data.
+        for (size_t i = 0; i < nBufferFrames; i++)
         {
+            if (audio_context->do_pitch_bend)
+            {
             g_bowed_string->SetFrequency(pitch_bend.Tick());
-        }
-        float sample = g_bowed_string->Tick(audio_context->note_on) * 0.7f;
-        assert(sample < 1.f && sample > -1.f);
+            }
+            float sample = g_bowed_string->Tick(audio_context->note_on) * 0.7f;
+            assert(sample < 1.f && sample > -1.f);
 
-        for (size_t j = 0; j < 2; j++)
-        {
+            for (size_t j = 0; j < 2; j++)
+            {
             *output++ = sample;
+            }
         }
-    }
 
-    audio_context->do_pitch_bend = false;
+        audio_context->do_pitch_bend = false;
 
-    auto end = std::chrono::high_resolution_clock::now();
-    auto time_span = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-    (void)time_span;
-    // assert(time_span < g_period_microseconds * 0.5f);
-    // printf("Callback took %lld microsec out of %lld\n", time_span, g_period_microseconds);
+        auto end = std::chrono::high_resolution_clock::now();
+        auto time_span = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+        (void)time_span;
+        // assert(time_span < g_period_microseconds * 0.5f);
+        // printf("Callback took %lld microsec out of %lld\n", time_span, g_period_microseconds);
 
-    return 0;
+        return 0;
 }

@@ -9,16 +9,9 @@ uint16_t GetPitchBendValue(const MidiMessage& message)
 }
 
 bool MidiController::Init(uint8_t port)
+try
 {
-    try
-    {
-        midi_in_ = std::make_unique<RtMidiIn>();
-    }
-    catch (RtMidiError& error)
-    {
-        error.printMessage();
-        return false;
-    }
+    midi_in_ = std::make_unique<RtMidiIn>();
 
     if (port >= midi_in_->getPortCount())
     {
@@ -34,8 +27,14 @@ bool MidiController::Init(uint8_t port)
     midi_in_->openPort(port);
     return true;
 }
+catch (RtMidiError& error)
+{
+    error.printMessage();
+    return false;
+}
 
 bool MidiController::GetMidiMessage(MidiMessage& message)
+try
 {
     if (midi_in_ == nullptr)
     {
@@ -95,4 +94,9 @@ bool MidiController::GetMidiMessage(MidiMessage& message)
     }
 
     return true;
+}
+catch (RtMidiError& error)
+{
+    error.printMessage();
+    return false;
 }

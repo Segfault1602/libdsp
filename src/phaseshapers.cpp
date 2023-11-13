@@ -14,11 +14,11 @@
 
 #include <algorithm>
 #include <cmath>
-#include <stdint.h>
+#include <cstdint>
 
 #include "basic_oscillators.h"
 
-#define G_B(x) (2 * x - 1)
+#define G_B(x) (2 * (x)-1)
 #define MODM(x, m) (std::fmod(x, m))
 #define MOD1(x) (std::fmod(x, 1.f))
 
@@ -51,10 +51,8 @@ inline float s_tri(float x)
     {
         return 2.f * x;
     }
-    else
-    {
-        return 2.f - 2.f * x;
-    }
+
+    return 2.f - 2.f * x;
 }
 
 inline float s_vtri(float x, float phaseIncrement, float w = 0.5f, float P = 100)
@@ -75,7 +73,7 @@ inline float g_vtri(float x, float phaseIncrement, float w = 0.5f, float a1 = 1.
     return MOD1(g_lin(vtri, a1, a0));
 }
 
-inline float g_ripple(float x, float m = 0.0f)
+inline float g_ripple(float x, float m = 1.f)
 {
     // Orignal equation was 'x+MODM(x,m)', but I found that subtracting the modulo resulted in the same output but
     // without clipping.
@@ -184,7 +182,7 @@ float Phaseshaper::ProcessSoftSync() const
 float Phaseshaper::ProcessTriMod() const
 {
     // atm vary from 0.5 to 1.5
-    float mod = 0.5 + m_mod;
+    float mod = 0.5f + m_mod;
     float trimodPhase = mod * G_B(g_tri(m_phase));
     return 2 * (trimodPhase - std::ceil(trimodPhase - 0.5f));
 }
@@ -218,7 +216,7 @@ float Phaseshaper::ProcessVarSlope() const
 float Phaseshaper::ProcessVarTri() const
 {
     // a1 can vary from 1.25 to 1.75
-    float a1 = 1.25 + (m_mod * 0.5f);
+    float a1 = 1.25f + (m_mod * 0.5f);
     float w3 = 0.50;
     float vtri = g_vtri(m_phase, m_phaseIncrement, w3, a1, 0, m_period);
     return sfdsp::Sine(vtri);

@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <cassert>
 #include <chrono>
-#define _USE_MATH_DEFINES
 #include <cmath>
 #include <cstdio>
 #include <cstring>
@@ -81,6 +80,7 @@ int main(int argc, char** argv)
         else if (args[i] == "-t")
         {
             auto type_id = static_cast<uint8_t>(std::stoi(args[i + 1]));
+            printf("Running %s", TEST_STRING[type_id]);
             type = static_cast<TesterType>(type_id);
         }
     }

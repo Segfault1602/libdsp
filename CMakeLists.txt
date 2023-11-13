@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED On)
 
 find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
-set(CLANG_TIDY_COMMAND "${CLANG_TIDY_EXE}")
+set(CLANG_TIDY_COMMAND "${CLANG_TIDY_EXE}" "-checks=clang-analyzer-*,-clang-analyzer-cplusplus*,bugprone-*,-bugprone-easily-swappable-parameters")
 set(CMAKE_OSX_DEPLOYMENT_TARGET "13")
 
 set(CLANG_COMPILER_OPTION ${CLANG_COMPILER_OPTION} -Wall -Wpedantic -Werror)
@@ -25,7 +25,26 @@ if(LIBDSP_BUILD_TESTS)
       ON
       CACHE BOOL "" FORCE)
   add_subdirectory(externals/googletest)
-  add_subdirectory(externls/libsndfile)
+  endif()
+
+if (NOT LIBDSP_LIB_ONLY OR LIBDSP_BUILD_TESTS)
+    set(BUILD_PROGRAMS
+    OFF
+    CACHE BOOL "Don't build libsndfile programs!")
+    set(BUILD_EXAMPLES
+    OFF
+    CACHE BOOL "Don't build libsndfile examples!")
+    set(BUILD_REGTEST
+    OFF
+    CACHE BOOL "Don't build libsndfile regtest!")
+    set(BUILD_TESTING
+    OFF
+    CACHE BOOL "Don't build libsndfile tests!" FORCE)
+  add_subdirectory(externals/libsndfile)
+  target_compile_definitions(sndfile PRIVATE _CRT_SECURE_NO_WARNINGS _USE_MATH_DEFINES)
+  if(NOT MSVC)
+    target_compile_options(sndfile PRIVATE -Wno-deprecated-declarations)
+  endif()
 endif()
 
 if(NOT LIBDSP_LIB_ONLY)
@@ -48,27 +67,9 @@ if(NOT LIBDSP_LIB_ONLY)
       "rtmidi_uninstall"
       CACHE STRING "" FORCE)
   add_subdirectory(externals/rtmidi)
-  add_subdirectory(externals/libsamplerate)
 
-  # Link to libsndfile
-  set(BUILD_PROGRAMS
-      OFF
-      CACHE BOOL "Don't build libsndfile programs!")
-  set(BUILD_EXAMPLES
-      OFF
-      CACHE BOOL "Don't build libsndfile examples!")
-  set(BUILD_REGTEST
-      OFF
-      CACHE BOOL "Don't build libsndfile regtest!")
   set(BUILD_TESTING
-      OFF
-      CACHE BOOL "Don't build libsndfile tests!" FORCE)
-
-  add_subdirectory(externals/libsndfile)
-  target_compile_definitions(sndfile PRIVATE _CRT_SECURE_NO_WARNINGS
-                                             _USE_MATH_DEFINES)
-  if(NOT MSVC)
-    target_compile_options(sndfile PRIVATE -Wno-deprecated-declarations)
-  endif()
-
+  OFF
+  CACHE BOOL "Don't build libsndfile tests!" FORCE)
+  add_subdirectory(externals/libsamplerate)
 endif()

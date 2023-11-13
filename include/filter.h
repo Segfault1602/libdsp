@@ -29,6 +29,12 @@ class Filter
     /// @return Output sample
     virtual float Tick(float in) = 0;
 
+    /// @brief Filter a block of samples. 'in' and 'out' can be the same buffer.
+    /// @param in The input buffer.
+    /// @param out The output buffer.
+    /// @param size The size of the buffer.
+    void ProcessBlock(float* in, float* out, size_t size);
+
     /// @brief Set the gain of the filter.
     /// @param gain
     void SetGain(float gain);
@@ -66,6 +72,8 @@ class OnePoleFilter : public Filter
     /// @param timeMs The time in milliseconds.
     /// @param samplerate The samplerate.
     void SetDecayFilter(float decayDb, float timeMs, float samplerate);
+
+    void SetCutOff(float cutoff, float samplerate);
 
     float Tick(float in) override;
 };

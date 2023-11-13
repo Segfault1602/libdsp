@@ -113,7 +113,7 @@ void Delayline::SetIn(float delay, float input)
         delay = std::floor(delay_) - delay + 1.f;
     }
 
-    uint32_t delay_integer = static_cast<uint32_t>(delay);
+    auto delay_integer = static_cast<uint32_t>(delay);
     float frac = delay - static_cast<float>(delay_integer);
 
     line_[(write_ptr_ + delay_integer) % max_size_] = input * (1.f - frac);
@@ -127,7 +127,7 @@ float& Delayline::operator[](size_t index) const
 {
     if (reverse_)
     {
-        index = std::floor(delay_) - index + 1.f;
+        index = static_cast<size_t>(delay_) - index + 1;
     }
     size_t read_ptr = (write_ptr_ + index) % max_size_;
     return line_[read_ptr];
@@ -137,7 +137,7 @@ float& Delayline::operator[](size_t index)
 {
     if (reverse_)
     {
-        index = std::floor(delay_) - index + 1.f;
+        index = static_cast<size_t>(delay_) - index + 1;
     }
     size_t read_ptr = (write_ptr_ + index) % max_size_;
     return line_[read_ptr];

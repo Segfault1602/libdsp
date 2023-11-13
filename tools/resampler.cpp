@@ -19,7 +19,7 @@ int main(int argc, char** argv)
 
     std::string input_file;
     std::string output_file;
-    uint32_t target_fs;
+    uint32_t target_fs = 44100;
     bool use_libsamplerate = false;
 
     if (args.size() < 6)

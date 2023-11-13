@@ -13,26 +13,33 @@ BowedString::BowedString(size_t max_size) : waveguide_(max_size, InterpolationTy
 {
 }
 
-void BowedString::Init(float samplerate, float tuning)
+void BowedString::Init(const BowedStringConfig& config)
 {
-    samplerate_ = samplerate;
-    SetFrequency(tuning); // open string
+    samplerate_ = config.samplerate;
+    SetFrequency(config.open_string_tuning); // open string
 
-    reflection_filter_.SetGain(0.95f);
-    reflection_filter_.SetPole(0.75f - (0.2f * 22050.0f / samplerate_));
+    if (config.bridge_filter.has_value())
+    {
+        reflection_filter_ = config.bridge_filter.value();
+    }
+    else
+    {
+        reflection_filter_.SetGain(0.95f);
+        reflection_filter_.SetPole(0.75f - (0.2f * 22050.0f / samplerate_));
+    }
 
     bridge_.SetGain(1.f);
 
-    float string_length = (samplerate_ / tuning) * 0.5f;
+    float string_length = (samplerate_ / config.open_string_tuning) * 0.5f;
     waveguide_.SetDelay(string_length - 1.f);
     bridge_.SetFilter(&reflection_filter_);
 
-    nut_.SetGain(-0.98f);
+    nut_.SetGain(config.nut_gain);
 
     // Decay filter for add. noise
     constexpr float decayDb = -12.f;
     constexpr float timeMs = 20.f;
-    decay_filter_.SetDecayFilter(decayDb, timeMs, samplerate);
+    decay_filter_.SetDecayFilter(decayDb, timeMs, config.samplerate);
     decay_filter_.SetGain(1.f);
 
     noise_lp_filter_.SetPole(0.8f);
@@ -40,9 +47,9 @@ void BowedString::Init(float samplerate, float tuning)
     // Smoothing filter
     constexpr float smoothingDb = -24.f;
     constexpr float smoothingTimeMs = 10.f;
-    velocity_filter_.SetDecayFilter(smoothingDb, smoothingTimeMs, samplerate);
-    force_filter_.SetDecayFilter(smoothingDb, smoothingTimeMs, samplerate);
-    bow_position_filter_.SetDecayFilter(smoothingDb, smoothingTimeMs, samplerate);
+    velocity_filter_.SetDecayFilter(smoothingDb, smoothingTimeMs, config.samplerate);
+    force_filter_.SetDecayFilter(smoothingDb, smoothingTimeMs, config.samplerate);
+    bow_position_filter_.SetDecayFilter(smoothingDb, smoothingTimeMs, config.samplerate);
 }
 
 void BowedString::SetFrequency(float f)
@@ -81,6 +88,15 @@ void BowedString::SetVelocity(float v)
 
 void BowedString::SetForce(float f)
 {
+    if (f > 0.01f)
+    {
+        SetNoteOn(true);
+    }
+    else
+    {
+        SetNoteOn(false);
+    }
+
     bow_force_ = f;
 }
 
@@ -128,15 +144,16 @@ bool BowedString::GetNoteOn() const
 void BowedString::Pluck()
 {
     float L = gate_.GetDelay();
-    for (float i = 1; i < static_cast<float>(L); ++i)
+    for (size_t i = 1; i < static_cast<size_t>(L); ++i)
     {
-        waveguide_.TapIn(i, Hann(i - 1, L));
+        waveguide_.TapIn(static_cast<float>(i), Hann(static_cast<float>(i) - 1.f, L));
     }
 }
 
 float BowedString::NextOut()
 {
-    float bridge, nut;
+    float bridge;
+    float nut;
     waveguide_.NextOut(nut, bridge);
     return bridge;
 }
@@ -146,10 +163,12 @@ float BowedString::Tick(float input)
     float vel = velocity_filter_.Tick(velocity_);
     bow_table_.SetForce(force_filter_.Tick(bow_force_));
 
-    float bridge, nut;
+    float bridge;
+    float nut;
     waveguide_.NextOut(nut, bridge);
 
-    float vsl_plus, vsr_plus;
+    float vsl_plus;
+    float vsr_plus;
     waveguide_.TapOut(bow_position_, vsl_plus, vsr_plus, &bow_interpolation_strategy_);
 
     float bow_output = 0.f;
@@ -177,6 +196,31 @@ void BowedString::SetFingerPressure(float pressure)
 {
     pressure = std::clamp(pressure, 0.f, 1.f);
     gate_.SetCoeff(pressure);
+}
+
+void BowedString::SetParameter(ParamId param_id, float value)
+{
+    switch (param_id)
+    {
+    case ParamId::Velocity:
+        SetVelocity(value);
+        break;
+    case ParamId::Force:
+        SetForce(value);
+        break;
+    case ParamId::BowPosition:
+        SetBowPosition(value);
+        break;
+    case ParamId::FingerPressure:
+        SetFingerPressure(value);
+        break;
+    case ParamId::NutGain:
+        nut_.SetGain(value);
+        break;
+    case ParamId::BridgeFilterCutoff:
+        reflection_filter_.SetCutOff(value, samplerate_);
+        break;
+    }
 }
 
 } // namespace sfdsp
