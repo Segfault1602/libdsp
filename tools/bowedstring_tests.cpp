@@ -5,7 +5,11 @@
 void SimpleBowedString::Init(size_t samplerate)
 {
     samplerate_ = samplerate;
-    string_.Init(static_cast<float>(samplerate));
+    sfdsp::BowedStringConfig config = sfdsp::kDefaultStringConfig;
+    config.samplerate = static_cast<float>(samplerate);
+    config.open_string_tuning = 220.f;
+
+    string_.Init(config);
     string_.SetFrequency(220.f);
     string_.SetForce(0.5f);
     string_.SetVelocity(1.f);
@@ -38,7 +42,11 @@ void CrescendoBowedStringTester::Init(size_t samplerate)
     param_delta_ = 1.f / static_cast<float>(midway_frame_);
     param_value_ = sfdsp::Line(0.f, 1.f, midway_frame_);
 
-    string_.Init(static_cast<float>(samplerate));
+    sfdsp::BowedStringConfig config = sfdsp::kDefaultStringConfig;
+    config.samplerate = static_cast<float>(samplerate);
+    config.open_string_tuning = 220.f;
+
+    string_.Init(config);
     string_.SetFrequency(440.f);
     string_.SetForce(0.f);
     string_.SetVelocity(0.f);
@@ -74,7 +82,11 @@ void OscVelocityBowedStringTester::Init(size_t samplerate)
 {
     samplerate_ = samplerate;
     phase_dt_ = kFrequency / static_cast<float>(samplerate);
-    string_.Init(static_cast<float>(samplerate));
+    sfdsp::BowedStringConfig config = sfdsp::kDefaultStringConfig;
+    config.samplerate = static_cast<float>(samplerate);
+    config.open_string_tuning = 220.f;
+
+    string_.Init(config);
     string_.SetFrequency(440.f);
     string_.SetForce(0.f);
     string_.SetVelocity(0.f);
@@ -114,7 +126,11 @@ void PitchSlideBowedStringTester::Init(size_t samplerate)
     constexpr float kEndNote = 69;
     param_value_ = sfdsp::Line(kStartNote, kEndNote, samplerate / 2);
 
-    string_.Init(static_cast<float>(samplerate));
+    sfdsp::BowedStringConfig config = sfdsp::kDefaultStringConfig;
+    config.samplerate = static_cast<float>(samplerate);
+    config.open_string_tuning = 220.f;
+
+    string_.Init(config);
     string_.SetFrequency(sfdsp::FastMidiToFreq(kStartNote));
     string_.SetForce(0.5f);
     string_.SetVelocity(0.5f);
@@ -150,7 +166,11 @@ void VibratoBowedStringTester::Init(size_t samplerate)
     frame_count_ = samplerate * 3;
     phase_dt_ = kVibratoFrequency / static_cast<float>(samplerate);
 
-    string_.Init(static_cast<float>(samplerate));
+    sfdsp::BowedStringConfig config = sfdsp::kDefaultStringConfig;
+    config.samplerate = static_cast<float>(samplerate);
+    config.open_string_tuning = 196.f;
+
+    string_.Init(config);
     string_.SetFrequency(kFrequency);
     string_.SetForce(0.5f);
     string_.SetVelocity(0.5f);
@@ -188,7 +208,11 @@ void ScaleBowedStringTester::Init(size_t samplerate)
 
     arp_.SetNotes({60, 62, 64, 65, 67, 69, 71, 72, 71, 69, 67, 65, 64, 62});
 
-    string_.Init(static_cast<float>(samplerate));
+    sfdsp::BowedStringConfig config = sfdsp::kDefaultStringConfig;
+    config.samplerate = static_cast<float>(samplerate);
+    config.open_string_tuning = 220.f;
+
+    string_.Init(config);
     string_.SetFrequency(sfdsp::midi_to_freq[static_cast<size_t>(arp_.Next())]);
     string_.SetForce(0.5f);
     string_.SetVelocity(0.5f);
@@ -239,7 +263,11 @@ void FingerPressBowedStringTester::Init(size_t samplerate)
 {
     samplerate_ = samplerate;
     frame_count_ = samplerate * 4;
-    string_.Init(static_cast<float>(samplerate), 220.f);
+    sfdsp::BowedStringConfig config = sfdsp::kDefaultStringConfig;
+    config.samplerate = static_cast<float>(samplerate);
+    config.open_string_tuning = 220.f;
+
+    string_.Init(config);
     string_.SetFrequency(440.f);
     string_.SetForce(0.8f);
     string_.SetVelocity(0.7f);

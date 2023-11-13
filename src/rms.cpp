@@ -4,7 +4,7 @@
 
 namespace sfdsp
 {
-RMS::RMS(size_t size) : buffer_(size, false, InterpolationType::None), factor_(1.f / size)
+RMS::RMS(size_t size) : buffer_(size, false, InterpolationType::None), factor_(1.f / static_cast<float>(size))
 {
 }
 

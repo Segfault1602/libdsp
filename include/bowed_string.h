@@ -9,9 +9,27 @@
 #include "waveguide_gate.h"
 
 #include <algorithm>
+#include <optional>
 
 namespace sfdsp
 {
+
+struct BowedStringConfig
+{
+    float samplerate;
+    size_t max_delay_size;
+    float open_string_tuning;
+    float nut_gain;
+    std::optional<OnePoleFilter> bridge_filter;
+};
+
+static BowedStringConfig kDefaultStringConfig = {
+    .samplerate = 48000.f,
+    .max_delay_size = 1024,
+    .open_string_tuning = 196.f,
+    .nut_gain = -0.98f,
+    .bridge_filter = std::nullopt,
+};
 
 /// @brief Implements a bowed string model using a waveguide composed of a right traveling wave and a left traveling
 /// wave.
@@ -24,7 +42,7 @@ class BowedString
     /// @brief Initialize the string
     /// @param samplerate The samplerate of the system
     /// @param tuning The tuning of the open string in Hz, Default to G3
-    void Init(float samplerate, float tuning = 196.f);
+    void Init(const BowedStringConfig& config = kDefaultStringConfig);
 
     /// @brief Set the frequency of the string
     /// @param f The frequency of the string in Hz
@@ -88,6 +106,18 @@ class BowedString
     /// @brief Set the finger pressure.
     /// @param pressure 0 is no pressure, 1 is full pressure.
     void SetFingerPressure(float pressure);
+
+    enum class ParamId
+    {
+        Velocity,
+        Force,
+        BowPosition,
+        FingerPressure,
+        NutGain,
+        BridgeFilterCutoff,
+    };
+
+    void SetParameter(ParamId param_id, float value);
 
   private:
     Waveguide waveguide_;

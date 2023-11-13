@@ -17,7 +17,7 @@ class PhaseShaperTest : public DspTester
 
   private:
     sfdsp::Phaseshaper phaseshaper_;
-    size_t current_frame_ = 0;
-    size_t frame_per_wave_ = 0;
+    uint32_t current_frame_ = 0;
+    uint32_t frame_per_wave_ = 0;
     float current_waveform_ = static_cast<float>(sfdsp::Phaseshaper::Waveform::VARIABLE_SLOPE);
 };

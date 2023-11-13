@@ -48,8 +48,12 @@ int main(int, char**)
 
 bool Run(TestConfig config)
 {
+    sfdsp::BowedStringConfig stringConfig = sfdsp::kDefaultStringConfig;
+    stringConfig.samplerate = static_cast<float>(kSampleRate);
+    stringConfig.open_string_tuning = 220.f;
+
     sfdsp::BowedString string;
-    string.Init(static_cast<float>(kSampleRate));
+    string.Init(stringConfig);
 
     string.SetFrequency(config.frequency);
     string.SetForce(config.force);

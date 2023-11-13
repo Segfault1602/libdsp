@@ -47,6 +47,6 @@ class StringEnsemble
     float bridgeTransmission_ = 0.1f;
 
     OnePoleFilter transmission_filter_;
-    Biquad body_filters_[6];
+    std::array<Biquad, 6> body_filters_;
 };
 } // namespace sfdsp

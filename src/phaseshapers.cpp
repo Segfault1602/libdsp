@@ -73,7 +73,7 @@ inline float g_vtri(float x, float phaseIncrement, float w = 0.5f, float a1 = 1.
     return MOD1(g_lin(vtri, a1, a0));
 }
 
-inline float g_ripple(float x, float m = 0.0f)
+inline float g_ripple(float x, float m = 1.f)
 {
     // Orignal equation was 'x+MODM(x,m)', but I found that subtracting the modulo resulted in the same output but
     // without clipping.

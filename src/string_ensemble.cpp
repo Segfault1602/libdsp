@@ -6,7 +6,11 @@ void StringEnsemble::Init(float samplerate, const std::array<float, kStringCount
 {
     for (size_t i = 0; i < kStringCount; ++i)
     {
-        strings_[i].Init(samplerate, frequencies[i]);
+        sfdsp::BowedStringConfig config = sfdsp::kDefaultStringConfig;
+        config.samplerate = samplerate;
+        config.open_string_tuning = frequencies[i];
+
+        strings_[i].Init(config);
     }
 
     openTuning_ = frequencies;
@@ -65,11 +69,9 @@ void StringEnsemble::ProcessBlock(float* out, size_t size)
         std::array<float, kStringCount> string_outs;
 
         float transmission = 0.f;
-        float output = 0.f;
-        for (size_t j = 0; i < kStringCount; ++j)
+        for (size_t j = 0; j < kStringCount; ++j)
         {
             string_outs[j] = strings_[j].NextOut();
-            output += string_outs[j];
             transmission += string_outs[j] * bridgeTransmission_;
             string_outs[j] *= (1.f - bridgeTransmission_);
         }
@@ -77,13 +79,16 @@ void StringEnsemble::ProcessBlock(float* out, size_t size)
         // filter the bridge output
         transmission = transmission_filter_.Tick(transmission) * 0.25f;
 
-        for (size_t j = 0; i < kStringCount; ++j)
+        for (size_t j = 0; j < kStringCount; ++j)
         {
             strings_[j].Tick(string_outs[j] + transmission);
         }
+    }
 
-        out[i] = 0.1248f * body_filters_[5].Tick(body_filters_[4].Tick(body_filters_[3].Tick(
-                               body_filters_[2].Tick(body_filters_[1].Tick(body_filters_[0].Tick(output))))));
+    // filter the body output
+    for (size_t i = 0; i < body_filters_.size(); ++i)
+    {
+        body_filters_[i].ProcessBlock(out, out, size);
     }
 }
 

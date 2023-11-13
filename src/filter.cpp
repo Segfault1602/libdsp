@@ -25,6 +25,17 @@ void Filter::SetB(const float (&b)[COEFFICIENT_COUNT])
     }
 }
 
+void Filter::ProcessBlock(float* in, float* out, size_t size)
+{
+    assert(in != nullptr);
+    assert(out != nullptr);
+
+    for (size_t i = 0; i < size; ++i)
+    {
+        out[i] = Tick(in[i]);
+    }
+}
+
 void OnePoleFilter::SetPole(float pole)
 {
     // https://ccrma.stanford.edu/~jos/fp/One_Pole.html
@@ -41,6 +52,13 @@ void OnePoleFilter::SetDecayFilter(float decayDb, float timeMs, float samplerate
     assert(decayDb < 0.f);
     const float lambda = std::log(std::pow(10.f, (decayDb / 20.f)));
     const float pole = std::exp(lambda / (timeMs / 1000.f) / samplerate);
+    SetPole(pole);
+}
+
+void OnePoleFilter::SetCutOff(float cutoff, float samplerate)
+{
+    assert(cutoff > 0.f && cutoff < samplerate * 0.5f);
+    const float pole = std::cos(2.f * M_PI * cutoff / samplerate);
     SetPole(pole);
 }
 
