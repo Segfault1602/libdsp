@@ -67,14 +67,16 @@ void Waveguide::TapIn(float delay, float right, float left)
 
 float Waveguide::TapOut(float delay)
 {
-    float right, left;
+    float right = 0.f;
+    float left = 0.f;
     TapOut(delay, right, left);
     return right + left;
 }
 
 float Waveguide::TapOut(float delay, InterpolationStrategy* interpolation_strategy)
 {
-    float right, left;
+    float right = 0.f;
+    float left = 0.f;
     TapOut(delay, right, left, interpolation_strategy);
     return right + left;
 }

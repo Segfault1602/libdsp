@@ -9,11 +9,11 @@
 namespace
 {
 
-int gRandSeed = 1.f;
 /// @brief Fast random number generator from https://www.musicdsp.org/en/latest/Other/273-fast-float-random-numbers.html
 /// @return
 float Fast_RandFloat()
 {
+    static int gRandSeed = 1.f;
     gRandSeed *= 16807;
     return (float)gRandSeed * 4.6566129e-010f;
 }

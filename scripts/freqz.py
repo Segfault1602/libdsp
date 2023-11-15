@@ -11,9 +11,10 @@ wc = 2 * np.pi * w
 y = 1 - np.cos(wc)
 p = -y + np.sqrt(y**2 + 2 * y)
 p = 1 - p
+p = -1
 
 # Define filter coefficients
-b = [1 - p]
+b = [1 - np.abs(p)]
 a = [1, -p]
 
 # Calculate frequency response

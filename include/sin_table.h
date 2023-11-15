@@ -1,10 +1,12 @@
 // Auto-generated file from make_sine_table.py
 #pragma once
 
+#include <array>
+
 namespace sfdsp
 {
 constexpr size_t SIN_LUT_SIZE = 512;
-const float sin_lut[SIN_LUT_SIZE + 1] = {
+const std::array<float, SIN_LUT_SIZE + 1> sin_lut = {
 
     0.00000000f,  0.01227154f,  0.02454123f,  0.03680722f,  0.04906767f,  0.06132074f,  0.07356456f,  0.08579731f,
     0.09801714f,  0.11022221f,  0.12241068f,  0.13458071f,  0.14673047f,  0.15885814f,  0.17096189f,  0.18303989f,

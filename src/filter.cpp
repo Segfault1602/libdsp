@@ -40,7 +40,7 @@ void OnePoleFilter::SetPole(float pole)
 {
     // https://ccrma.stanford.edu/~jos/fp/One_Pole.html
     // If the filter has a pole at z = -a, then a_[1] will be -pole;
-    assert(pole < 1.f && pole > -1.f);
+    assert(pole <= 1.f && pole >= -1.f);
 
     // Set the b value to 1 - |a| to get a peak gain of 1.
     b_[0] = 1.f - std::abs(pole);
@@ -57,7 +57,7 @@ void OnePoleFilter::SetDecayFilter(float decayDb, float timeMs, float samplerate
 
 void OnePoleFilter::SetLowpass(float cutoff)
 {
-    assert(cutoff > 0.f && cutoff < 1.f);
+    assert(cutoff >= 0.f && cutoff <= 1.f);
     const float wc = TWO_PI * cutoff;
     const float y = 1 - std::cos(wc);
     const float p = -y + std::sqrt(y * y + 2 * y);

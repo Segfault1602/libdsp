@@ -22,7 +22,7 @@ float Junction::GetDelay() const
     return delay_;
 }
 
-void Junction::Tick(Delayline& left_traveling_line, Delayline& right_traveling_line)
+void Junction::Tick(Delayline& left_traveling_line, Delayline& right_traveling_line) const
 {
     if (delay_ == 0 || delay_ == left_traveling_line.GetDelay())
     {

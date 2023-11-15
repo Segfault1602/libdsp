@@ -12,6 +12,7 @@ set(LIB_SOURCES
     phaseshapers.cpp
     rms.cpp
     sinc_resampler.cpp
+    smooth_param.cpp
     string_ensemble.cpp
     termination.cpp
     waveguide.cpp

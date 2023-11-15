@@ -9,6 +9,12 @@
 namespace sfdsp
 {
 
+static constexpr float kMaxBridgeFilterCutoff = 0.10f;
+static constexpr float kBridgeFilterCutoffOffset = 0.025f;
+
+constexpr static float max_velocity_ = 0.2f;
+constexpr static float velocity_offset_ = 0.03f;
+
 BowedString::BowedString(size_t max_size) : waveguide_(max_size, InterpolationType::Linear), gate_(true, 0.f, 1.f)
 {
 }
@@ -31,7 +37,8 @@ void BowedString::Init(const BowedStringConfig& config)
     bridge_.SetGain(1.f);
 
     float string_length = (samplerate_ / config.open_string_tuning) * 0.5f;
-    waveguide_.SetDelay(string_length - 1.f);
+    open_string_delay_ = string_length - 1.f;
+    waveguide_.SetDelay(open_string_delay_);
     bridge_.SetFilter(&reflection_filter_);
 
     nut_.SetGain(config.nut_gain);
@@ -44,12 +51,9 @@ void BowedString::Init(const BowedStringConfig& config)
 
     noise_lp_filter_.SetPole(0.8f);
 
-    // Smoothing filter
-    constexpr float smoothingDb = -24.f;
-    constexpr float smoothingTimeMs = 10.f;
-    velocity_filter_.SetDecayFilter(smoothingDb, smoothingTimeMs, config.samplerate);
-    force_filter_.SetDecayFilter(smoothingDb, smoothingTimeMs, config.samplerate);
-    bow_position_filter_.SetDecayFilter(smoothingDb, smoothingTimeMs, config.samplerate);
+    velocity_.Init(samplerate_, SmoothParam::SmoothingType::Exponential);
+    bow_force_.Init(samplerate_, SmoothParam::SmoothingType::Exponential);
+    gate_delay_.Init(samplerate_, SmoothParam::SmoothingType::Exponential);
 }
 
 void BowedString::SetFrequency(float f)
@@ -57,17 +61,12 @@ void BowedString::SetFrequency(float f)
     freq_ = f;
     float delay = (samplerate_ / freq_) * 0.5f;
     delay -= 1.f; // delay compensation, tuned by ear
-
-    gate_.SetDelay(delay);
-    SetBowPosition(relative_bow_position_);
-}
-
-void BowedString::SetDelay(float delay)
-{
-    gate_.SetDelay(delay);
+    delay += tuning_adjustment_;
+    gate_delay_.SetTarget(delay);
     SetBowPosition(relative_bow_position_);
 
-    freq_ = samplerate_ / (delay * 2);
+    // retune open string
+    waveguide_.SetDelay(open_string_delay_ + tuning_adjustment_);
 }
 
 float BowedString::GetFrequency() const
@@ -77,13 +76,13 @@ float BowedString::GetFrequency() const
 
 float BowedString::GetVelocity() const
 {
-    return (velocity_ - velocity_offset_) / max_velocity_;
+    return (velocity_.GetTarget() - velocity_offset_) / max_velocity_;
 }
 
 void BowedString::SetVelocity(float v)
 {
     v = std::clamp(v, -1.f, 1.f);
-    velocity_ = velocity_offset_ + max_velocity_ * v;
+    velocity_.SetTarget(velocity_offset_ + max_velocity_ * v);
 }
 
 void BowedString::SetForce(float f)
@@ -97,12 +96,12 @@ void BowedString::SetForce(float f)
         SetNoteOn(false);
     }
 
-    bow_force_ = f;
+    bow_force_.SetTarget(f);
 }
 
 float BowedString::GetForce() const
 {
-    return bow_force_;
+    return bow_force_.GetTarget();
 }
 
 void BowedString::SetBowPosition(float pos)
@@ -110,20 +109,19 @@ void BowedString::SetBowPosition(float pos)
     relative_bow_position_ = pos;
 
     // The gate delay is where the 'finger' is. We want the bow position to be relative to that.
-    bow_position_ = gate_.GetDelay() * relative_bow_position_;
+    float bow_pos = gate_delay_.GetTarget() * relative_bow_position_;
 
-    if (bow_position_ <= 1.f)
+    if (bow_pos <= 1.f)
     {
-        bow_position_ += 1.f;
+        bow_pos += 1.f;
     }
-    else if (bow_position_ > gate_.GetDelay() - 2.f)
+    else if (bow_pos > gate_delay_.GetTarget() - 2.f)
     {
-        bow_position_ = gate_.GetDelay() - 2.f;
+        bow_pos = gate_delay_.GetTarget() - 2.f;
     }
 
-    bow_position_ = std::ceil(bow_position_);
-
-    assert(bow_position_ > 0 && bow_position_ < gate_.GetDelay());
+    assert(bow_pos > 0);
+    bow_position_ = std::ceil(bow_pos);
 }
 
 float BowedString::GetBowPosition() const
@@ -152,23 +150,25 @@ void BowedString::Pluck()
 
 float BowedString::NextOut()
 {
-    float bridge;
-    float nut;
+    float bridge = 0.f;
+    float nut = 0.f;
     waveguide_.NextOut(nut, bridge);
     return bridge;
 }
 
 float BowedString::Tick(float input)
 {
-    float vel = velocity_filter_.Tick(velocity_);
-    bow_table_.SetForce(force_filter_.Tick(bow_force_));
+    gate_.SetDelay(gate_delay_.Tick());
 
-    float bridge;
-    float nut;
+    float vel = velocity_.Tick();
+    bow_table_.SetForce(bow_force_.Tick());
+
+    float bridge = 0.f;
+    float nut = 0.f;
     waveguide_.NextOut(nut, bridge);
 
-    float vsl_plus;
-    float vsr_plus;
+    float vsl_plus = 0.f;
+    float vsr_plus = 0.f;
     waveguide_.TapOut(bow_position_, vsl_plus, vsr_plus, &bow_interpolation_strategy_);
 
     float bow_output = 0.f;
@@ -216,10 +216,18 @@ void BowedString::SetParameter(ParamId param_id, float value)
         SetFingerPressure(value);
         break;
     case ParamId::NutGain:
-        nut_.SetGain(value);
+        value = 0.90f + value * 0.10f;
+        nut_.SetGain(-value);
         break;
     case ParamId::BridgeFilterCutoff:
+        value = kBridgeFilterCutoffOffset + value * kMaxBridgeFilterCutoff;
         reflection_filter_.SetLowpass(value);
+        break;
+    case ParamId::TuningAdjustment:
+        value = value * 2.f - 1.f;
+        value *= 10.f;
+        tuning_adjustment_ = value;
+        SetFrequency(freq_);
         break;
     }
 }

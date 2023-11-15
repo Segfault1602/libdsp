@@ -2,6 +2,8 @@
 
 using namespace sfdsp;
 
+static constexpr float kMaxBridgeTransmission = 0.20f;
+
 void StringEnsemble::Init(float samplerate, const std::array<float, kStringCount>& frequencies)
 {
     for (size_t i = 0; i < kStringCount; ++i)
@@ -46,7 +48,7 @@ void StringEnsemble::SetBridgeTransmission(float t)
 {
     assert(t >= 0.f && t <= 1.f);
 
-    bridgeTransmission_ = t;
+    bridgeTransmission_ = t * kMaxBridgeTransmission;
 }
 
 float StringEnsemble::GetBridgeTransmission() const
@@ -67,7 +69,7 @@ void StringEnsemble::ProcessBlock(float* out, size_t size)
 
     for (size_t i = 0; i < size; ++i)
     {
-        std::array<float, kStringCount> string_outs;
+        std::array<float, kStringCount> string_outs = {0.f};
 
         float transmission = 0.f;
         for (size_t j = 0; j < kStringCount; ++j)

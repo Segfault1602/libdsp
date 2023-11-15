@@ -4,6 +4,7 @@
 #include "dsp_base.h"
 #include "filter.h"
 #include "rms.h"
+#include "smooth_param.h"
 #include "termination.h"
 #include "waveguide.h"
 #include "waveguide_gate.h"
@@ -51,12 +52,6 @@ class BowedString
     /// @brief Returns the frequency of the string in Hz
     /// @return The frequency of the string in Hz
     float GetFrequency() const;
-
-    /// @brief Set the length of the string in samples
-    /// @param delay The length of the string in samples
-    /// @note this method exists mostly to allow easy testing of the model with different delay values. Use
-    /// `SetFrequency()` to change the pitch of the string.
-    void SetDelay(float delay);
 
     /// @brief Return the current bow velocity.
     /// @return The current bow velocity.
@@ -115,6 +110,7 @@ class BowedString
         FingerPressure,
         NutGain,
         BridgeFilterCutoff,
+        TuningAdjustment,
     };
 
     void SetParameter(ParamId param_id, float value);
@@ -124,7 +120,14 @@ class BowedString
     WaveguideGate gate_;
 
     float bow_position_ = 0.f;
+    SmoothParam velocity_;
+    SmoothParam bow_force_;
+    SmoothParam gate_delay_;
+
     float relative_bow_position_ = 0.15f;
+
+    float tuning_adjustment_ = 0.f;
+    float open_string_delay_ = 0.f;
 
     Termination nut_;
     Termination bridge_;
@@ -132,21 +135,11 @@ class BowedString
     LinearInterpolation bow_interpolation_strategy_;
 
     OnePoleFilter reflection_filter_;
-    float samplerate_;
-    float freq_;
-    float velocity_ = 0.f;
-    float bow_force_ = 0.f;
+    float samplerate_ = 0.f;
+    float freq_ = 0.f;
     bool note_on_ = false;
-
-    constexpr static float max_velocity_ = 0.2f;
-    constexpr static float velocity_offset_ = 0.03f;
 
     OnePoleFilter decay_filter_;
     OnePoleFilter noise_lp_filter_;
-
-    // Smoothing filters
-    OnePoleFilter velocity_filter_;
-    OnePoleFilter force_filter_;
-    OnePoleFilter bow_position_filter_;
 };
 } // namespace sfdsp
