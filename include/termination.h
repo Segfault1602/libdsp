@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dsp_base.h"
+#include "dsp_utils.h"
 
 #include "delayline.h"
 #include "filter.h"
@@ -32,7 +32,10 @@ class Termination
     virtual float Tick(float in);
 
   protected:
+    /// @brief The gain of the termination.
     float gain_ = -1.f;
+
+    /// @brief Optional filter used to filter signals coming through the termination.
     Filter* filter_ = nullptr;
 };
 } // namespace sfdsp

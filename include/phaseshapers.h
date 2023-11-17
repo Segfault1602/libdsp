@@ -12,7 +12,7 @@
 #pragma once
 #include <stdint.h>
 
-#include "dsp_base.h"
+#include "dsp_utils.h"
 
 namespace sfdsp
 {
@@ -47,12 +47,14 @@ class Phaseshaper
     /// @brief Sets the waveform
     /// @param wave floating point value between Waveform::VARIABLE_SLOPE and Waveform::NUM_WAVES
     /// @note The fractional part of the value is used to interpolate between waveforms.
-    /// For example, a value of 1.5 will interpolate between Waveform::SOFTSYNC and Waveform::WAVESLICE equally.
+    /// For example, a value of 1.5 will interpolate between Waveform::SUPERSAW and Waveform::WAVESLICE equally.
     void SetWaveform(float wave)
     {
         m_waveform = wave;
     }
 
+    /// @brief Sets the waveform.
+    /// @param wave Waveform to use.
     void SetWaveform(Waveform wave)
     {
         m_waveform = static_cast<float>(wave);
@@ -67,14 +69,14 @@ class Phaseshaper
         m_period = m_sampleRate / m_freq;
     }
 
-    /// @brief Sets the modulation amount
+    /// @brief Sets the modulation amount. Can be modified at audio rate.
     /// @param mod Modulation amount, clamped between 0 and 1
     /// The modulation parameter is used differently depending on the waveform.
     /// For example, for Waveform::VARIABLE_SLOPE, the modulation parameter controls the width of the waveform.
     void SetMod(float mod);
 
     /// @brief Processes the oscillator
-    /// @return
+    /// @return The next sample
     float Process();
 
   private:

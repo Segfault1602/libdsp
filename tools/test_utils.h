@@ -6,7 +6,7 @@
 
 #include <sndfile.h>
 
-#include "dsp_base.h"
+#include "dsp_utils.h"
 
 bool LoadWavFile(const std::string& filename, std::unique_ptr<float[]>& buffer, size_t& buffer_size, SF_INFO& sf_info);
 

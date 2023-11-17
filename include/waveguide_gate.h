@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dsp_base.h"
+#include "dsp_utils.h"
 
 #include "delayline.h"
 #include "waveguide.h"
@@ -15,16 +15,33 @@ namespace sfdsp
 class WaveguideGate
 {
   public:
+    /// @brief Construct a WaveguideGate object
+    /// @param flip Whether or not the gate performs a 180° phase flip.
+    /// @param delay The delay of the gate, in samples, in relation to the waveguide.
+    /// @param coeff The reflection coefficient of the gate. 0 = no reflection, 1 = full reflection.
     WaveguideGate(bool flip, float delay, float coeff);
     ~WaveguideGate() = default;
 
+    /// @brief Set the delay of the gate, in samples, in relation to the waveguide.
+    /// @param delay The delay of the gate, in samples, in relation to the waveguide.
     void SetDelay(float delay);
+
+    /// @brief Returns the delay of the gate, in samples, in relation to the waveguide.
+    /// @return The delay of the gate, in samples, in relation to the waveguide.
     float GetDelay() const;
 
+    /// @brief Sets the reflection coefficient of the gate.
+    /// @param c The reflection coefficient of the gate. 0 = no reflection, 1 = full reflection.
     void SetCoeff(float c);
 
+    /// @brief Process the gate. The gate introduces a reflection point between the two delaylines at the specified
+    /// delay.
+    /// @param left_traveling_line  The left traveling waveguide.
+    /// @param right_traveling_line The right traveling waveguide.
     void Process(Delayline& left_traveling_line, Delayline& right_traveling_line);
 
+    /// @brief Process the gate. The gate introduces a reflection point in the waveguide at the specified delay.
+    /// @param wave The waveguide to process.
     void Process(Waveguide& wave);
 
   private:

@@ -3,7 +3,7 @@
 #include "gtest/gtest.h"
 
 #include "basic_oscillators.h"
-#include "dsp_base.h"
+#include "dsp_utils.h"
 #include "sin_table.h"
 
 #include <cmath>

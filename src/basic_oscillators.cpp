@@ -3,7 +3,7 @@
 #include <cmath>
 #include <cstdlib>
 
-#include "dsp_base.h"
+#include "dsp_utils.h"
 #include "sin_table.h"
 
 namespace

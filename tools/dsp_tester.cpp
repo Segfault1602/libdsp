@@ -1,7 +1,7 @@
 #include "dsp_tester.h"
 
 #include "basic_oscillators.h"
-#include "dsp_base.h"
+#include "dsp_utils.h"
 
 constexpr float CHORUS_BASE_DELAY = 20.f;
 

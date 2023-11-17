@@ -11,20 +11,20 @@
 #else
 #include "delayline_sinc.h"
 #endif
-#include "dsp_base.h"
+#include "dsp_utils.h"
 #include <cmath>
 
 namespace sfdsp
 {
 /// @brief Simple chorus effect.
-class Chorus : public DspBase
+class Chorus
 {
   public:
     /// @brief Constructor.
     /// @param max_delay_size Maximum delay size in samples.
     Chorus(size_t max_delay_size);
 
-    ~Chorus() override = default;
+    ~Chorus() = default;
     Chorus(const Chorus& c) = delete;
 
     /// @brief Initialize the chorus.
@@ -59,7 +59,7 @@ class Chorus : public DspBase
     /// @brief Tick the chorus.
     /// @param in audio sample
     /// @return The processed audio sample.
-    float Tick(float in) override;
+    float Tick(float in);
 
   private:
     uint32_t samplerate_ = 48000;

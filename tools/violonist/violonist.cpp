@@ -6,7 +6,7 @@
 #include <sndfile.h>
 
 #include "bowed_string.h"
-#include "dsp_base.h"
+#include "dsp_utils.h"
 
 #include "test_utils.h"
 
@@ -56,9 +56,9 @@ bool Run(TestConfig config)
     string.Init(stringConfig);
 
     string.SetFrequency(config.frequency);
-    string.SetForce(config.force);
-    string.SetBowPosition(config.pos);
-    string.SetVelocity(config.velocity);
+    string.SetParameter(sfdsp::BowedString::ParamId::Force, config.force);
+    string.SetParameter(sfdsp::BowedString::ParamId::BowPosition, config.pos);
+    string.SetParameter(sfdsp::BowedString::ParamId::Velocity, config.velocity);
 
     size_t out_size = kFrameCount;
     SF_INFO out_sf_info{0};
@@ -76,7 +76,8 @@ bool Run(TestConfig config)
     }
 
     char out_filename[128];
-    sprintf(out_filename, kOutputFilenameFormat, config.frequency, config.force, config.velocity, config.pos);
+    snprintf(out_filename, sizeof(out_filename), kOutputFilenameFormat, config.frequency, config.force, config.velocity,
+             config.pos);
     std::string filename = out_filename;
 
     return WriteWavFile(filename, out.get(), out_sf_info, out_size);

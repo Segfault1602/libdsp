@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <vector>
 
-#include <dsp_base.h>
+#include <dsp_utils.h>
 
 class Arpegiator
 {

@@ -4,7 +4,7 @@
 #include <numeric>
 
 #include "chorus.h"
-#include "dsp_base.h"
+#include "dsp_utils.h"
 #include "sinc_resampler.h"
 
 TEST(SincInterpolateTest, NoOp)

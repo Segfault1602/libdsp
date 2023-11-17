@@ -4,7 +4,7 @@
 
 #include <cmath>
 
-#include "dsp_base.h"
+#include "dsp_utils.h"
 #include "rms.h"
 
 class RMSTest : public ::testing::TestWithParam<float>

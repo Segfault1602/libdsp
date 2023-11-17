@@ -1,12 +1,6 @@
 #pragma once
 
-/// @file filter.h
-/// @brief Simple filters implementation. Differential equations where taken from here:
-/// https://ccrma.stanford.edu/~jos/filters/Elementary_Filter_Sections.html
-/// Implementation for a lot of these functions were also taken from the STK (Synthesis ToolKit) library:
-/// https://github.com/thestk/stk
-
-#include "dsp_base.h"
+#include "dsp_utils.h"
 
 #include <array>
 #include <cassert>
@@ -16,6 +10,9 @@
 namespace sfdsp
 {
 /// @brief Base class for filters
+/// @details Differential equations where taken from here:
+/// https://ccrma.stanford.edu/~jos/filters/Elementary_Filter_Sections.html Implementation for a lot of these functions
+/// were also taken from the STK (Synthesis ToolKit) library: https://github.com/thestk/stk
 class Filter
 {
     static constexpr size_t COEFFICIENT_COUNT = 3;
@@ -48,10 +45,18 @@ class Filter
     void SetB(const float (&b)[COEFFICIENT_COUNT]);
 
   protected:
+    /// @brief The gain applied to the input of the filter.
     float gain_ = 1.f;
+
+    /// @brief The 'b' coefficients of the filter.
     std::array<float, 3> b_ = {0.f, 0.f, 0.f};
+
+    /// @brief The 'a' coefficients of the filter.
     std::array<float, 3> a_ = {1.f, 0.f, 0.f};
+
+    /// @brief The previous outputs of the filter.
     std::array<float, 3> outputs_ = {0.f};
+    /// @brief The previous inputs of the filter.
     std::array<float, 3> inputs_ = {0.f};
 };
 
@@ -64,7 +69,6 @@ class OnePoleFilter : public Filter
 
     /// @brief Set the pole of the filter.
     /// @param pole The pole of the filter.
-    ///
     void SetPole(float pole);
 
     /// @brief Set the pole of the filter to obtain an exponential decay filter.
@@ -77,6 +81,9 @@ class OnePoleFilter : public Filter
     /// @param cutoff The cutoff frequency, normalized between 0 and 1.
     void SetLowpass(float cutoff);
 
+    /// @brief Input a sample in the filter and return the next output
+    /// @param in The input sample
+    /// @return The next output sample
     float Tick(float in) override;
 };
 
@@ -87,6 +94,9 @@ class OneZeroFilter : public Filter
     OneZeroFilter() = default;
     ~OneZeroFilter() override = default;
 
+    /// @brief Input a sample in the filter and return the next output
+    /// @param in The input sample
+    /// @return The next output sample
     float Tick(float in) override;
 };
 
@@ -97,16 +107,22 @@ class TwoPoleFilter : public Filter
     TwoPoleFilter() = default;
     ~TwoPoleFilter() override = default;
 
+    /// @brief Input a sample in the filter and return the next output
+    /// @param in The input sample
+    /// @return The next output sample
     float Tick(float in) override;
 };
 
-/// @brief Implements a simple two zero filter with differential equation y(n) = b0*x(n) + b1*x(n-1) + b2*x(n-2)
+/// @brief Implements a simple two zero filter with differential equation \f$ y(n) = b0*x(n) + b1*x(n-1) + b2*x(n-2) \f$
 class TwoZeroFilter : public Filter
 {
   public:
     TwoZeroFilter() = default;
     ~TwoZeroFilter() override = default;
 
+    /// @brief Input a sample in the filter and return the next output
+    /// @param in The input sample
+    /// @return The next output sample
     float Tick(float in) override;
 };
 
@@ -118,8 +134,17 @@ class Biquad : public Filter
     Biquad() = default;
     ~Biquad() override = default;
 
+    /// @brief Set the biquad coefficients.
+    /// @param b0 the b[0] coefficient
+    /// @param b1 the b[1] coefficient
+    /// @param b2 the b[2] coefficient
+    /// @param a1 the a[1] coefficient
+    /// @param a2 the a[2] coefficient
     void SetCoefficients(float b0, float b1, float b2, float a1, float a2);
 
+    /// @brief Input a sample in the filter and return the next output
+    /// @param in The input sample
+    /// @return The next output sample
     float Tick(float in) override;
 };
 } // namespace sfdsp

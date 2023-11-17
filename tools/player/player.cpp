@@ -8,7 +8,7 @@
 #include <sndfile.h>
 
 #include "bowed_string.h"
-#include "dsp_base.h"
+#include "dsp_utils.h"
 #include "gamepad.h"
 #include "line.h"
 #include "midi_controller.h"
@@ -189,7 +189,7 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
                 audio_context->note_on = true;
 
                 float velocity = static_cast<float>(message.byte2) / 127.f;
-                g_bowed_string->SetVelocity(velocity);
+                g_bowed_string->SetParameter(sfdsp::BowedString::ParamId::Velocity, velocity);
                 break;
             }
             case MidiType::ControllerChange:
@@ -197,17 +197,17 @@ int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBu
                 float normalized_value = static_cast<float>(message.byte2) / 127.f;
                 if (message.byte1 == 0x05)
                 {
-                    g_bowed_string->SetVelocity(normalized_value);
+                    g_bowed_string->SetParameter(sfdsp::BowedString::ParamId::Velocity, normalized_value);
                 }
                 else if (message.byte1 == 0x23)
                 {
-                    g_bowed_string->SetForce(normalized_value);
+                    g_bowed_string->SetParameter(sfdsp::BowedString::ParamId::Force, normalized_value);
                 }
             }
             case MidiType::ChannelAftertouch:
             {
                 float normalized_value = static_cast<float>(message.byte1) / 127.f;
-                g_bowed_string->SetForce(normalized_value);
+                g_bowed_string->SetParameter(sfdsp::BowedString::ParamId::Force, normalized_value);
                 break;
             }
             case MidiType::PitchBend:

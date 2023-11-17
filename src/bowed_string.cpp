@@ -12,8 +12,8 @@ namespace sfdsp
 static constexpr float kMaxBridgeFilterCutoff = 0.10f;
 static constexpr float kBridgeFilterCutoffOffset = 0.025f;
 
-constexpr static float max_velocity_ = 0.2f;
-constexpr static float velocity_offset_ = 0.03f;
+static constexpr float max_velocity_ = 0.2f;
+static constexpr float velocity_offset_ = 0.03f;
 
 BowedString::BowedString(size_t max_size) : waveguide_(max_size, InterpolationType::Linear), gate_(true, 0.f, 1.f)
 {
@@ -74,71 +74,6 @@ float BowedString::GetFrequency() const
     return freq_;
 }
 
-float BowedString::GetVelocity() const
-{
-    return (velocity_.GetTarget() - velocity_offset_) / max_velocity_;
-}
-
-void BowedString::SetVelocity(float v)
-{
-    v = std::clamp(v, -1.f, 1.f);
-    velocity_.SetTarget(velocity_offset_ + max_velocity_ * v);
-}
-
-void BowedString::SetForce(float f)
-{
-    if (f > 0.01f)
-    {
-        SetNoteOn(true);
-    }
-    else
-    {
-        SetNoteOn(false);
-    }
-
-    bow_force_.SetTarget(f);
-}
-
-float BowedString::GetForce() const
-{
-    return bow_force_.GetTarget();
-}
-
-void BowedString::SetBowPosition(float pos)
-{
-    relative_bow_position_ = pos;
-
-    // The gate delay is where the 'finger' is. We want the bow position to be relative to that.
-    float bow_pos = gate_delay_.GetTarget() * relative_bow_position_;
-
-    if (bow_pos <= 1.f)
-    {
-        bow_pos += 1.f;
-    }
-    else if (bow_pos > gate_delay_.GetTarget() - 2.f)
-    {
-        bow_pos = gate_delay_.GetTarget() - 2.f;
-    }
-
-    assert(bow_pos > 0);
-    bow_position_ = std::ceil(bow_pos);
-}
-
-float BowedString::GetBowPosition() const
-{
-    return relative_bow_position_;
-}
-
-void BowedString::SetNoteOn(bool note_on)
-{
-    note_on_ = note_on;
-}
-
-bool BowedString::GetNoteOn() const
-{
-    return note_on_;
-}
-
 void BowedString::Pluck()
 {
     float L = gate_.GetDelay();
@@ -192,12 +127,6 @@ float BowedString::Tick(float input)
     return bridge;
 }
 
-void BowedString::SetFingerPressure(float pressure)
-{
-    pressure = std::clamp(pressure, 0.f, 1.f);
-    gate_.SetCoeff(pressure);
-}
-
 void BowedString::SetParameter(ParamId param_id, float value)
 {
     assert(value >= 0.f && value <= 1.f);
@@ -213,7 +142,7 @@ void BowedString::SetParameter(ParamId param_id, float value)
         SetBowPosition(value);
         break;
     case ParamId::FingerPressure:
-        SetFingerPressure(value);
+        gate_.SetCoeff(value);
         break;
     case ParamId::NutGain:
         value = 0.90f + value * 0.10f;
@@ -224,12 +153,44 @@ void BowedString::SetParameter(ParamId param_id, float value)
         reflection_filter_.SetLowpass(value);
         break;
     case ParamId::TuningAdjustment:
-        value = value * 2.f - 1.f;
-        value *= 10.f;
+        value = value * 10.f - 5.f;
         tuning_adjustment_ = value;
         SetFrequency(freq_);
         break;
     }
+}
+
+void BowedString::SetVelocity(float v)
+{
+    v = std::clamp(v, -1.f, 1.f);
+    velocity_.SetTarget(velocity_offset_ + max_velocity_ * v);
+}
+
+void BowedString::SetForce(float f)
+{
+    note_on_ = f > 0.01f;
+
+    bow_force_.SetTarget(f);
+}
+
+void BowedString::SetBowPosition(float pos)
+{
+    relative_bow_position_ = pos;
+
+    // The gate delay is where the 'finger' is. We want the bow position to be relative to that.
+    float bow_pos = gate_delay_.GetTarget() * relative_bow_position_;
+
+    if (bow_pos <= 1.f)
+    {
+        bow_pos += 1.f;
+    }
+    else if (bow_pos > gate_delay_.GetTarget() - 2.f)
+    {
+        bow_pos = gate_delay_.GetTarget() - 2.f;
+    }
+
+    assert(bow_pos > 0);
+    bow_position_ = std::ceil(bow_pos);
 }
 
 } // namespace sfdsp

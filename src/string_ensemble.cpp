@@ -31,19 +31,6 @@ void StringEnsemble::Init(float samplerate, const std::array<float, kStringCount
     body_filters_[5].SetGain(0.1248f);
 }
 
-void StringEnsemble::TuneStrings(uint8_t string_number, float frequencies)
-{
-    assert(string_number < kStringCount);
-    strings_[string_number].SetFrequency(frequencies);
-}
-
-void StringEnsemble::FingerOff(uint8_t string_number)
-{
-    assert(string_number < kStringCount);
-
-    strings_[string_number].SetFrequency(openTuning_[string_number]);
-}
-
 void StringEnsemble::SetBridgeTransmission(float t)
 {
     assert(t >= 0.f && t <= 1.f);

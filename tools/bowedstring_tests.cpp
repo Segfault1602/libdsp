@@ -11,9 +11,8 @@ void SimpleBowedString::Init(size_t samplerate)
 
     string_.Init(config);
     string_.SetFrequency(220.f);
-    string_.SetForce(0.5f);
-    string_.SetVelocity(1.f);
-    string_.SetNoteOn(true);
+    string_.SetParameter(sfdsp::BowedString::ParamId::Force, 0.5f);
+    string_.SetParameter(sfdsp::BowedString::ParamId::Velocity, 1.f);
 
     name_ = "bowedstring.wav";
 }
@@ -48,9 +47,8 @@ void CrescendoBowedStringTester::Init(size_t samplerate)
 
     string_.Init(config);
     string_.SetFrequency(440.f);
-    string_.SetForce(0.f);
-    string_.SetVelocity(0.f);
-    string_.SetNoteOn(true);
+    string_.SetParameter(sfdsp::BowedString::ParamId::Force, 0.f);
+    string_.SetParameter(sfdsp::BowedString::ParamId::Velocity, 0.f);
 
     name_ = "crescendo_bowedstring.wav";
 }
@@ -67,8 +65,8 @@ float CrescendoBowedStringTester::Tick()
     current_force_ = current_velocity_;
 
     ++current_frame_;
-    string_.SetVelocity(current_velocity_);
-    string_.SetForce(current_force_);
+    string_.SetParameter(sfdsp::BowedString::ParamId::Velocity, current_velocity_);
+    string_.SetParameter(sfdsp::BowedString::ParamId::Force, current_force_);
     float bridge = string_.NextOut();
     return string_.Tick(bridge);
 }
@@ -88,9 +86,8 @@ void OscVelocityBowedStringTester::Init(size_t samplerate)
 
     string_.Init(config);
     string_.SetFrequency(440.f);
-    string_.SetForce(0.f);
-    string_.SetVelocity(0.f);
-    string_.SetNoteOn(true);
+    string_.SetParameter(sfdsp::BowedString::ParamId::Force, 0.f);
+    string_.SetParameter(sfdsp::BowedString::ParamId::Velocity, 0.f);
 
     name_ = "bowedstring_oscvelocity.wav";
 }
@@ -105,8 +102,8 @@ float OscVelocityBowedStringTester::Tick()
         phase_ -= 1.f;
     }
 
-    string_.SetVelocity(param);
-    string_.SetForce(param);
+    string_.SetParameter(sfdsp::BowedString::ParamId::Velocity, param);
+    string_.SetParameter(sfdsp::BowedString::ParamId::Force, param);
 
     float bridge = string_.NextOut();
     return string_.Tick(bridge);
@@ -132,9 +129,8 @@ void PitchSlideBowedStringTester::Init(size_t samplerate)
 
     string_.Init(config);
     string_.SetFrequency(sfdsp::FastMidiToFreq(kStartNote));
-    string_.SetForce(0.5f);
-    string_.SetVelocity(0.5f);
-    string_.SetNoteOn(true);
+    string_.SetParameter(sfdsp::BowedString::ParamId::Force, 0.5f);
+    string_.SetParameter(sfdsp::BowedString::ParamId::Velocity, 0.5f);
 
     current_frame_ = 0;
     name_ = "bowedstring_pitchslide.wav";
@@ -172,9 +168,8 @@ void VibratoBowedStringTester::Init(size_t samplerate)
 
     string_.Init(config);
     string_.SetFrequency(kFrequency);
-    string_.SetForce(0.5f);
-    string_.SetVelocity(0.5f);
-    string_.SetNoteOn(true);
+    string_.SetParameter(sfdsp::BowedString::ParamId::Force, 0.5f);
+    string_.SetParameter(sfdsp::BowedString::ParamId::Velocity, 0.5f);
 
     name_ = "bowedstring_vibrato.wav";
 }
@@ -214,9 +209,8 @@ void ScaleBowedStringTester::Init(size_t samplerate)
 
     string_.Init(config);
     string_.SetFrequency(sfdsp::midi_to_freq[static_cast<size_t>(arp_.Next())]);
-    string_.SetForce(0.5f);
-    string_.SetVelocity(0.5f);
-    string_.SetNoteOn(true);
+    string_.SetParameter(sfdsp::BowedString::ParamId::Force, 0.5f);
+    string_.SetParameter(sfdsp::BowedString::ParamId::Velocity, 0.5f);
 
     name_ = "bowedstring_scale.wav";
 }
@@ -232,7 +226,7 @@ float ScaleBowedStringTester::Tick()
         vel_phase_ -= 1.f;
     }
 
-    string_.SetVelocity(vel_param);
+    string_.SetParameter(sfdsp::BowedString::ParamId::Velocity, vel_param);
 
     float vibrato = (sfdsp::Sine(vib_phase_) * kVibratoDepth);
     vib_phase_ += vib_phase_dt_;
@@ -269,10 +263,9 @@ void FingerPressBowedStringTester::Init(size_t samplerate)
 
     string_.Init(config);
     string_.SetFrequency(440.f);
-    string_.SetForce(0.8f);
-    string_.SetVelocity(0.7f);
-    string_.SetNoteOn(true);
-    string_.SetFingerPressure(0.f);
+    string_.SetParameter(sfdsp::BowedString::ParamId::Force, 0.8f);
+    string_.SetParameter(sfdsp::BowedString::ParamId::Velocity, 0.7f);
+    string_.SetParameter(sfdsp::BowedString::ParamId::FingerPressure, 0.f);
 
     constexpr size_t press_time_ms = 10;
     const size_t press_time_sample = press_time_ms * samplerate / 1000;
@@ -288,14 +281,14 @@ float FingerPressBowedStringTester::Tick()
 
     if (current_frame_ > samplerate_)
     {
-        string_.SetFingerPressure(pressure_.Tick());
+        string_.SetParameter(sfdsp::BowedString::ParamId::FingerPressure, pressure_.Tick());
     }
 
     if (current_frame_ == samplerate_ * 2)
     {
         constexpr size_t depress_time = 1;
         pressure_ = sfdsp::Line(0.2f, 0.f, depress_time);
-        string_.SetBowPosition(0.30f);
+        string_.SetParameter(sfdsp::BowedString::ParamId::BowPosition, 0.30f);
     }
 
     float bridge = string_.NextOut();

@@ -3,7 +3,7 @@
 #include <cstddef>
 
 #include "delayline.h"
-#include "dsp_base.h"
+#include "dsp_utils.h"
 #include "interpolation_strategy.h"
 #include "junction.h"
 
@@ -76,8 +76,12 @@ class Waveguide
 
     /// @brief Subscript operator to access the delaylines.
     /// @param index 0 is the right traveling wave, 1 is the left traveling wave.
-    /// @return
+    /// @return A reference to the delayline.
     const Delayline& operator[](size_t index) const;
+
+    /// @brief Subscript operator to access the delaylines.
+    /// @param index 0 is the right traveling wave, 1 is the left traveling wave.
+    /// @return A reference to the delayline.
     Delayline& operator[](size_t index);
 
   private:

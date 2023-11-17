@@ -7,7 +7,7 @@ void SmoothParam::Init(size_t samplerate, SmoothingType type, float value)
     type_ = type;
     value_ = value;
 
-    constexpr float kDecayDb = -24.f;
+    constexpr float kDecayDb = -12.f;
     constexpr float kDecayTimeMs = 10.f;
     smoothing_filter_.SetDecayFilter(kDecayDb, kDecayTimeMs, samplerate);
 }

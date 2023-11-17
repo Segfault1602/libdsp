@@ -14,7 +14,7 @@
 #include "bowed_string.h"
 #include "bowedstring_tests.h"
 #include "chorus.h"
-#include "dsp_base.h"
+#include "dsp_utils.h"
 #include "dsp_tester.h"
 #include "phaseshapers_tests.h"
 #include "test_utils.h"

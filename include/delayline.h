@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <memory>
 
-#include "dsp_base.h"
+#include "dsp_utils.h"
 #include "interpolation_strategy.h"
 
 namespace sfdsp
@@ -45,15 +45,15 @@ class Delayline
     /// @return The sample that was last returned by Tick().
     float LastOut() const;
 
-    /// @brief  Tick the delayline.
+    /// @brief  Adds a sample to the delayline and returns the next sample.
     /// @param input Input sample
     /// @return Output sample
     float Tick(float input);
 
     /// @brief  Read a sample from the delayline at a specific delay using a specific interpolation strategy.
     /// @param delay Delay in samples
-    /// @param interpolation_strategy The interpolation strategy to use. If nullptr, the default interpolation strategy
-    /// is Linear.
+    /// @param interpolation_strategy The interpolation strategy to use. If nullptr, a linear interpolation strategy
+    /// is used.
     /// @return The sample at the specified delay.
     float TapOut(float delay, InterpolationStrategy* interpolation_strategy = nullptr);
 
@@ -69,10 +69,19 @@ class Delayline
     /// @param input Input sample
     void SetIn(float delay, float input);
 
+    /// @brief Array subscript operator. Allows access to the delayline as if it was an array.
+    /// @details Only supports integer indices. Index 0 is the most recent sample.
+    /// @param index The index of the sample to access.
+    /// @return The sample at the specified index.
     float& operator[](size_t index) const;
+
+    /// @brief Array subscript operator. Allows access to the delayline as if it was an array.
+    /// @details Only supports integer indices. Index 0 is the most recent sample.
+    /// @param index The index of the sample to access.
+    /// @return The sample at the specified index.
     float& operator[](size_t index);
 
-  protected:
+  private:
     const size_t max_size_ = 0;
     const bool reverse_ = false;
 

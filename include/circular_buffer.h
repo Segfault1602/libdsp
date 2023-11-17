@@ -1,11 +1,8 @@
-// =============================================================================
-// circular_buffer.h -- Simple circular buffer
-// =============================================================================
 #pragma once
 
 #include <array>
 
-#include "dsp_base.h"
+#include "dsp_utils.h"
 
 namespace sfdsp
 {

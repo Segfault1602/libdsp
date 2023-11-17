@@ -1,7 +1,25 @@
-// =============================================================================
-// dsp_base.h
-// =============================================================================
 #pragma once
+
+/// @mainpage LibDSP
+/// C++ audio dsp library with no external dependencies.
+/// @section build Building
+/// The library use CMake and can probably be built in multiple of ways, but here's how I build it:
+/// ```
+/// > cmake -GNinja -Bbuild
+/// > cmake --build ./build
+/// ```
+/// A toolchain file for cross compiling libDSP for the Daisy platform. This assumes that you
+/// already have the [Daisy Toolchain
+/// installed](https://github.com/electro-smith/DaisyWiki/wiki/1.-Setting-Up-Your-Development-Environment).
+/// ```
+/// > cmake -GNinja -Bdaisy -DCMAKE_TOOLCHAIN_FILE=cmake/daisy.cmake
+/// > cmake --build ./daisy
+/// ```
+/// @section note_waveguide A note on waveguides
+/// The waveguide nomenclature used in this library is based on the common depiction of a waveguide
+/// in the litterature with a delay line on top containing the right-going wave and a delay line on
+/// the bottom containing the left-going wave. This nomenclature does not affect in any way the
+/// implementation of the waveguide, it's just a way to make documentation easier to understand.
 
 #ifndef PI_F
 #define PI_F 3.14159265358979323846f
@@ -11,21 +29,6 @@
 
 namespace sfdsp
 {
-class DspBase
-{
-  public:
-    DspBase()
-    {
-    }
-    virtual ~DspBase()
-    {
-    }
-
-    /// @brief Tick the DSP object.
-    /// @param in Input sample
-    /// @return Output sample
-    virtual float Tick(float in) = 0;
-};
 
 /// @brief Convert midi note to frequency.
 /// @param midi_note The midi note number. Valid range is 0 to 127.

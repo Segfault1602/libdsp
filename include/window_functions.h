@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-#include "dsp_base.h"
+#include "dsp_utils.h"
 
 namespace sfdsp
 {

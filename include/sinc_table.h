@@ -6,9 +6,16 @@
 
 #include <stdint.h>
 
+/// @brief Number of zero crossing in the sinc table.
 constexpr size_t SINC_ZERO_COUNT = 32;
+
+/// @brief Number of samples per zero crossing in the sinc table.
 constexpr size_t SAMPLES_PER_CROSSING = 512;
+
+/// @brief Total size of the sinc table.
 constexpr size_t sinc_table_size = 16384;
+
+/// @brief Lookup table including one side of a windowed sinc function.
 const float sinc_table[16385] = {
     1.0f,
     0.9999937074173879f,
