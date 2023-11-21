@@ -1,5 +1,6 @@
 #include "basic_oscillators.h"
 
+#include <cassert>
 #include <cmath>
 #include <cstdlib>
 
@@ -35,6 +36,62 @@ float Sine(float phase)
     return sin_lut[idx0] + frac * (sin_lut[idx0 + 1] - sin_lut[idx0]);
 }
 
+float Sine(float phase, float phase_increment, float* out, size_t size)
+{
+    size_t write_ptr = 0;
+    size_t block_count = size / 4;
+    for (size_t i = 0; i < block_count; ++i)
+    {
+        float phase1 = phase;
+        phase += phase_increment;
+        float phase2 = phase;
+        phase += phase_increment;
+        float phase3 = phase;
+        phase += phase_increment;
+        float phase4 = phase;
+        phase += phase_increment;
+
+        phase1 = std::fmod(phase1, 1.f);
+        phase2 = std::fmod(phase2, 1.f);
+        phase3 = std::fmod(phase3, 1.f);
+        phase4 = std::fmod(phase4, 1.f);
+
+        float idx1 = phase1 * SIN_LUT_SIZE;
+        float idx2 = phase2 * SIN_LUT_SIZE;
+        float idx3 = phase3 * SIN_LUT_SIZE;
+        float idx4 = phase4 * SIN_LUT_SIZE;
+
+        auto idxint_1 = static_cast<size_t>(idx1);
+        auto idxint_2 = static_cast<size_t>(idx2);
+        auto idxint_3 = static_cast<size_t>(idx3);
+        auto idxint_4 = static_cast<size_t>(idx4);
+
+        auto frac_1 = idx1 - static_cast<float>(idxint_1);
+        auto frac_2 = idx2 - static_cast<float>(idxint_2);
+        auto frac_3 = idx3 - static_cast<float>(idxint_3);
+        auto frac_4 = idx4 - static_cast<float>(idxint_4);
+
+        out[write_ptr] = sin_lut[idxint_1] + frac_1 * (sin_lut[idxint_1 + 1] - sin_lut[idxint_1]);
+        out[write_ptr + 1] = sin_lut[idxint_2] + frac_2 * (sin_lut[idxint_2 + 1] - sin_lut[idxint_2]);
+        out[write_ptr + 2] = sin_lut[idxint_3] + frac_3 * (sin_lut[idxint_3 + 1] - sin_lut[idxint_3]);
+        out[write_ptr + 3] = sin_lut[idxint_4] + frac_4 * (sin_lut[idxint_4 + 1] - sin_lut[idxint_4]);
+
+        write_ptr += 4;
+    }
+
+    // if size is not a multiple of 4, process the remaining samples
+    block_count = size % 4;
+    for (size_t i = 0; i < block_count; ++i)
+    {
+        out[write_ptr] = Sine(phase);
+        phase += phase_increment;
+        phase = std::fmod(phase, 1.f);
+        write_ptr += 1;
+    }
+
+    return phase;
+}
+
 float Tri(float phase)
 {
     phase = std::fmod(phase, 1.f);
@@ -59,6 +116,112 @@ float Square(float phase)
 float Noise()
 {
     return Fast_RandFloat();
+}
+
+void BasicOscillator::Init(float samplerate, float freq, OscillatorType type)
+{
+    samplerate_ = samplerate;
+    SetFrequency(freq);
+    SetType(type);
+}
+
+void BasicOscillator::SetType(OscillatorType type)
+{
+    type_ = type;
+}
+
+OscillatorType BasicOscillator::GetType() const
+{
+    return type_;
+}
+
+void BasicOscillator::SetFrequency(float frequency)
+{
+    frequency_ = frequency;
+    phase_increment_ = frequency_ / samplerate_;
+}
+
+float BasicOscillator::GetFrequency() const
+{
+    return frequency_;
+}
+
+void BasicOscillator::SetPhase(float phase)
+{
+    phase_ = phase;
+}
+
+float BasicOscillator::GetPhase() const
+{
+    return phase_;
+}
+
+float BasicOscillator::Tick()
+{
+    float out = 0.f;
+    switch (type_)
+    {
+    case OscillatorType::Sine:
+        out = Sine(phase_);
+        break;
+    case OscillatorType::Tri:
+        out = Tri(phase_);
+        break;
+    case OscillatorType::Saw:
+        out = Saw(phase_);
+        break;
+    case OscillatorType::Square:
+        out = Square(phase_);
+        break;
+    default:
+        assert(false);
+        out = Sine(phase_);
+        break;
+    }
+
+    phase_ += phase_increment_;
+    phase_ = std::fmod(phase_, 1.f);
+
+    return out;
+}
+
+void BasicOscillator::ProcessBlock(float* out, size_t size)
+{
+    switch (type_)
+    {
+    case OscillatorType::Sine:
+        phase_ = Sine(phase_, phase_increment_, out, size);
+        phase_ = std::fmod(phase_, 1.f);
+        break;
+    case OscillatorType::Tri:
+        for (size_t i = 0; i < size; ++i)
+        {
+            out[i] = Tri(phase_);
+            phase_ += phase_increment_;
+            phase_ = std::fmod(phase_, 1.f);
+        }
+        break;
+    case OscillatorType::Saw:
+        for (size_t i = 0; i < size; ++i)
+        {
+            out[i] = Saw(phase_);
+            phase_ += phase_increment_;
+            phase_ = std::fmod(phase_, 1.f);
+        }
+        break;
+    case OscillatorType::Square:
+        for (size_t i = 0; i < size; ++i)
+        {
+            out[i] = Square(phase_);
+            phase_ += phase_increment_;
+            phase_ = std::fmod(phase_, 1.f);
+        }
+        break;
+    default:
+        assert(false);
+        phase_ = Sine(phase_, phase_increment_, out, size);
+        break;
+    }
 }
 
 } // namespace sfdsp

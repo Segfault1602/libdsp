@@ -50,7 +50,7 @@ bool Run(TestConfig config)
 {
     sfdsp::BowedStringConfig stringConfig = sfdsp::kDefaultStringConfig;
     stringConfig.samplerate = static_cast<float>(kSampleRate);
-    stringConfig.open_string_tuning = 220.f;
+    stringConfig.open_string_tuning = 190.f;
 
     sfdsp::BowedString string;
     string.Init(stringConfig);
@@ -72,7 +72,8 @@ bool Run(TestConfig config)
 
     for (size_t i = 0; i < kSampleRate; ++i)
     {
-        out[i] = string.Tick(true);
+        float bridge = string.NextOut();
+        out[i] = string.Tick(bridge);
     }
 
     char out_filename[128];

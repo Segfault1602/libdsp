@@ -14,7 +14,7 @@
             "cwd": "${fileDirname}",
             "environment": [],
             "console": "externalTerminal"
-        }
+        },
         {
             "name": "plot_waveform.py",
             "type": "python",
@@ -70,7 +70,8 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/tests/libdsp_tests",
             "args": [
-                "--gtest_filter=ScatterTests/ScatterTest*"
+                "--gtest_filter=BasicOscillatorsTest.*",
+                "--gtest_break_on_failure"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
@@ -122,7 +123,7 @@
             "cwd": "${fileDirname}",
             "environment": [],
             "console": "externalTerminal"
-        }
+        },
         {
             "name": "(lldb) effect_player",
             "type": "cppdbg",
