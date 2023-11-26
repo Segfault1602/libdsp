@@ -322,21 +322,6 @@ TEST(WaveguideGatesTest, MovingGate)
     }
 }
 
-bool WriteWavFile(std::string filename, const float* buffer, SF_INFO sf_info, size_t frames)
-{
-    SNDFILE* out_file = sf_open(filename.c_str(), SFM_WRITE, &sf_info);
-    if (out_file == nullptr)
-    {
-        printf("Error: %s\n", sf_strerror(out_file));
-        return false;
-    }
-
-    sf_writef_float(out_file, buffer, static_cast<sf_count_t>(frames));
-    sf_write_sync(out_file); // Is this needed?
-    sf_close(out_file);
-    return true;
-}
-
 TEST(DISABLED_WaveguideGatesTest, SineWave)
 {
     constexpr size_t kDelaySize = 21;

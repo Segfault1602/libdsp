@@ -10,7 +10,9 @@ set(CMAKE_OSX_DEPLOYMENT_TARGET "13")
 
 set(CLANG_COMPILER_OPTION ${CLANG_COMPILER_OPTION} -Wall -Wpedantic -Werror)
 set(MSVC_COMPILER_OPTION /W4 /analyze)
-set(GCC_COMPILER_OPTION ${CLANG_COMPILER_OPTION})
+set(GCC_COMPILER_OPTION -Wall -Wpedantic)
+
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fsave-optimization-record")
 
 include_directories(include)
 
@@ -20,12 +22,12 @@ option(LIBDSP_LIB_ONLY "Only build libdsp static library" OFF)
 option(LIBDSP_BUILD_TESTS "Build libdsp tests" ON)
 
 if(LIBDSP_BUILD_TESTS)
-  add_subdirectory(tests)
-  set(gtest_force_shared_crt
-      ON
-      CACHE BOOL "" FORCE)
-  add_subdirectory(externals/googletest)
-  endif()
+    enable_testing()
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    add_subdirectory(externals/googletest)
+    include(GoogleTest)
+    add_subdirectory(tests)
+endif()
 
 if (NOT LIBDSP_LIB_ONLY OR LIBDSP_BUILD_TESTS)
     set(BUILD_PROGRAMS

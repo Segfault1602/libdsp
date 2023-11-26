@@ -51,25 +51,21 @@ float Sine(float phase, float phase_increment, float* out, size_t size)
         float phase4 = phase;
         phase += phase_increment;
 
-        phase1 = std::fmod(phase1, 1.f);
-        phase2 = std::fmod(phase2, 1.f);
-        phase3 = std::fmod(phase3, 1.f);
-        phase4 = std::fmod(phase4, 1.f);
-
         float idx1 = phase1 * SIN_LUT_SIZE;
         float idx2 = phase2 * SIN_LUT_SIZE;
         float idx3 = phase3 * SIN_LUT_SIZE;
         float idx4 = phase4 * SIN_LUT_SIZE;
 
-        auto idxint_1 = static_cast<size_t>(idx1);
-        auto idxint_2 = static_cast<size_t>(idx2);
-        auto idxint_3 = static_cast<size_t>(idx3);
-        auto idxint_4 = static_cast<size_t>(idx4);
+        static_assert(SIN_LUT_SIZE == 0x1FF + 1);
+        auto idxint_1 = static_cast<size_t>(idx1) & 0x1FF;
+        auto idxint_2 = static_cast<size_t>(idx2) & 0x1FF;
+        auto idxint_3 = static_cast<size_t>(idx3) & 0x1FF;
+        auto idxint_4 = static_cast<size_t>(idx4) & 0x1FF;
 
-        auto frac_1 = idx1 - static_cast<float>(idxint_1);
-        auto frac_2 = idx2 - static_cast<float>(idxint_2);
-        auto frac_3 = idx3 - static_cast<float>(idxint_3);
-        auto frac_4 = idx4 - static_cast<float>(idxint_4);
+        auto frac_1 = idx1 - static_cast<size_t>(idx1);
+        auto frac_2 = idx2 - static_cast<size_t>(idx2);
+        auto frac_3 = idx3 - static_cast<size_t>(idx3);
+        auto frac_4 = idx4 - static_cast<size_t>(idx4);
 
         out[write_ptr] = sin_lut[idxint_1] + frac_1 * (sin_lut[idxint_1 + 1] - sin_lut[idxint_1]);
         out[write_ptr + 1] = sin_lut[idxint_2] + frac_2 * (sin_lut[idxint_2 + 1] - sin_lut[idxint_2]);
@@ -85,7 +81,6 @@ float Sine(float phase, float phase_increment, float* out, size_t size)
     {
         out[write_ptr] = Sine(phase);
         phase += phase_increment;
-        phase = std::fmod(phase, 1.f);
         write_ptr += 1;
     }
 
@@ -95,12 +90,21 @@ float Sine(float phase, float phase_increment, float* out, size_t size)
 float Tri(float phase)
 {
     phase = std::fmod(phase, 1.f);
-    if (phase < 0.5f)
+    float t = -1.0f + (2.0f * phase);
+    return 2.0f * (fabsf(t) - 0.5f);
+}
+
+float Tri(float phase, float phase_increment, float* out, size_t size)
+{
+    for (size_t i = 0; i < size; ++i)
     {
-        return 2.f * phase - 1.f;
+        phase = std::fmod(phase, 1.f);
+        const float t = -1.0f + (2.0f * phase);
+        out[i] = 2.0f * (fabsf(t) - 0.5f);
+        phase += phase_increment;
     }
 
-    return 2.f - 2.f * phase - 1.f;
+    return phase;
 }
 
 float Saw(float phase)
@@ -194,12 +198,8 @@ void BasicOscillator::ProcessBlock(float* out, size_t size)
         phase_ = std::fmod(phase_, 1.f);
         break;
     case OscillatorType::Tri:
-        for (size_t i = 0; i < size; ++i)
-        {
-            out[i] = Tri(phase_);
-            phase_ += phase_increment_;
-            phase_ = std::fmod(phase_, 1.f);
-        }
+        phase_ = Tri(phase_, phase_increment_, out, size);
+        phase_ = std::fmod(phase_, 1.f);
         break;
     case OscillatorType::Saw:
         for (size_t i = 0; i < size; ++i)
