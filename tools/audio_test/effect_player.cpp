@@ -17,8 +17,8 @@
 #include "dsp_tester.h"
 #include "dsp_utils.h"
 #include "phaseshapers_tests.h"
-#include "test_utils.h"
 #include "tests_list.h"
+#include "tool_utils.h"
 
 int RtOutputCallback(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBufferFrames, double /*streamTime*/,
                      RtAudioStreamStatus /*status*/, void* data);

@@ -12,8 +12,6 @@ set(CLANG_COMPILER_OPTION ${CLANG_COMPILER_OPTION} -Wall -Wpedantic -Werror)
 set(MSVC_COMPILER_OPTION /W4 /analyze)
 set(GCC_COMPILER_OPTION -Wall -Wpedantic)
 
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fsave-optimization-record")
-
 include_directories(include)
 
 add_subdirectory(src)

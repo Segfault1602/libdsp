@@ -19,7 +19,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
   target_compile_options(libdsp_tests PRIVATE ${MSVC_COMPILER_OPTION})
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    MESSAGE("GNU")
   target_compile_options(libdsp_tests PRIVATE ${GCC_COMPILER_OPTION})
 endif()
 

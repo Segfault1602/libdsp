@@ -8,7 +8,7 @@
 #include "bowed_string.h"
 #include "dsp_utils.h"
 
-#include "test_utils.h"
+#include "tool_utils.h"
 
 constexpr size_t kSampleRate = 96000;
 constexpr size_t kFrameCount = kSampleRate;

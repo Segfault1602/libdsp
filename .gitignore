@@ -47,3 +47,4 @@ _deps
 build/
 tmp_wav/
 **.wav
+.DS_STORE
