@@ -41,4 +41,4 @@ jobs:
 
     - name: Run Tests
       # Run your program's tests
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target test
+      run: ctest --test-dir ${{github.workspace}}/build
