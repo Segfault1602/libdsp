@@ -24,4 +24,4 @@ endif()
 
 
 # add_test(NAME tests COMMAND tests WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..)
-gtest_discover_tests(tests WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..)
+gtest_discover_tests(tests WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/.. XML_OUTPUT_DIR ${PROJECT_SOURCE_DIR}/test_results)

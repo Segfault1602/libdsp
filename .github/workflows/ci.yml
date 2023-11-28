@@ -40,5 +40,41 @@ jobs:
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
     - name: Run Tests
+      if: ${{env.BUILD_TYPE}} == "Release"
       # Run your program's tests
       run: ctest --test-dir ${{github.workspace}}/build
+
+    - name: Upload Test Results
+      if: ${{env.BUILD_TYPE}} == "Release"
+      uses: actions/upload-artifact@v3
+      with:
+        name: Test Results (GTest ${{ matrix.os }})
+        path: ${{github.workspace}}/test_results/**.xml
+
+  publish-test-results:
+    name: "Publish Tests Results"
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+        checks: write
+
+        # only needed unless run with comment_mode: off
+        pull-requests: write
+
+        # only needed for private repository
+        contents: read
+
+        # only needed for private repository
+        issues: read
+    if: always()
+
+    steps:
+    - name: Download Artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: artifacts
+
+    - name: Publish Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      with:
+        files: "artifacts/**/*.xml"
