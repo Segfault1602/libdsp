@@ -68,7 +68,7 @@
             "name": "(lldb) Tests",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/tests/tests",
+            "program": "${workspaceFolder}/build/tests/libdsp_tests",
             "args": [
                 "--gtest_filter=BasicOscillatorsTest.*",
                 "--gtest_break_on_failure"
@@ -83,7 +83,7 @@
             "name": "Tests",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/tests/tests.exe",
+            "program": "${workspaceFolder}/build/tests/libdsp_tests.exe",
             "args": [
                 "--gtest_filter=WaveguideGatesTest.SineWave"
             ],
