@@ -29,6 +29,7 @@ float Sine(float phase)
     {
         phase += 1.f;
     }
+
     phase = std::fmod(phase, 1.f);
     float idx = phase * SIN_LUT_SIZE;
     auto idx0 = static_cast<size_t>(idx);
