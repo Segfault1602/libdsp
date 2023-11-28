@@ -35,9 +35,9 @@ jobs:
       run: cmake --build ${{github.workspace}}/build
 
     - name: Run Tests
-      run: ${{github.workspace}}/build/tests/tests --gtest_output=xml
+      run: ctest --test-dir .\build\ --output-junit result.xml
 
     - name: Publish Test Results
       uses: EnricoMi/publish-unit-test-result-action@v2
       with:
-        files: ${{github.workspace}}/test_detail.xml
+        files: ${{github.workspace}}/build/result.xml
