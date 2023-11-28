@@ -1,0 +1,9 @@
+<map id="sfdsp::InterpolationStrategy" name="sfdsp::InterpolationStrategy">
+<area shape="rect" id="Node000001" title="Base class for interpolation strategies." alt="" coords="196,5,375,31"/>
+<area shape="rect" id="Node000002" href="$classsfdsp_1_1AllpassInterpolation.html" title="Allpass interpolation strategy." alt="" coords="5,79,179,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="239,39,126,81,124,76,237,34"/>
+<area shape="rect" id="Node000003" href="$classsfdsp_1_1LinearInterpolation.html" title="Linear interpolation strategy." alt="" coords="202,79,369,105"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="288,46,288,79,283,79,283,46"/>
+<area shape="rect" id="Node000004" href="$classsfdsp_1_1NoInterpolation.html" title="No interpolation strategy." alt="" coords="393,79,540,105"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="331,35,437,76,435,81,329,40"/>
+</map>

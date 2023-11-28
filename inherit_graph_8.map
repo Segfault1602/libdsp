@@ -1,0 +1,9 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$classsfdsp_1_1InterpolationStrategy.html" title="Base class for interpolation strategies." alt="" coords="5,55,184,80"/>
+<area shape="rect" id="Node000001" href="$classsfdsp_1_1AllpassInterpolation.html" title="Allpass interpolation strategy." alt="" coords="232,5,405,31"/>
+<area shape="poly" id="edge6_Node000000_Node000001" title=" " alt="" coords="170,48,256,29,257,34,172,53"/>
+<area shape="rect" id="Node000002" href="$classsfdsp_1_1LinearInterpolation.html" title="Linear interpolation strategy." alt="" coords="235,55,402,80"/>
+<area shape="poly" id="edge7_Node000000_Node000002" title=" " alt="" coords="199,65,235,65,235,70,199,70"/>
+<area shape="rect" id="Node000003" href="$classsfdsp_1_1NoInterpolation.html" title="No interpolation strategy." alt="" coords="245,104,392,130"/>
+<area shape="poly" id="edge8_Node000000_Node000003" title=" " alt="" coords="172,82,257,101,256,106,170,87"/>
+</map>

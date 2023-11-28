@@ -1,0 +1,13 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$classsfdsp_1_1Filter.html" title="Base class for filters." alt="" coords="5,104,94,130"/>
+<area shape="rect" id="Node000001" href="$classsfdsp_1_1Biquad.html" title="Implements a simple biquad filter with differential equation y(n) = b0*x(n) + b1*x(n&#45;1) + b2*x(n&#45;2) &#45;..." alt="" coords="162,5,261,31"/>
+<area shape="poly" id="edge1_Node000000_Node000001" title=" " alt="" coords="73,91,104,65,140,40,163,29,166,34,143,44,107,69,76,95"/>
+<area shape="rect" id="Node000002" href="$classsfdsp_1_1OnePoleFilter.html" title="Implements a simple one pole filter with differential equation y(n) = b0*x(n) &#45; a1*y(n&#45;1)" alt="" coords="142,55,281,80"/>
+<area shape="poly" id="edge2_Node000000_Node000002" title=" " alt="" coords="108,96,166,78,167,84,109,101"/>
+<area shape="rect" id="Node000003" href="$classsfdsp_1_1OneZeroFilter.html" title="Implements a simple one zero filter with differential equation y(n) = b0*x(n) + b1*x(n&#45;1)" alt="" coords="142,104,281,130"/>
+<area shape="poly" id="edge3_Node000000_Node000003" title=" " alt="" coords="109,114,142,114,142,120,109,120"/>
+<area shape="rect" id="Node000004" href="$classsfdsp_1_1TwoPoleFilter.html" title="Implements a simple two pole filter with differential equation y(n) = b0*x(n) &#45; a1*y(n&#45;1) &#45; a2*y(n&#45;2)" alt="" coords="142,153,281,179"/>
+<area shape="poly" id="edge4_Node000000_Node000004" title=" " alt="" coords="109,132,167,150,166,155,108,137"/>
+<area shape="rect" id="Node000005" href="$classsfdsp_1_1TwoZeroFilter.html" title="Implements a simple two zero filter with differential equation ." alt="" coords="142,203,281,228"/>
+<area shape="poly" id="edge5_Node000000_Node000005" title=" " alt="" coords="76,138,107,165,143,189,166,200,163,204,140,194,104,169,73,142"/>
+</map>

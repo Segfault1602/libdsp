@@ -1,0 +1,5 @@
+<map id="sfdsp::TwoPoleFilter" name="sfdsp::TwoPoleFilter">
+<area shape="rect" id="Node000001" title="Implements a simple two pole filter with differential equation y(n) = b0*x(n) &#45; a1*y(n&#45;1) &#45; a2*y(n&#45;2)" alt="" coords="5,79,145,105"/>
+<area shape="rect" id="Node000002" href="$classsfdsp_1_1Filter.html" title="Base class for filters." alt="" coords="31,5,119,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="78,46,78,79,72,79,72,46"/>
+</map>

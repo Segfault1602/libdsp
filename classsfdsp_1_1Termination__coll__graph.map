@@ -1,0 +1,5 @@
+<map id="sfdsp::Termination" name="sfdsp::Termination">
+<area shape="rect" id="Node000001" title="Base class for termination points between two delaylines." alt="" coords="5,94,133,120"/>
+<area shape="rect" id="Node000002" href="$classsfdsp_1_1Filter.html" title="Base class for filters." alt="" coords="25,5,113,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="72,47,72,94,66,94,66,47"/>
+</map>

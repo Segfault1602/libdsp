@@ -1,0 +1,5 @@
+<map id="sfdsp::Biquad" name="sfdsp::Biquad">
+<area shape="rect" id="Node000001" title="Implements a simple biquad filter with differential equation y(n) = b0*x(n) + b1*x(n&#45;1) + b2*x(n&#45;2) &#45;..." alt="" coords="5,79,105,105"/>
+<area shape="rect" id="Node000002" href="$classsfdsp_1_1Filter.html" title="Base class for filters." alt="" coords="11,5,99,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="58,46,58,79,52,79,52,46"/>
+</map>
