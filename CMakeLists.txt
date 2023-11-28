@@ -31,7 +31,6 @@ if (NOT LIBDSP_LIB_ONLY OR LIBDSP_BUILD_TESTS)
         libsndfile
         GIT_REPOSITORY https://github.com/libsndfile/libsndfile.git
         GIT_TAG 1.2.2
-        FIND_PACKAGE_ARGS NAMES sndfile
         )
     FetchContent_MakeAvailable(libsndfile)
     set(BUILD_PROGRAMS OFF CACHE BOOL "Don't build libsndfile programs!")
