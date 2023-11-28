@@ -17,64 +17,27 @@ env:
 
 jobs:
   build:
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
-      # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
-      # You can convert this to a matrix build if you need cross-platform coverage.
-      # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: ${{ matrix.os }}
+        build_type: [Debug, Release]
 
     steps:
     - uses: actions/checkout@v3
-      with:
-        submodules: recursive
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DLIBDSP_LIB_ONLY=ON -DLIBDSP_BUILD_TESTS=ON
+      run: cmake -GNinja -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DLIBDSP_LIB_ONLY=ON -DLIBDSP_BUILD_TESTS=ON
 
     - name: Build
       # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      run: cmake --build ${{github.workspace}}/build
 
     - name: Run Tests
-      if: ${{env.BUILD_TYPE}} == "Release"
-      # Run your program's tests
       run: ${{github.workspace}}/build/tests/tests --gtest_output=xml
-
-    - name: Upload Test Results
-      if: ${{env.BUILD_TYPE}} == "Release"
-      uses: actions/upload-artifact@v3
-      with:
-        name: Test Results (GTest ${{ matrix.os }})
-        path: ${{github.workspace}}/test_detail.xml
-
-  publish-test-results:
-    name: "Publish Tests Results"
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-        checks: write
-
-        # only needed unless run with comment_mode: off
-        pull-requests: write
-
-        # only needed for private repository
-        contents: read
-
-        # only needed for private repository
-        issues: read
-    if: always()
-
-    steps:
-    - name: Download Artifacts
-      uses: actions/download-artifact@v3
-      with:
-        path: artifacts
 
     - name: Publish Test Results
       uses: EnricoMi/publish-unit-test-result-action@v2
       with:
-        files: "artifacts/**/*.xml"
+        files: ${{github.workspace}}/test_detail.xml

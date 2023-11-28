@@ -14,6 +14,7 @@ FetchContent_MakeAvailable(rtmidi rtaudio)
 
 target_compile_definitions(rtaudio PRIVATE -D_CRT_SECURE_NO_WARNINGS)
 set(RTMIDI_TARGETNAME_UNINSTALL "rtmidi_uninstall" CACHE STRING "" FORCE)
+set(RTAUDIO_TARGETNAME_UNINSTALL "rtaudio_uninstall" CACHE STRING "" FORCE)
 
 add_subdirectory(player)
 add_subdirectory(violonist)
