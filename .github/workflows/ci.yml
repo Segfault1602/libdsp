@@ -42,14 +42,14 @@ jobs:
     - name: Run Tests
       if: ${{env.BUILD_TYPE}} == "Release"
       # Run your program's tests
-      run: ctest --test-dir ${{github.workspace}}/build
+      run: ${{github.workspace}}/build/tests/tests --gtest_output=xml
 
     - name: Upload Test Results
       if: ${{env.BUILD_TYPE}} == "Release"
       uses: actions/upload-artifact@v3
       with:
         name: Test Results (GTest ${{ matrix.os }})
-        path: ${{github.workspace}}/test_results/**.xml
+        path: ${{github.workspace}}/test_detail.xml
 
   publish-test-results:
     name: "Publish Tests Results"
