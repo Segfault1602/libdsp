@@ -1,3 +1,15 @@
+FetchContent_Declare(
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    # Using a branch name isn't usually recommended but googletest uses a 'stable at main' workfow
+    GIT_TAG main
+    FIND_PACKAGE_ARGS NAMES GTest
+    )
+    # For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+include(GoogleTest)
+
 set(TEST_SOURCES
     main_tests.cpp
     basic_oscillators_tests.cpp
