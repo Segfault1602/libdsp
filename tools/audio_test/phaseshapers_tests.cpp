@@ -6,7 +6,7 @@ void PhaseShaperTest::Init(size_t samplerate)
     phaseshaper_.Init(static_cast<float>(samplerate));
     phaseshaper_.SetWaveform(current_waveform_);
     phaseshaper_.SetMod(0.5f);
-    phaseshaper_.SetFreq(220.f);
+    phaseshaper_.SetFreq(200.f);
 
     frame_per_wave_ = (uint32_t)samplerate_;
     // 4 periods per waveform

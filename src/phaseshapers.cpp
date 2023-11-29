@@ -41,8 +41,12 @@ inline float g_tri(float x, float a1 = 1, float a0 = 0)
 
 inline float g_pulse(float x, float phaseIncrement, float width = 0.5f, float period = 100.f)
 {
-    float d = std::floor(width * period);
-    return x - MOD1(x + phaseIncrement * d) + (1 - width);
+    if (x < width)
+    {
+        return 0.f;
+    }
+
+    return 1.f;
 }
 
 inline float s_tri(float x)
@@ -156,7 +160,7 @@ float Phaseshaper::Process()
 float Phaseshaper::ProcessWaveSlice() const
 {
     // a1 vary from 0.25  to 0.40
-    float a1 = 0.25f + (m_mod * 0.15f);
+    float a1 = 0.25f + (m_mod * 0.50f);
     float slicePhase = g_lin(m_phase, a1);
     float trivial = G_B(sfdsp::Sine(slicePhase));
 
@@ -206,9 +210,9 @@ float Phaseshaper::ProcessSupersaw() const
 float Phaseshaper::ProcessVarSlope() const
 {
     // Width can vary from 0.1 to 0.5
-    float width = 0.10f + (m_mod * 0.40f);
+    float width = 0.5f + (m_mod * 0.25f);
 
-    float pulse = g_pulse(m_phase, m_phaseIncrement, width, m_period);
+    float pulse = 0.5 * g_pulse(m_phase, m_phaseIncrement, width, m_period);
     float vslope = 0.5f * m_phase * (1.0f - pulse) / width + pulse * (m_phase - width) / (1 - width);
     return sfdsp::Sine(vslope);
 }

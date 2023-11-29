@@ -111,13 +111,13 @@
             "console": "externalTerminal"
         },
         {
-            "name": "Debug Player.exe",
+            "name": "Debug AudioTest.exe",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/tools/effect_player.exe",
+            "program": "${workspaceFolder}/build/tools/audio_test/effect_player.exe",
             "args": [
                 "-t",
-                "1"
+                "7"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
