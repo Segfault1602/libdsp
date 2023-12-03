@@ -10,6 +10,8 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 include(GoogleTest)
 
+add_subdirectory(perf)
+
 set(TEST_SOURCES
     main_tests.cpp
     basic_oscillators_tests.cpp
