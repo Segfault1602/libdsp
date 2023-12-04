@@ -12,6 +12,9 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(nanobench doctest)
 
-add_executable(perf_tests perf_tests.cpp basicosc_perf.cpp)
+add_executable(perf_tests
+    perf_tests.cpp
+    basicosc_perf.cpp
+    phaseshaper_perf.cpp)
 target_include_directories(perf_tests PRIVATE ${doctest_SOURCE_DIR}/doctest)
 target_link_libraries(perf_tests PRIVATE nanobench dsp doctest)

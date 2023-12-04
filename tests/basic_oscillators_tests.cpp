@@ -125,7 +125,7 @@ TEST(BasicOscillatorsTests, Triangle)
     auto test_buffer = std::make_unique<float[]>(kSize);
     size_t test_buffer_size = kSize;
 
-    LoadWavFile("waves/triangle_48k_440hz.wav", test_buffer, test_buffer_size, info);
+    ASSERT_TRUE(LoadWavFile("waves/triangle_48k_440hz.wav", test_buffer, test_buffer_size, info));
 
     auto out = std::make_unique<float[]>(test_buffer_size);
 
@@ -143,33 +143,45 @@ TEST(BasicOscillatorsTests, Triangle)
     }
 }
 
-TEST(BasicOscillatorsTests, TriangleBlock)
+class BasicOscillatorTestParam : public ::testing::TestWithParam<sfdsp::OscillatorType>
 {
+  public:
+    BasicOscillatorTestParam() = default;
+};
+
+TEST_P(BasicOscillatorTestParam, ProcessBlock)
+{
+    const sfdsp::OscillatorType type = GetParam();
     constexpr size_t kSamplerate = 48000;
-    constexpr float kFreq = 440;
+    constexpr float kFreq = 750;
     constexpr size_t kSize = kSamplerate;
-    SF_INFO info;
 
     auto test_buffer = std::make_unique<float[]>(kSize);
     size_t test_buffer_size = kSize;
 
-    LoadWavFile("waves/triangle_48k_440hz.wav", test_buffer, test_buffer_size, info);
+    sfdsp::BasicOscillator osc;
+    osc.Init(kSamplerate, kFreq, type);
+
+    for (auto i = 0; i < test_buffer_size; ++i)
+    {
+        test_buffer[i] = osc.Tick();
+    }
 
     auto out = std::make_unique<float[]>(test_buffer_size);
 
-    sfdsp::BasicOscillator osc;
-    osc.Init(kSamplerate, kFreq, sfdsp::OscillatorType::Tri);
+    sfdsp::BasicOscillator osc2;
+    osc2.Init(kSamplerate, kFreq, type);
 
     const size_t block_size = 512;
     const size_t block_count = test_buffer_size / block_size;
     for (auto i = 0; i < block_count; ++i)
     {
-        osc.ProcessBlock(out.get() + i * block_size, block_size);
+        osc2.ProcessBlock(out.get() + i * block_size, block_size);
     }
 
     // Process reminder
     const size_t reminder = test_buffer_size % block_size;
-    osc.ProcessBlock(out.get() + block_count * block_size, reminder);
+    osc2.ProcessBlock(out.get() + block_count * block_size, reminder);
 
     for (auto i = 0; i < test_buffer_size; ++i)
     {
@@ -204,3 +216,22 @@ TEST(BasicOscillatorsTests, Saw)
         ASSERT_NEAR(out[i], test_buffer[i], 0.0001f);
     }
 }
+
+INSTANTIATE_TEST_SUITE_P(BasicOscillatorTest, BasicOscillatorTestParam,
+                         ::testing::Values(sfdsp::OscillatorType::Sine, sfdsp::OscillatorType::Tri,
+                                           sfdsp::OscillatorType::Saw, sfdsp::OscillatorType::Square),
+                         [](const testing::TestParamInfo<BasicOscillatorTestParam::ParamType>& info) {
+                             switch (info.param)
+                             {
+                             case sfdsp::OscillatorType::Sine:
+                                 return "Sine";
+                             case sfdsp::OscillatorType::Tri:
+                                 return "Triangle";
+                             case sfdsp::OscillatorType::Saw:
+                                 return "Saw";
+                             case sfdsp::OscillatorType::Square:
+                                 return "Square";
+                             default:
+                                 return "Unknown";
+                             }
+                         });

@@ -97,12 +97,39 @@ float Tri(float phase)
 
 float Tri(float phase, float phase_increment, float* out, size_t size)
 {
-    for (size_t i = 0; i < size; ++i)
+    size_t write_ptr = 0;
+    size_t block_count = size / 4;
+    for (size_t i = 0; i < block_count; ++i)
     {
-        phase = std::fmod(phase, 1.f);
-        const float t = -1.0f + (2.0f * phase);
-        out[i] = 2.0f * (fabsf(t) - 0.5f);
+        const float phase1 = fmodf(phase, 1.f);
         phase += phase_increment;
+        const float phase2 = fmodf(phase, 1.f);
+        phase += phase_increment;
+        const float phase3 = fmodf(phase, 1.f);
+        phase += phase_increment;
+        const float phase4 = fmodf(phase, 1.f);
+        phase += phase_increment;
+
+        const float t1 = -1.0f + (2.0f * phase1);
+        const float t2 = -1.0f + (2.0f * phase2);
+        const float t3 = -1.0f + (2.0f * phase3);
+        const float t4 = -1.0f + (2.0f * phase4);
+
+        out[write_ptr] = 2.0f * (fabsf(t1) - 0.5f);
+        out[write_ptr + 1] = 2.0f * (fabsf(t2) - 0.5f);
+        out[write_ptr + 2] = 2.0f * (fabsf(t3) - 0.5f);
+        out[write_ptr + 3] = 2.0f * (fabsf(t4) - 0.5f);
+
+        write_ptr += 4;
+    }
+
+    // if size is not a multiple of 4, process the remaining samples
+    block_count = size % 4;
+    for (size_t i = 0; i < block_count; ++i)
+    {
+        out[write_ptr] = Tri(phase);
+        phase += phase_increment;
+        write_ptr += 1;
     }
 
     return phase;
@@ -111,6 +138,41 @@ float Tri(float phase, float phase_increment, float* out, size_t size)
 float Saw(float phase)
 {
     return 2.f * phase - 1.f;
+}
+
+float Saw(float phase, float phase_increment, float* out, size_t size)
+{
+    size_t write_ptr = 0;
+    size_t block_count = size / 4;
+    for (size_t i = 0; i < block_count; ++i)
+    {
+        const float phase1 = fmodf(phase, 1.f);
+        phase += phase_increment;
+        const float phase2 = fmodf(phase, 1.f);
+        phase += phase_increment;
+        const float phase3 = fmodf(phase, 1.f);
+        phase += phase_increment;
+        const float phase4 = fmodf(phase, 1.f);
+        phase += phase_increment;
+
+        out[write_ptr] = 2.f * phase1 - 1.f;
+        out[write_ptr + 1] = 2.f * phase2 - 1.f;
+        out[write_ptr + 2] = 2.f * phase3 - 1.f;
+        out[write_ptr + 3] = 2.f * phase4 - 1.f;
+
+        write_ptr += 4;
+    }
+
+    // if size is not a multiple of 4, process the remaining samples
+    block_count = size % 4;
+    for (size_t i = 0; i < block_count; ++i)
+    {
+        out[write_ptr] = 2.f * phase - 1.f;
+        phase += phase_increment;
+        write_ptr += 1;
+    }
+
+    return phase;
 }
 
 float Square(float phase)
@@ -203,12 +265,8 @@ void BasicOscillator::ProcessBlock(float* out, size_t size)
         phase_ = std::fmod(phase_, 1.f);
         break;
     case OscillatorType::Saw:
-        for (size_t i = 0; i < size; ++i)
-        {
-            out[i] = Saw(phase_);
-            phase_ += phase_increment_;
-            phase_ = std::fmod(phase_, 1.f);
-        }
+        phase_ = Saw(phase_, phase_increment_, out, size);
+        phase_ = std::fmod(phase_, 1.f);
         break;
     case OscillatorType::Square:
         for (size_t i = 0; i < size; ++i)
