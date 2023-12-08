@@ -1,6 +1,7 @@
 #include "doctest.h"
 #include "nanobench.h"
 #include <chrono>
+#include <memory>
 
 #include "basic_oscillators.h"
 
