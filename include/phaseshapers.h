@@ -10,7 +10,8 @@
 // Alex St-Onge
 // =============================================================================
 #pragma once
-#include <stdint.h>
+#include <cstddef>
+#include <cstdint>
 
 #include "dsp_utils.h"
 

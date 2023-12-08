@@ -7,8 +7,6 @@
 #include "dsp_utils.h"
 #include "sin_table.h"
 
-#include <immintrin.h>
-
 #define MOD1(x) (x - std::floor(x))
 
 namespace
