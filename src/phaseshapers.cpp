@@ -19,8 +19,8 @@
 #include "basic_oscillators.h"
 
 #define G_B(x) (2 * (x)-1)
-#define MODM(x, m) (std::fmod(x, m))
-#define MOD1(x) (std::fmod(x, 1.f))
+#define MODM(x, m) (x - m * std::floor(x / m))
+#define MOD1(x) (x - std::floor(x))
 
 // -- Linear transformations
 
@@ -29,9 +29,25 @@ inline float g_lin(float x, float a1 = 1, float a0 = 0)
     return a1 * x + a0;
 }
 
+void g_lin_block(float* x, size_t size, float a1 = 1, float a0 = 0)
+{
+    for (size_t i = 0; i < size; ++i)
+    {
+        x[i] = a1 * x[i] + a0;
+    }
+}
+
 inline float g_ramp(float x, float a1 = 1, float a0 = 0)
 {
     return MOD1(g_lin(x, a1, a0));
+}
+
+void g_ramp_block(float* x, size_t size, float a1 = 1, float a0 = 0)
+{
+    for (size_t i = 0; i < size; ++i)
+    {
+        x[i] = MOD1(a1 * x[i] + a0);
+    }
 }
 
 inline float g_tri(float x, float a1 = 1, float a0 = 0)
@@ -39,7 +55,15 @@ inline float g_tri(float x, float a1 = 1, float a0 = 0)
     return MOD1(g_lin(std::abs(G_B(x)), a1, a0));
 }
 
-inline float g_pulse(float x, float phaseIncrement, float width = 0.5f, float period = 100.f)
+void g_tri_block(float* x, size_t size, float a1 = 1, float a0 = 0)
+{
+    for (size_t i = 0; i < size; ++i)
+    {
+        x[i] = MOD1(a1 * std::abs(G_B(x[i])) + a0);
+    }
+}
+
+inline float g_pulse(float x, float width = 0.5f)
 {
     if (x < width)
     {
@@ -47,6 +71,21 @@ inline float g_pulse(float x, float phaseIncrement, float width = 0.5f, float pe
     }
 
     return 1.f;
+}
+
+void g_pulse_block(float* x, size_t size, float width = 0.5f)
+{
+    for (size_t i = 0; i < size; ++i)
+    {
+        if (x[i] < width)
+        {
+            x[i] = 0.f;
+        }
+        else
+        {
+            x[i] = 1.f;
+        }
+    }
 }
 
 inline float s_tri(float x)
@@ -59,16 +98,45 @@ inline float s_tri(float x)
     return 2.f - 2.f * x;
 }
 
+void s_tri_block(float* x, size_t size)
+{
+    for (size_t i = 0; i < size; ++i)
+    {
+        if (x[i] < 0.5f)
+        {
+            x[i] = 2.f * x[i];
+        }
+        else
+        {
+            x[i] = 2.f - 2.f * x[i];
+        }
+    }
+}
+
 inline float s_vtri(float x, float phaseIncrement, float w = 0.5f, float P = 100)
 {
     float d = std::ceil(w * P + 0.5f);
     float x1 = 2 * x - 1;
-    float xd = 2 * std::fmod(x + phaseIncrement * d, 1.f) - 1;
+    float xd = 2 * MOD1(x + phaseIncrement * d) - 1;
     float xdiff = x1 * x1 - xd * xd;
     float at = 1.f / (8.f * (w - w * w));
     constexpr float bt = 0.5f;
     float s = g_lin(xdiff, at, bt);
     return s;
+}
+
+void s_vtri_block(float* x, size_t size, float phaseIncrement, float w = 0.5f, float P = 100)
+{
+    for (size_t i = 0; i < size; ++i)
+    {
+        float d = std::ceil(w * P + 0.5f);
+        float x1 = 2 * x[i] - 1;
+        float xd = 2 * MOD1(x[i] + phaseIncrement * d) - 1;
+        float xdiff = x1 * x1 - xd * xd;
+        float at = 1.f / (8.f * (w - w * w));
+        constexpr float bt = 0.5f;
+        x[i] = g_lin(xdiff, at, bt);
+    }
 }
 
 inline float g_vtri(float x, float phaseIncrement, float w = 0.5f, float a1 = 1.f, float a0 = 0.f, float P = 100)
@@ -77,11 +145,29 @@ inline float g_vtri(float x, float phaseIncrement, float w = 0.5f, float a1 = 1.
     return MOD1(g_lin(vtri, a1, a0));
 }
 
+void g_vtri_block(float* x, size_t size, float phaseIncrement, float w = 0.5f, float a1 = 1.f, float a0 = 0.f,
+                  float P = 100)
+{
+    for (size_t i = 0; i < size; ++i)
+    {
+        float vtri = s_vtri(x[i], phaseIncrement, w, P);
+        x[i] = MOD1(a1 * vtri + a0);
+    }
+}
+
 inline float g_ripple(float x, float m = 1.f)
 {
     // Orignal equation was 'x+MODM(x,m)', but I found that subtracting the modulo resulted in the same output but
     // without clipping.
     return G_B(x - MODM(x, m));
+}
+
+void g_ripple_block(float* x, size_t size, float m = 1.f)
+{
+    for (size_t i = 0; i < size; ++i)
+    {
+        x[i] = G_B(x[i] - MODM(x[i], m));
+    }
 }
 
 /// @brief
@@ -152,9 +238,20 @@ float Phaseshaper::Process()
     float w2 = 1.f - w1;
 
     m_phase += m_phaseIncrement;
-    m_phase = std::fmod(m_phase, 1.f);
+    m_phase = MOD1(m_phase);
 
     return out1 * w1 + out2 * w2;
+}
+
+void Phaseshaper::ProcessBlock(float* out, size_t size)
+{
+    for (size_t i = 0; i < size; ++i)
+    {
+        out[i] = m_phase;
+        m_phase = MOD1(m_phase + m_phaseIncrement);
+    }
+
+    ProcessVarSlopeBlock(out, size);
 }
 
 float Phaseshaper::ProcessWaveSlice() const
@@ -207,14 +304,26 @@ float Phaseshaper::ProcessSupersaw() const
     return G_B(sfdsp::Sine(supersawPhase * one_over_2pi));
 }
 
-float Phaseshaper::ProcessVarSlope() const
+float Phaseshaper::ProcessVarSlope(float phase) const
+{
+    ProcessVarSlopeBlock(&phase, 1);
+    return phase;
+}
+
+void Phaseshaper::ProcessVarSlopeBlock(float* x, size_t size) const
 {
     // Width can vary from 0.1 to 0.5
-    float width = 0.5f + (m_mod * 0.25f);
+    const float width = 0.5f + (m_mod * 0.25f);
 
-    float pulse = 0.5 * g_pulse(m_phase, m_phaseIncrement, width, m_period);
-    float vslope = 0.5f * m_phase * (1.0f - pulse) / width + pulse * (m_phase - width) / (1 - width);
-    return sfdsp::Sine(vslope);
+    for (size_t i = 0; i < size; ++i)
+    {
+        float phase = x[i];
+
+        const float pulse = 0.5 * g_pulse(phase, width);
+        x[i] = 0.5f * phase * (1.0f - pulse) / width + pulse * (phase - width) / (1 - width);
+    }
+
+    sfdsp::Sine(x, x, size);
 }
 
 float Phaseshaper::ProcessVarTri() const
@@ -239,7 +348,7 @@ float Phaseshaper::ProcessWave(Waveform wave) const
     switch (wave)
     {
     case Waveform::VARIABLE_SLOPE:
-        out = ProcessVarSlope();
+        out = ProcessVarSlope(m_phase);
         break;
     // case Waveform::VARIABLE_TRIANGLE:
     //     out = ProcessVarTri();

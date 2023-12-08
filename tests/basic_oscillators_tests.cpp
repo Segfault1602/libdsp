@@ -5,6 +5,7 @@
 
 #include "basic_oscillators.h"
 #include "dsp_utils.h"
+#include "phaseshapers.h"
 #include "sin_table.h"
 #include "test_utils.h"
 
@@ -215,6 +216,46 @@ TEST(BasicOscillatorsTests, Saw)
     {
         ASSERT_NEAR(out[i], test_buffer[i], 0.0001f);
     }
+}
+
+TEST(Phaseshaper, phaseshaper)
+{
+    constexpr size_t kSamplerate = 96000;
+    constexpr float kFreq = 440;
+    constexpr size_t kSize = kSamplerate;
+
+    auto out = std::make_unique<float[]>(kSize);
+
+    sfdsp::Phaseshaper phaseshaper;
+    phaseshaper.Init(kSamplerate);
+    phaseshaper.SetWaveform(sfdsp::Phaseshaper::Waveform::VARIABLE_SLOPE);
+    phaseshaper.SetMod(0.9f);
+    phaseshaper.SetFreq(kFreq);
+
+    phaseshaper.ProcessBlock(out.get(), kSize);
+
+    SF_INFO info;
+    info.channels = 1;
+    info.samplerate = kSamplerate;
+    info.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
+    WriteWavFile("phaseshaper_block.wav", out.get(), info, kSize);
+
+    auto out2 = std::make_unique<float[]>(kSize);
+    sfdsp::Phaseshaper phaseshaper2;
+    phaseshaper2.Init(kSamplerate);
+    phaseshaper2.SetWaveform(sfdsp::Phaseshaper::Waveform::VARIABLE_SLOPE);
+    phaseshaper2.SetMod(0.2f);
+    phaseshaper2.SetFreq(kFreq);
+
+    for (auto i = 0; i < kSize; ++i)
+    {
+        out2[i] = phaseshaper2.Process();
+    }
+
+    info.channels = 1;
+    info.samplerate = kSamplerate;
+    info.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
+    WriteWavFile("phaseshaper_block.wav", out2.get(), info, kSize);
 }
 
 INSTANTIATE_TEST_SUITE_P(BasicOscillatorTest, BasicOscillatorTestParam,

@@ -13,19 +13,26 @@ namespace sfdsp
 /// @ingroup Oscillators
 float Sine(float phase);
 
-/// @brief Simple triangle wave
+/// @brief Compute a sine wave from a buffer of phases
+/// @param phases The buffer of phases
+/// @param out The output buffer, can be the same as `phases`
+/// @param size The size of the output buffer
+/// @return The phase of the sine wave after processing the buffer
+void Sine(const float* phases, float* out, size_t size);
+
+/// @brief Non-bandlimited triangle wave
 /// @param phase Phase of the triangle wave
 /// @return The value of the triangle wave at the given phase
 /// @ingroup Oscillators
 float Tri(float phase);
 
-/// @brief Simple saw wave
+/// @brief Non-bandlimited saw wave
 /// @param phase Phase of the saw wave
 /// @return The value of the saw wave at the given phase
 /// @ingroup Oscillators
 float Saw(float phase);
 
-/// @brief Simple square wave
+/// @brief Non-bandlimited square wave
 /// @param phase Phase of the square wave
 /// @return The value of the square wave at the given phase
 /// @ingroup Oscillators

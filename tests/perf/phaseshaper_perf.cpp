@@ -59,12 +59,16 @@ TEST_CASE("Phaseshaper")
     bench.minEpochIterations(5);
     bench.timeUnit(1ms, "ms");
 
-    sfdsp::Phaseshaper ps;
-    ps.Init(kSamplerate);
-    ps.SetFreq(kFreq);
-
     for (size_t i = 0; i < static_cast<size_t>(sfdsp::Phaseshaper::Waveform::NUM_WAVES); ++i)
     {
         RenderTick(static_cast<sfdsp::Phaseshaper::Waveform>(i), bench);
     }
+
+    sfdsp::Phaseshaper ps;
+    ps.Init(kSamplerate);
+    ps.SetFreq(kFreq);
+    ps.SetMod(0.9f);
+    ps.SetWaveform(sfdsp::Phaseshaper::Waveform::VARIABLE_SLOPE);
+    auto out = std::make_unique<float[]>(kOutputSize);
+    bench.run("VariableSlope_Block", [&]() { ps.ProcessBlock(out.get(), kOutputSize); });
 }

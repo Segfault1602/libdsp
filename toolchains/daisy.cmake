@@ -2,6 +2,7 @@
 set(CMAKE_SYSTEM_NAME               Generic)
 set(CMAKE_SYSTEM_PROCESSOR          arm)
 
+
 # Without that flag CMake is not able to pass test compilation check
 set(CMAKE_TRY_COMPILE_TARGET_TYPE   STATIC_LIBRARY)
 
@@ -39,7 +40,7 @@ set(C_DEFS "-DSTM32H750xx")
 
 set(ASFLAGS "${MCU} -Wall -fdata-sections -ffunction-sections")
 set(CFLAGS "${MCU} ${C_DEFS} ${C_INCLUDES} ${OPT} -Wall -Werror -fdata-sections -ffunction-sections")
-set(CPPFLAGS "${CFLAGS} -fno-exceptions -finline-functions")
+set(CPPFLAGS "${CFLAGS} -fno-exceptions -finline-functions -fsave-optimization-record")
 
 set(CMAKE_C_FLAGS_INIT  "${CFLAGS}")
 set(CMAKE_CXX_FLAGS_INIT  "${CPPFLAGS}")

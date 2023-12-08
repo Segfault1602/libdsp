@@ -7,6 +7,10 @@
 #include "dsp_utils.h"
 #include "sin_table.h"
 
+#include <immintrin.h>
+
+#define MOD1(x) (x - std::floor(x))
+
 namespace
 {
 
@@ -30,106 +34,43 @@ float Sine(float phase)
         phase += 1.f;
     }
 
-    phase = std::fmod(phase, 1.f);
+    phase = MOD1(phase);
     float idx = phase * SIN_LUT_SIZE;
     auto idx0 = static_cast<size_t>(idx);
     auto frac = idx - static_cast<float>(idx0);
     return sin_lut[idx0] + frac * (sin_lut[idx0 + 1] - sin_lut[idx0]);
 }
 
-float Sine(float phase, float phase_increment, float* out, size_t size)
+void Sine(const float* phases, float* out, size_t size)
 {
-    size_t write_ptr = 0;
-    size_t block_count = size / 4;
-    for (size_t i = 0; i < block_count; ++i)
+    for (size_t i = 0; i < size; ++i)
     {
-        float phase1 = phase;
-        phase += phase_increment;
-        float phase2 = phase;
-        phase += phase_increment;
-        float phase3 = phase;
-        phase += phase_increment;
-        float phase4 = phase;
-        phase += phase_increment;
-
-        float idx1 = phase1 * SIN_LUT_SIZE;
-        float idx2 = phase2 * SIN_LUT_SIZE;
-        float idx3 = phase3 * SIN_LUT_SIZE;
-        float idx4 = phase4 * SIN_LUT_SIZE;
+        float idx1 = phases[i] * SIN_LUT_SIZE;
 
         static_assert(SIN_LUT_SIZE == 0x1FF + 1);
         auto idxint_1 = static_cast<size_t>(idx1) & 0x1FF;
-        auto idxint_2 = static_cast<size_t>(idx2) & 0x1FF;
-        auto idxint_3 = static_cast<size_t>(idx3) & 0x1FF;
-        auto idxint_4 = static_cast<size_t>(idx4) & 0x1FF;
 
         auto frac_1 = idx1 - static_cast<size_t>(idx1);
-        auto frac_2 = idx2 - static_cast<size_t>(idx2);
-        auto frac_3 = idx3 - static_cast<size_t>(idx3);
-        auto frac_4 = idx4 - static_cast<size_t>(idx4);
-
-        out[write_ptr] = sin_lut[idxint_1] + frac_1 * (sin_lut[idxint_1 + 1] - sin_lut[idxint_1]);
-        out[write_ptr + 1] = sin_lut[idxint_2] + frac_2 * (sin_lut[idxint_2 + 1] - sin_lut[idxint_2]);
-        out[write_ptr + 2] = sin_lut[idxint_3] + frac_3 * (sin_lut[idxint_3 + 1] - sin_lut[idxint_3]);
-        out[write_ptr + 3] = sin_lut[idxint_4] + frac_4 * (sin_lut[idxint_4 + 1] - sin_lut[idxint_4]);
-
-        write_ptr += 4;
+        out[i] = sin_lut[idxint_1] + frac_1 * (sin_lut[idxint_1 + 1] - sin_lut[idxint_1]);
     }
-
-    // if size is not a multiple of 4, process the remaining samples
-    block_count = size % 4;
-    for (size_t i = 0; i < block_count; ++i)
-    {
-        out[write_ptr] = Sine(phase);
-        phase += phase_increment;
-        write_ptr += 1;
-    }
-
-    return phase;
 }
 
 float Tri(float phase)
 {
-    phase = std::fmod(phase, 1.f);
+    phase = MOD1(phase);
     float t = -1.0f + (2.0f * phase);
     return 2.0f * (fabsf(t) - 0.5f);
 }
 
 float Tri(float phase, float phase_increment, float* out, size_t size)
 {
-    size_t write_ptr = 0;
-    size_t block_count = size / 4;
-    for (size_t i = 0; i < block_count; ++i)
+    for (size_t i = 0; i < size; ++i)
     {
-        const float phase1 = fmodf(phase, 1.f);
-        phase += phase_increment;
-        const float phase2 = fmodf(phase, 1.f);
-        phase += phase_increment;
-        const float phase3 = fmodf(phase, 1.f);
-        phase += phase_increment;
-        const float phase4 = fmodf(phase, 1.f);
-        phase += phase_increment;
+        const float t1 = 2.0f * phase - 1.f;
+        out[i] = 2.0f * fabsf(t1) - 1.f;
 
-        const float t1 = -1.0f + (2.0f * phase1);
-        const float t2 = -1.0f + (2.0f * phase2);
-        const float t3 = -1.0f + (2.0f * phase3);
-        const float t4 = -1.0f + (2.0f * phase4);
-
-        out[write_ptr] = 2.0f * (fabsf(t1) - 0.5f);
-        out[write_ptr + 1] = 2.0f * (fabsf(t2) - 0.5f);
-        out[write_ptr + 2] = 2.0f * (fabsf(t3) - 0.5f);
-        out[write_ptr + 3] = 2.0f * (fabsf(t4) - 0.5f);
-
-        write_ptr += 4;
-    }
-
-    // if size is not a multiple of 4, process the remaining samples
-    block_count = size % 4;
-    for (size_t i = 0; i < block_count; ++i)
-    {
-        out[write_ptr] = Tri(phase);
         phase += phase_increment;
-        write_ptr += 1;
+        phase = MOD1(phase);
     }
 
     return phase;
@@ -142,34 +83,11 @@ float Saw(float phase)
 
 float Saw(float phase, float phase_increment, float* out, size_t size)
 {
-    size_t write_ptr = 0;
-    size_t block_count = size / 4;
-    for (size_t i = 0; i < block_count; ++i)
+    for (size_t i = 0; i < size; ++i)
     {
-        const float phase1 = fmodf(phase, 1.f);
+        out[i] = 2.f * phase - 1.f;
         phase += phase_increment;
-        const float phase2 = fmodf(phase, 1.f);
-        phase += phase_increment;
-        const float phase3 = fmodf(phase, 1.f);
-        phase += phase_increment;
-        const float phase4 = fmodf(phase, 1.f);
-        phase += phase_increment;
-
-        out[write_ptr] = 2.f * phase1 - 1.f;
-        out[write_ptr + 1] = 2.f * phase2 - 1.f;
-        out[write_ptr + 2] = 2.f * phase3 - 1.f;
-        out[write_ptr + 3] = 2.f * phase4 - 1.f;
-
-        write_ptr += 4;
-    }
-
-    // if size is not a multiple of 4, process the remaining samples
-    block_count = size % 4;
-    for (size_t i = 0; i < block_count; ++i)
-    {
-        out[write_ptr] = 2.f * phase - 1.f;
-        phase += phase_increment;
-        write_ptr += 1;
+        phase = MOD1(phase);
     }
 
     return phase;
@@ -178,6 +96,18 @@ float Saw(float phase, float phase_increment, float* out, size_t size)
 float Square(float phase)
 {
     return (phase < 0.5f) ? -1.f : 1.f;
+}
+
+float Square(float phase, float phase_increment, float* out, size_t size)
+{
+    for (size_t i = 0; i < size; ++i)
+    {
+        out[i] = (phase < 0.5f) ? -1.f : 1.f;
+        phase += phase_increment;
+        phase = MOD1(phase);
+    }
+
+    return phase;
 }
 
 float Noise()
@@ -247,7 +177,7 @@ float BasicOscillator::Tick()
     }
 
     phase_ += phase_increment_;
-    phase_ = std::fmod(phase_, 1.f);
+    phase_ = MOD1(phase_);
 
     return out;
 }
@@ -257,28 +187,29 @@ void BasicOscillator::ProcessBlock(float* out, size_t size)
     switch (type_)
     {
     case OscillatorType::Sine:
-        phase_ = Sine(phase_, phase_increment_, out, size);
-        phase_ = std::fmod(phase_, 1.f);
+        // prefill the buffer with the current phase
+        for (size_t i = 0; i < size; ++i)
+        {
+            out[i] = phase_;
+            phase_ += phase_increment_;
+        }
+        Sine(out, out, size);
+        phase_ = MOD1(phase_);
         break;
     case OscillatorType::Tri:
         phase_ = Tri(phase_, phase_increment_, out, size);
-        phase_ = std::fmod(phase_, 1.f);
+        phase_ = MOD1(phase_);
         break;
     case OscillatorType::Saw:
         phase_ = Saw(phase_, phase_increment_, out, size);
-        phase_ = std::fmod(phase_, 1.f);
+        phase_ = MOD1(phase_);
         break;
     case OscillatorType::Square:
-        for (size_t i = 0; i < size; ++i)
-        {
-            out[i] = Square(phase_);
-            phase_ += phase_increment_;
-            phase_ = std::fmod(phase_, 1.f);
-        }
+        phase_ = Square(phase_, phase_increment_, out, size);
+        phase_ = MOD1(phase_);
         break;
     default:
         assert(false);
-        phase_ = Sine(phase_, phase_increment_, out, size);
         break;
     }
 }

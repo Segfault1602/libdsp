@@ -83,9 +83,9 @@
             "name": "Tests",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/tests/libdsp_tests.exe",
+            "program": "${workspaceFolder}/build/tests/Debug/libdsp_tests.exe",
             "args": [
-                "--gtest_filter=WaveguideGatesTest.SineWave"
+                "--gtest_filter=Phase*"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

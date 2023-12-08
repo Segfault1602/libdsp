@@ -79,13 +79,16 @@ class Phaseshaper
     /// @return The next sample
     float Process();
 
+    void ProcessBlock(float* out, size_t size);
+
   private:
     float ProcessWaveSlice() const;
     float ProcessHardSync() const;
     float ProcessSoftSync() const;
     float ProcessTriMod() const;
     float ProcessSupersaw() const;
-    float ProcessVarSlope() const;
+    float ProcessVarSlope(float phase) const;
+    void ProcessVarSlopeBlock(float* x, size_t size) const;
     float ProcessVarTri() const;
     float ProcessRipple() const;
 
