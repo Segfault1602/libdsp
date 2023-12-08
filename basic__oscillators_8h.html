@@ -133,14 +133,17 @@ Functions</h2></td></tr>
 <tr class="memitem:ga98f0fdec45b940e75afa27c74f83d405" id="r_ga98f0fdec45b940e75afa27c74f83d405"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__Oscillators.html#ga98f0fdec45b940e75afa27c74f83d405">sfdsp::Sine</a> (float phase)</td></tr>
 <tr class="memdesc:ga98f0fdec45b940e75afa27c74f83d405"><td class="mdescLeft">&#160;</td><td class="mdescRight">Simple sine wave.  <br /></td></tr>
 <tr class="separator:ga98f0fdec45b940e75afa27c74f83d405"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad75237b4316faf190d0e3eade5bf85b8" id="r_ad75237b4316faf190d0e3eade5bf85b8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="basic__oscillators_8cpp.html#ad75237b4316faf190d0e3eade5bf85b8">sfdsp::Sine</a> (const float *phases, float *out, size_t size)</td></tr>
+<tr class="memdesc:ad75237b4316faf190d0e3eade5bf85b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute a sine wave from a buffer of phases.  <br /></td></tr>
+<tr class="separator:ad75237b4316faf190d0e3eade5bf85b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga22bce1658d40914d7af72618768222ec" id="r_ga22bce1658d40914d7af72618768222ec"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__Oscillators.html#ga22bce1658d40914d7af72618768222ec">sfdsp::Tri</a> (float phase)</td></tr>
-<tr class="memdesc:ga22bce1658d40914d7af72618768222ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Simple triangle wave.  <br /></td></tr>
+<tr class="memdesc:ga22bce1658d40914d7af72618768222ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Non-bandlimited triangle wave.  <br /></td></tr>
 <tr class="separator:ga22bce1658d40914d7af72618768222ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga9214ceca48cea0ff38890a44bc3cdaeb" id="r_ga9214ceca48cea0ff38890a44bc3cdaeb"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__Oscillators.html#ga9214ceca48cea0ff38890a44bc3cdaeb">sfdsp::Saw</a> (float phase)</td></tr>
-<tr class="memdesc:ga9214ceca48cea0ff38890a44bc3cdaeb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Simple saw wave.  <br /></td></tr>
+<tr class="memdesc:ga9214ceca48cea0ff38890a44bc3cdaeb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Non-bandlimited saw wave.  <br /></td></tr>
 <tr class="separator:ga9214ceca48cea0ff38890a44bc3cdaeb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gac6b0aa19b8f1328817afb9ff35fda200" id="r_gac6b0aa19b8f1328817afb9ff35fda200"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__Oscillators.html#gac6b0aa19b8f1328817afb9ff35fda200">sfdsp::Square</a> (float phase)</td></tr>
-<tr class="memdesc:gac6b0aa19b8f1328817afb9ff35fda200"><td class="mdescLeft">&#160;</td><td class="mdescRight">Simple square wave.  <br /></td></tr>
+<tr class="memdesc:gac6b0aa19b8f1328817afb9ff35fda200"><td class="mdescLeft">&#160;</td><td class="mdescRight">Non-bandlimited square wave.  <br /></td></tr>
 <tr class="separator:gac6b0aa19b8f1328817afb9ff35fda200"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gadf8cd6f49072ea44756db18a6aeebae6" id="r_gadf8cd6f49072ea44756db18a6aeebae6"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__Oscillators.html#gadf8cd6f49072ea44756db18a6aeebae6">sfdsp::Noise</a> ()</td></tr>
 <tr class="memdesc:gadf8cd6f49072ea44756db18a6aeebae6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Simple noise generator.  <br /></td></tr>
@@ -148,7 +151,53 @@ Functions</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Implementation of basic oscillators </p>
-</div></div><!-- contents -->
+</div><h2 class="groupheader">Function Documentation</h2>
+<a id="ad75237b4316faf190d0e3eade5bf85b8" name="ad75237b4316faf190d0e3eade5bf85b8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad75237b4316faf190d0e3eade5bf85b8">&#9670;&#160;</a></span>Sine()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void sfdsp::Sine </td>
+          <td>(</td>
+          <td class="paramtype">const float *&#160;</td>
+          <td class="paramname"><em>phases</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float *&#160;</td>
+          <td class="paramname"><em>out</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>size</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Compute a sine wave from a buffer of phases. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">phases</td><td>The buffer of phases </td></tr>
+    <tr><td class="paramname">out</td><td>The output buffer, can be the same as <code>phases</code> </td></tr>
+    <tr><td class="paramname">size</td><td>The size of the output buffer </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The phase of the sine wave after processing the buffer </dd></dl>
+
+</div>
+</div>
+</div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
