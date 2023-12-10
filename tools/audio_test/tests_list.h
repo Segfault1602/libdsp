@@ -17,6 +17,7 @@
     TEST(VibratoBowedStringTester)                                                                                     \
     TEST(ScaleBowedStringTester)                                                                                       \
     TEST(PhaseShaperTest)                                                                                              \
+    TEST(PhaseShaperBlockTest)                                                                                         \
     TEST(StringEnsembleTest)                                                                                           \
     TEST(WaveguideTest)                                                                                                \
     TEST(FingerPressBowedStringTester)

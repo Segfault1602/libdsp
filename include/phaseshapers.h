@@ -84,16 +84,31 @@ class Phaseshaper
 
   private:
     float ProcessWaveSlice() const;
-    float ProcessHardSync() const;
-    float ProcessSoftSync() const;
-    float ProcessTriMod() const;
-    float ProcessSupersaw() const;
-    float ProcessVarSlope(float phase) const;
-    void ProcessVarSlopeBlock(float* x, size_t size) const;
-    float ProcessVarTri() const;
-    float ProcessRipple() const;
+    void ProcessWaveSliceBlock(const float* p, float* out, size_t size, float gain);
 
-    float ProcessWave(Waveform wave) const;
+    float ProcessHardSync() const;
+    void ProcessHardSyncBlock(const float* p, float* out, size_t size, float gain);
+
+    float ProcessSoftSync() const;
+    void ProcessSoftSyncBlock(const float* p, float* out, size_t size, float gain);
+
+    float ProcessTriMod() const;
+    void ProcessTriModBlock(const float* p, float* out, size_t size, float gain);
+
+    float ProcessSupersaw() const;
+    void ProcessSupersawBlock(const float* p, float* out, size_t size, float gain);
+
+    float ProcessVarSlope(float phase);
+    void ProcessVarSlopeBlock(const float* p, float* out, size_t size, float gain);
+
+    float ProcessVarTri() const;
+    void ProcessVarTriBlock(const float* p, float* out, size_t size, float gain);
+
+    float ProcessRipple() const;
+    void ProcessRippleBlock(const float* p, float* out, size_t size, float gain);
+
+    float ProcessWave(Waveform wave);
+    void ProcessWaveBlock(const float* p, float* out, size_t size, Waveform wave, float gain);
 
   private:
     float m_sampleRate = 0.f;

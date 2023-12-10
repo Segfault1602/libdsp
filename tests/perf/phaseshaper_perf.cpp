@@ -42,34 +42,38 @@ void RenderTick(sfdsp::Phaseshaper::Waveform type, nanobench::Bench& bench)
     ps.SetWaveform(type);
     auto out = std::make_unique<float[]>(kOutputSize);
 
-    constexpr const char* format_string = "Phaseshaper::Tick (%s)";
-    char buffer[128];
-    snprintf(buffer, sizeof(buffer), format_string, PhaseshaperTypeToString(type));
-
-    bench.run(buffer, [&]() {
+    bench.run("Phaseshaper::Tick", [&]() {
         for (auto i = 0; i < kOutputSize; ++i)
             out[i] = ps.Process();
     });
 }
 
-TEST_CASE("Phaseshaper")
+void RenderBlock(sfdsp::Phaseshaper::Waveform type, nanobench::Bench& bench)
 {
-    nanobench::Bench bench;
-    bench.title("Phaseshaper");
-    bench.relative(true);
-    bench.minEpochIterations(5);
-    bench.timeUnit(1ms, "ms");
-
-    for (size_t i = 0; i < static_cast<size_t>(sfdsp::Phaseshaper::Waveform::NUM_WAVES); ++i)
-    {
-        RenderTick(static_cast<sfdsp::Phaseshaper::Waveform>(i), bench);
-    }
-
     sfdsp::Phaseshaper ps;
     ps.Init(kSamplerate);
     ps.SetFreq(kFreq);
-    ps.SetMod(0.9f);
-    ps.SetWaveform(sfdsp::Phaseshaper::Waveform::VARIABLE_SLOPE);
+    ps.SetWaveform(type);
     auto out = std::make_unique<float[]>(kOutputSize);
-    bench.run("VariableSlope_Block", [&]() { ps.ProcessBlock(out.get(), kOutputSize); });
+
+    bench.run("Phaseshaper::ProcessBlock", [&]() { ps.ProcessBlock(out.get(), kOutputSize); });
+}
+
+TEST_CASE("Phaseshaper")
+{
+
+    for (size_t i = 0; i < static_cast<size_t>(sfdsp::Phaseshaper::Waveform::NUM_WAVES); ++i)
+    {
+        constexpr const char* format_string = "Phaseshaper::%s";
+        char buffer[128];
+        snprintf(buffer, sizeof(buffer), format_string,
+                 PhaseshaperTypeToString(static_cast<sfdsp::Phaseshaper::Waveform>(i)));
+        nanobench::Bench bench;
+        bench.title(buffer);
+        bench.relative(true);
+        bench.minEpochIterations(10);
+        bench.timeUnit(1ms, "ms");
+        RenderTick(static_cast<sfdsp::Phaseshaper::Waveform>(i), bench);
+        RenderBlock(static_cast<sfdsp::Phaseshaper::Waveform>(i), bench);
+    }
 }
