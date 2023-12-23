@@ -54,6 +54,47 @@ TEST(BasicOscillatorsTest, SineBlock)
     }
 }
 
+TEST(BasicOscillatorsTest, Cosine)
+{
+    float inc = 1.f / 1024;
+    for (auto i = -TWO_PI; i < TWO_PI * 4; i += inc)
+    {
+        auto s = sfdsp::Cosine(i);
+        auto t = std::cos(i * TWO_PI);
+        ASSERT_NEAR(s, t, 0.0001f);
+    }
+}
+
+TEST(BasicOscillatorsTest, CosineBlock)
+{
+    constexpr size_t kSamplerate = 48000;
+    constexpr float kFreq = 750;
+    sfdsp::BasicOscillator osc;
+    osc.Init(kSamplerate, kFreq, sfdsp::OscillatorType::Cosine);
+
+    float phase_increment = kFreq / kSamplerate;
+
+    constexpr size_t kSize = 1024;
+    float out_std[kSize];
+    float p = 0.f;
+    for (auto i = 0; i < kSize; i++)
+    {
+        out_std[i] = sfdsp::Cosine(p);
+        p += phase_increment;
+        p = std::fmod(p, 1.f);
+    }
+
+    float out[kSize];
+    const size_t block_size = 512;
+    osc.ProcessBlock(out, block_size);
+    osc.ProcessBlock(out + block_size, block_size);
+
+    for (auto i = 0; i < kSize; ++i)
+    {
+        ASSERT_NEAR(out[i], out_std[i], 0.0001f);
+    }
+}
+
 TEST(BasicOscillatorsTest, PerfTest)
 {
     constexpr size_t kSamplerate = 48000;

@@ -3,6 +3,7 @@ cppcoreguidelines-*,\
 modernize-*,\
 portability-*,\
 readability-*,\
+-cppcoreguidelines-pro-bounds-array-to-pointer-decay,\
 -cppcoreguidelines-narrowing-conversions,\
 -cppcoreguidelines-avoid-c-arrays,\
 -cppcoreguidelines-pro-type-union-access,\

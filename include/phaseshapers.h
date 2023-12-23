@@ -51,23 +51,23 @@ class Phaseshaper
     /// For example, a value of 1.5 will interpolate between Waveform::SUPERSAW and Waveform::WAVESLICE equally.
     void SetWaveform(float wave)
     {
-        m_waveform = wave;
+        waveform_ = wave;
     }
 
     /// @brief Sets the waveform.
     /// @param wave Waveform to use.
     void SetWaveform(Waveform wave)
     {
-        m_waveform = static_cast<float>(wave);
+        waveform_ = static_cast<float>(wave);
     }
 
     /// @brief Sets the frequency
     /// @param freq Frequency in Hz
     void SetFreq(float freq)
     {
-        m_freq = freq;
-        m_phaseIncrement = m_freq / m_sampleRate;
-        m_period = m_sampleRate / m_freq;
+        freq_ = freq;
+        phaseIncrement_ = freq_ / samplerate_;
+        period_ = samplerate_ / freq_;
     }
 
     /// @brief Sets the modulation amount. Can be modified at audio rate.
@@ -84,40 +84,40 @@ class Phaseshaper
 
   private:
     float ProcessWaveSlice() const;
-    void ProcessWaveSliceBlock(const float* p, float* out, size_t size, float gain);
+    void ProcessWaveSliceBlock(const float* p, float* out, size_t size, float gain) const;
 
     float ProcessHardSync() const;
-    void ProcessHardSyncBlock(const float* p, float* out, size_t size, float gain);
+    void ProcessHardSyncBlock(const float* p, float* out, size_t size, float gain) const;
 
     float ProcessSoftSync() const;
-    void ProcessSoftSyncBlock(const float* p, float* out, size_t size, float gain);
+    void ProcessSoftSyncBlock(const float* p, float* out, size_t size, float gain) const;
 
     float ProcessTriMod() const;
-    void ProcessTriModBlock(const float* p, float* out, size_t size, float gain);
+    void ProcessTriModBlock(const float* p, float* out, size_t size, float gain) const;
 
     float ProcessSupersaw() const;
-    void ProcessSupersawBlock(const float* p, float* out, size_t size, float gain);
+    void ProcessSupersawBlock(const float* p, float* out, size_t size, float gain) const;
 
-    float ProcessVarSlope(float phase);
-    void ProcessVarSlopeBlock(const float* p, float* out, size_t size, float gain);
+    float ProcessVarSlope(float phase) const;
+    void ProcessVarSlopeBlock(const float* p, float* out, size_t size, float gain) const;
 
     float ProcessVarTri() const;
-    void ProcessVarTriBlock(const float* p, float* out, size_t size, float gain);
+    void ProcessVarTriBlock(const float* p, float* out, size_t size, float gain) const;
 
     float ProcessRipple() const;
-    void ProcessRippleBlock(const float* p, float* out, size_t size, float gain);
+    void ProcessRippleBlock(const float* p, float* out, size_t size, float gain) const;
 
     float ProcessWave(Waveform wave);
     void ProcessWaveBlock(const float* p, float* out, size_t size, Waveform wave, float gain);
 
   private:
-    float m_sampleRate = 0.f;
-    float m_freq = 220.f;
-    float m_phaseIncrement = 0.f;
-    float m_phase = 0.f;
-    float m_period = 0.f;
-    float m_waveform = static_cast<float>(Waveform::WAVESLICE);
+    float samplerate_ = 0.f;
+    float freq_ = 220.f;
+    float phaseIncrement_ = 0.f;
+    float phase_ = 0.f;
+    float period_ = 0.f;
+    float waveform_ = static_cast<float>(Waveform::WAVESLICE);
 
-    float m_mod = 0.f;
+    float mod_ = 0.f;
 };
 } // namespace sfdsp

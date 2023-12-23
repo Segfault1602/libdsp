@@ -16,14 +16,15 @@ set(LIB_SOURCES
     smooth_param.cpp
     string_ensemble.cpp
     termination.cpp
+    vector_phaseshaper.cpp
     waveguide.cpp
     waveguide_gate.cpp)
 
 add_library(dsp STATIC ${LIB_SOURCES})
 
-# if (CLANG_TIDY_EXE)
-#     set_target_properties(dsp PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
-# endif()
+if (CLANG_TIDY_EXE)
+    set_target_properties(dsp PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
+endif()
 
 target_include_directories(dsp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 

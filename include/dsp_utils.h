@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 /// @mainpage LibDSP
 /// C++ audio dsp library with no external dependencies.
 /// @section build Building
@@ -29,6 +31,16 @@
 
 namespace sfdsp
 {
+
+inline float fast_mod(float x, float m)
+{
+    return x - m * std::floor(x / m);
+}
+
+inline float fast_mod1(float x)
+{
+    return x - std::floor(x);
+}
 
 /// @brief Convert midi note to frequency.
 /// @param midi_note The midi note number. Valid range is 0 to 127.

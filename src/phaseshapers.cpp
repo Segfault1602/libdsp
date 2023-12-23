@@ -118,36 +118,36 @@ namespace sfdsp
 
 void Phaseshaper::Init(float sampleRate)
 {
-    m_sampleRate = sampleRate;
-    m_phase = 0.f;
-    m_freq = 220.f;
-    m_phaseIncrement = m_freq / m_sampleRate;
-    m_period = m_sampleRate / m_freq;
+    samplerate_ = sampleRate;
+    phase_ = 0.f;
+    freq_ = 220.f;
+    phaseIncrement_ = freq_ / samplerate_;
+    period_ = samplerate_ / freq_;
 }
 
 void Phaseshaper::SetMod(float mod)
 {
     mod = std::clamp(mod, 0.f, 1.f);
-    m_mod = mod;
+    mod_ = mod;
 }
 
 float Phaseshaper::Process()
 {
-    float wave1 = std::floor(m_waveform);
+    float wave1 = std::floor(waveform_);
     float out1 = ProcessWave(static_cast<Waveform>(wave1));
 
-    float wave2 = std::ceil(m_waveform);
+    float wave2 = std::ceil(waveform_);
     float out2 = 0.f;
     if (wave1 != wave2)
     {
         out2 = ProcessWave(static_cast<Waveform>(wave2));
     }
 
-    float w1 = 1.f - (m_waveform - wave1);
+    float w1 = 1.f - (waveform_ - wave1);
     float w2 = 1.f - w1;
 
-    m_phase += m_phaseIncrement;
-    m_phase = MOD1(m_phase);
+    phase_ += phaseIncrement_;
+    phase_ = MOD1(phase_);
 
     return out1 * w1 + out2 * w2;
 }
@@ -159,10 +159,10 @@ void Phaseshaper::ProcessBlock(float* out, size_t size)
     float w1_buffer[kBlockSize];
     float w2_buffer[kBlockSize];
 
-    const float wave1 = std::floor(m_waveform);
-    const float wave2 = std::ceil(m_waveform);
+    const float wave1 = std::floor(waveform_);
+    const float wave2 = std::ceil(waveform_);
 
-    const float gain1 = 1.f - (m_waveform - wave1);
+    const float gain1 = 1.f - (waveform_ - wave1);
     const float gain2 = 1.f - gain1;
 
     const size_t num_blocks = size / kBlockSize;
@@ -171,8 +171,8 @@ void Phaseshaper::ProcessBlock(float* out, size_t size)
     {
         for (size_t j = 0; j < kBlockSize; ++j)
         {
-            phase_buffer[j] = m_phase;
-            m_phase = MOD1(m_phase + m_phaseIncrement);
+            phase_buffer[j] = phase_;
+            phase_ = MOD1(phase_ + phaseIncrement_);
         }
 
         ProcessWaveBlock(phase_buffer, w1_buffer, kBlockSize, static_cast<Waveform>(wave1), gain1);
@@ -193,8 +193,8 @@ void Phaseshaper::ProcessBlock(float* out, size_t size)
     {
         for (size_t j = 0; j < remaining; ++j)
         {
-            phase_buffer[j] = m_phase;
-            m_phase = MOD1(m_phase + m_phaseIncrement);
+            phase_buffer[j] = phase_;
+            phase_ = MOD1(phase_ + phaseIncrement_);
         }
 
         ProcessWaveBlock(phase_buffer, w1_buffer, remaining, static_cast<Waveform>(wave1), gain1);
@@ -214,25 +214,25 @@ void Phaseshaper::ProcessBlock(float* out, size_t size)
 float Phaseshaper::ProcessWaveSlice() const
 {
     // a1 vary from 0.25  to 0.40
-    float a1 = 0.25f + (m_mod * 0.15f);
-    float slicePhase = g_lin(m_phase, a1);
+    float a1 = 0.25f + (mod_ * 0.15f);
+    float slicePhase = g_lin(phase_, a1);
     float trivial = G_B(sfdsp::Sine(slicePhase));
 
-    float blep = polyBLEP(trivial, m_phase, m_phaseIncrement, -2);
+    float blep = polyBLEP(trivial, phase_, phaseIncrement_, -2);
     return blep;
 }
 
-void Phaseshaper::ProcessWaveSliceBlock(const float* p, float* out, size_t size, float gain)
+void Phaseshaper::ProcessWaveSliceBlock(const float* p, float* out, size_t size, float gain) const
 {
     // a1 vary from 0.25  to 0.40
-    float a1 = 0.25f + (m_mod * 0.15f);
+    float a1 = 0.25f + (mod_ * 0.15f);
 
     for (size_t i = 0; i < size; ++i)
     {
         float slicePhase = g_lin(p[i], a1);
         float trivial = G_B(sfdsp::Sine(slicePhase));
 
-        float blep = polyBLEP(trivial, p[i], m_phaseIncrement, -2);
+        float blep = polyBLEP(trivial, p[i], phaseIncrement_, -2);
         out[i] = blep * gain;
     }
 }
@@ -240,14 +240,14 @@ void Phaseshaper::ProcessWaveSliceBlock(const float* p, float* out, size_t size,
 float Phaseshaper::ProcessHardSync() const
 {
     // a1 vary from 2 to 3
-    float a1 = 2.0f + m_mod;
-    return G_B(g_ramp(m_phase, a1));
+    float a1 = 2.0f + mod_;
+    return G_B(g_ramp(phase_, a1));
 }
 
-void Phaseshaper::ProcessHardSyncBlock(const float* p, float* out, size_t size, float gain)
+void Phaseshaper::ProcessHardSyncBlock(const float* p, float* out, size_t size, float gain) const
 {
     // a1 vary from 2 to 3
-    float a1 = 2.0f + m_mod;
+    float a1 = 2.0f + mod_;
 
     for (size_t i = 0; i < size; ++i)
     {
@@ -258,15 +258,15 @@ void Phaseshaper::ProcessHardSyncBlock(const float* p, float* out, size_t size, 
 float Phaseshaper::ProcessSoftSync() const
 {
     // a1 vary from 1 to 1.5
-    float a1 = 1.f + (m_mod * 0.5f);
-    float softPhase = g_tri(m_phase, a1);
+    float a1 = 1.f + (mod_ * 0.5f);
+    float softPhase = g_tri(phase_, a1);
     return G_B(s_tri(softPhase));
 }
 
-void Phaseshaper::ProcessSoftSyncBlock(const float* p, float* out, size_t size, float gain)
+void Phaseshaper::ProcessSoftSyncBlock(const float* p, float* out, size_t size, float gain) const
 {
     // a1 vary from 1 to 1.5
-    float a1 = 1.f + (m_mod * 0.5f);
+    float a1 = 1.f + (mod_ * 0.5f);
 
     for (size_t i = 0; i < size; ++i)
     {
@@ -278,15 +278,15 @@ void Phaseshaper::ProcessSoftSyncBlock(const float* p, float* out, size_t size, 
 float Phaseshaper::ProcessTriMod() const
 {
     // atm vary from 0.5 to 1.5
-    float mod = 0.5f + m_mod;
-    float trimodPhase = mod * G_B(g_tri(m_phase));
+    float mod = 0.5f + mod_;
+    float trimodPhase = mod * G_B(g_tri(phase_));
     return 2 * (trimodPhase - std::ceil(trimodPhase - 0.5f));
 }
 
-void Phaseshaper::ProcessTriModBlock(const float* p, float* out, size_t size, float gain)
+void Phaseshaper::ProcessTriModBlock(const float* p, float* out, size_t size, float gain) const
 {
     // atm vary from 0.5 to 1.5
-    float mod = 0.5f + m_mod;
+    float mod = 0.5f + mod_;
 
     for (size_t i = 0; i < size; ++i)
     {
@@ -298,10 +298,10 @@ void Phaseshaper::ProcessTriModBlock(const float* p, float* out, size_t size, fl
 float Phaseshaper::ProcessSupersaw() const
 {
     // m1 vary from 0.25 to 0.75
-    const float m1 = 0.25f + (m_mod * 0.50f);
+    const float m1 = 0.25f + (mod_ * 0.50f);
     const float m2 = 0.88f;
     const float a1 = 1.5f;
-    float xs = g_lin(m_phase, a1);
+    float xs = g_lin(phase_, a1);
 
     float supersawPhase = MODM(xs, m1) + MODM(xs, m2);
 
@@ -311,10 +311,10 @@ float Phaseshaper::ProcessSupersaw() const
     return G_B(sfdsp::Sine(supersawPhase * one_over_2pi));
 }
 
-void Phaseshaper::ProcessSupersawBlock(const float* p, float* out, size_t size, float gain)
+void Phaseshaper::ProcessSupersawBlock(const float* p, float* out, size_t size, float gain) const
 {
     // m1 vary from 0.25 to 0.75
-    const float m1 = 0.25f + (m_mod * 0.50f);
+    const float m1 = 0.25f + (mod_ * 0.50f);
     const float m2 = 0.88f;
     const float a1 = 1.5f;
 
@@ -331,10 +331,10 @@ void Phaseshaper::ProcessSupersawBlock(const float* p, float* out, size_t size, 
     }
 }
 
-float Phaseshaper::ProcessVarSlope(float phase)
+float Phaseshaper::ProcessVarSlope(float phase) const
 {
     // Width can vary from 0.1 to 0.5
-    const float width = 0.1f + (m_mod * 0.5f);
+    const float width = 0.1f + (mod_ * 0.5f);
     const float pulse = g_pulse(phase, width);
     float out = 0.5f * phase * (1.0f - pulse) / width + pulse * (phase - width) / (1.f - width);
 
@@ -343,10 +343,10 @@ float Phaseshaper::ProcessVarSlope(float phase)
     return out;
 }
 
-void Phaseshaper::ProcessVarSlopeBlock(const float* p, float* out, size_t size, float gain)
+void Phaseshaper::ProcessVarSlopeBlock(const float* p, float* out, size_t size, float gain) const
 {
     // Width can vary from 0.1 to 0.5
-    const float width = 0.1f + (m_mod * 0.5f);
+    const float width = 0.1f + (mod_ * 0.5f);
 
     for (size_t i = 0; i < size; ++i)
     {
@@ -359,21 +359,21 @@ void Phaseshaper::ProcessVarSlopeBlock(const float* p, float* out, size_t size, 
 float Phaseshaper::ProcessVarTri() const
 {
     // a1 can vary from 1.25 to 1.75
-    float a1 = 1.25f + (m_mod * 0.5f);
+    float a1 = 1.25f + (mod_ * 0.5f);
     float w3 = 0.50;
-    float vtri = g_vtri(m_phase, m_phaseIncrement, w3, a1, 0, m_period);
+    float vtri = g_vtri(phase_, phaseIncrement_, w3, a1, 0, period_);
     return sfdsp::Sine(vtri);
 }
 
-void Phaseshaper::ProcessVarTriBlock(const float* p, float* out, size_t size, float gain)
+void Phaseshaper::ProcessVarTriBlock(const float* p, float* out, size_t size, float gain) const
 {
     // a1 can vary from 1.25 to 1.75
-    float a1 = 1.25f + (m_mod * 0.5f);
+    float a1 = 1.25f + (mod_ * 0.5f);
     float w3 = 0.50;
 
     for (size_t i = 0; i < size; ++i)
     {
-        float vtri = g_vtri(p[i], m_phaseIncrement, w3, a1, 0, m_period);
+        float vtri = g_vtri(p[i], phaseIncrement_, w3, a1, 0, period_);
         out[i] = sfdsp::Sine(vtri) * gain;
     }
 }
@@ -381,14 +381,14 @@ void Phaseshaper::ProcessVarTriBlock(const float* p, float* out, size_t size, fl
 float Phaseshaper::ProcessRipple() const
 {
     // ripples amount goes from no ripple at 0 to some ripples at 1.
-    float ripple_amount = m_mod * 0.1f;
-    return g_ripple(m_phase, ripple_amount);
+    float ripple_amount = mod_ * 0.1f;
+    return g_ripple(phase_, ripple_amount);
 }
 
-void Phaseshaper::ProcessRippleBlock(const float* p, float* out, size_t size, float gain)
+void Phaseshaper::ProcessRippleBlock(const float* p, float* out, size_t size, float gain) const
 {
     // ripples amount goes from no ripple at 0 to some ripples at 1.
-    float ripple_amount = m_mod * 0.1f;
+    float ripple_amount = mod_ * 0.1f;
 
     for (size_t i = 0; i < size; ++i)
     {
@@ -402,7 +402,7 @@ float Phaseshaper::ProcessWave(Waveform wave)
     switch (wave)
     {
     case Waveform::VARIABLE_SLOPE:
-        out = ProcessVarSlope(m_phase);
+        out = ProcessVarSlope(phase_);
         break;
     // case Waveform::VARIABLE_TRIANGLE:
     //     out = ProcessVarTri();

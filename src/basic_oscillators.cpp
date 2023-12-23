@@ -39,11 +39,30 @@ float Sine(float phase)
     return sin_lut[idx0] + frac * (sin_lut[idx0 + 1] - sin_lut[idx0]);
 }
 
+float Cosine(float phase)
+{
+    return Sine(phase + 0.25f);
+}
+
 void Sine(const float* phases, float* out, size_t size)
 {
     for (size_t i = 0; i < size; ++i)
     {
         float idx1 = phases[i] * SIN_LUT_SIZE;
+
+        static_assert(SIN_LUT_SIZE == 0x1FF + 1);
+        auto idxint_1 = static_cast<size_t>(idx1) & 0x1FF;
+
+        auto frac_1 = idx1 - static_cast<size_t>(idx1);
+        out[i] = sin_lut[idxint_1] + frac_1 * (sin_lut[idxint_1 + 1] - sin_lut[idxint_1]);
+    }
+}
+
+void Cosine(const float* phases, float* out, size_t size)
+{
+    for (size_t i = 0; i < size; ++i)
+    {
+        float idx1 = (phases[i] + 0.25f) * SIN_LUT_SIZE;
 
         static_assert(SIN_LUT_SIZE == 0x1FF + 1);
         auto idxint_1 = static_cast<size_t>(idx1) & 0x1FF;
@@ -164,6 +183,9 @@ float BasicOscillator::Tick()
     case OscillatorType::Sine:
         out = Sine(phase_);
         break;
+    case OscillatorType::Cosine:
+        out = Cosine(phase_);
+        break;
     case OscillatorType::Tri:
         out = Tri(phase_);
         break;
@@ -197,6 +219,16 @@ void BasicOscillator::ProcessBlock(float* out, size_t size)
             phase_ += phase_increment_;
         }
         Sine(out, out, size);
+        phase_ = MOD1(phase_);
+        break;
+    case OscillatorType::Cosine:
+        // prefill the buffer with the current phase
+        for (size_t i = 0; i < size; ++i)
+        {
+            out[i] = phase_;
+            phase_ += phase_increment_;
+        }
+        Cosine(out, out, size);
         phase_ = MOD1(phase_);
         break;
     case OscillatorType::Tri:

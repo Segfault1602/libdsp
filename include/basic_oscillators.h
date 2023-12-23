@@ -20,6 +20,19 @@ float Sine(float phase);
 /// @return The phase of the sine wave after processing the buffer
 void Sine(const float* phases, float* out, size_t size);
 
+/// @brief Simple cosine wave
+/// @param phase Phase of the cosine wave
+/// @return The value of the cosine wave at the given phase
+/// @ingroup Oscillators
+float Cosine(float phase);
+
+/// @brief Compute a cosine wave from a buffer of phases
+/// @param phases The buffer of phases
+/// @param out The output buffer, can be the same as `phases`
+/// @param size The size of the output buffer
+/// @return The phase of the cosine wave after processing the buffer
+void Cosine(const float* phases, float* out, size_t size);
+
 /// @brief Non-bandlimited triangle wave
 /// @param phase Phase of the triangle wave
 /// @return The value of the triangle wave at the given phase
@@ -46,6 +59,7 @@ float Noise();
 enum class OscillatorType
 {
     Sine,
+    Cosine,
     Tri,
     Saw,
     Square,

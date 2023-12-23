@@ -67,3 +67,33 @@ float PhaseShaperBlockTest::Tick(float input)
 {
     return Tick();
 }
+
+void VectorPhaseshaperTest::Init(size_t samplerate)
+{
+    constexpr float kFrequency = 200.f;
+    samplerate_ = samplerate;
+    phaseshaper_.Init(static_cast<float>(samplerate));
+    phaseshaper_.SetFreq(kFrequency);
+    phaseshaper_.SetMod(0.25f, 1.f);
+
+    frame_count_ = samplerate * 5.f;
+
+    lfo_.Init(static_cast<float>(samplerate), 2.f, sfdsp::OscillatorType::Sine);
+
+    name_ = "vectorphaseshaper.wav";
+}
+
+float VectorPhaseshaperTest::Tick()
+{
+    float mod = 0.25f + lfo_.Tick() * 0.20f;
+    phaseshaper_.SetMod(mod, 1.f);
+
+    float out = 0.f;
+    phaseshaper_.ProcessBlock(&out, 1);
+    return out;
+}
+
+float VectorPhaseshaperTest::Tick(float input)
+{
+    return Tick();
+}

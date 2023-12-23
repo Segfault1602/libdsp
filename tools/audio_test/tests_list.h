@@ -18,6 +18,7 @@
     TEST(ScaleBowedStringTester)                                                                                       \
     TEST(PhaseShaperTest)                                                                                              \
     TEST(PhaseShaperBlockTest)                                                                                         \
+    TEST(VectorPhaseshaperTest)                                                                                        \
     TEST(StringEnsembleTest)                                                                                           \
     TEST(WaveguideTest)                                                                                                \
     TEST(FingerPressBowedStringTester)
