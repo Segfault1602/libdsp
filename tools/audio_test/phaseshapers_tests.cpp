@@ -74,19 +74,20 @@ void VectorPhaseshaperTest::Init(size_t samplerate)
     samplerate_ = samplerate;
     phaseshaper_.Init(static_cast<float>(samplerate));
     phaseshaper_.SetFreq(kFrequency);
-    phaseshaper_.SetMod(0.25f, 1.f);
+    phaseshaper_.SetMod(0.05f, 0.5f);
 
     frame_count_ = samplerate * 5.f;
 
-    lfo_.Init(static_cast<float>(samplerate), 2.f, sfdsp::OscillatorType::Sine);
+    lfo_.Init(static_cast<float>(samplerate), 400.f, sfdsp::OscillatorType::Sine);
 
     name_ = "vectorphaseshaper.wav";
 }
 
 float VectorPhaseshaperTest::Tick()
 {
-    float mod = 0.25f + lfo_.Tick() * 0.20f;
-    phaseshaper_.SetMod(mod, 1.f);
+    float unipolar_mod = (1.f + lfo_.Tick()) * 0.5f;
+    float mod = 0.25f + unipolar_mod * 0.5f;
+    phaseshaper_.SetMod(mod, 0.5f);
 
     float out = 0.f;
     phaseshaper_.ProcessBlock(&out, 1);

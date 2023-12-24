@@ -67,6 +67,12 @@ TEST(BasicOscillatorsTest, Cosine)
 
 TEST(BasicOscillatorsTest, CosineBlock)
 {
+    float v = 1.33f;
+
+    float stdmod = std::fmod(2 * v - 1.f, 1.f);
+    float fastmod = sfdsp::fast_mod1(2 * v - 1.f);
+    ASSERT_THAT(stdmod, ::testing::FloatEq(fastmod));
+
     constexpr size_t kSamplerate = 48000;
     constexpr float kFreq = 750;
     sfdsp::BasicOscillator osc;

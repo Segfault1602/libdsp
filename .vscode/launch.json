@@ -39,12 +39,7 @@
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
-            "console": "internalConsole",
-            "windows": {
-                "type": "cppvsdbg"
-            },
             "osx": {
-                "type": "cppdbg",
                 "externalConsole": false,
                 "MIMode": "lldb"
             }
@@ -128,10 +123,10 @@
             "name": "(lldb) effect_player",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/tools/effect_player",
+            "program": "${workspaceFolder}/build/tools/audio_test/Debug/effect_player",
             "args": [
                 "-t",
-                "8"
+                "9"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
