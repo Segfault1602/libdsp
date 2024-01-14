@@ -27,4 +27,8 @@ When including the library in another project you might want to disable certain 
 
 `LIBDSP_BUILD_TESTS`: Set to 'OFF' to forgo building the /tests directory. 'ON' by default.
 
+## Documentation
+
+Documentation is available online: https://segfault1602.github.io/libdsp/
+
 ![ci status](https://github.com/Segfault1602/libdsp/actions/workflows/ci.yml/badge.svg)
