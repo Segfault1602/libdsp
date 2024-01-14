@@ -91,16 +91,16 @@ float Saw(float phase, float phase_increment, float* out, size_t size)
     return phase;
 }
 
-float Square(float phase)
+float Square(float phase, float duty)
 {
-    return (phase < 0.5f) ? -1.f : 1.f;
+    return (phase > duty) ? -1.f : 1.f;
 }
 
-float Square(float phase, float phase_increment, float* out, size_t size)
+float Square(float phase, float phase_increment, float* out, size_t size, float duty = 0.5f)
 {
     for (size_t i = 0; i < size; ++i)
     {
-        out[i] = (phase < 0.5f) ? -1.f : 1.f;
+        out[i] = (phase > duty) ? -1.f : 1.f;
         phase += phase_increment;
         phase = MOD1(phase);
     }
@@ -128,6 +128,11 @@ void BasicOscillator::SetType(OscillatorType type)
 OscillatorType BasicOscillator::GetType() const
 {
     return type_;
+}
+
+void BasicOscillator::SetDuty(float duty)
+{
+    duty_ = duty;
 }
 
 void BasicOscillator::SetFrequency(float frequency)
@@ -166,7 +171,7 @@ float BasicOscillator::Tick()
         out = Saw(phase_);
         break;
     case OscillatorType::Square:
-        out = Square(phase_);
+        out = Square(phase_, duty_);
         break;
     default:
         assert(false);
@@ -203,7 +208,7 @@ void BasicOscillator::ProcessBlock(float* out, size_t size)
         phase_ = MOD1(phase_);
         break;
     case OscillatorType::Square:
-        phase_ = Square(phase_, phase_increment_, out, size);
+        phase_ = Square(phase_, phase_increment_, out, size, duty_);
         phase_ = MOD1(phase_);
         break;
     default:

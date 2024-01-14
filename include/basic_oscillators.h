@@ -36,7 +36,7 @@ float Saw(float phase);
 /// @param phase Phase of the square wave
 /// @return The value of the square wave at the given phase
 /// @ingroup Oscillators
-float Square(float phase);
+float Square(float phase, float duty = 0.5f);
 
 /// @brief Simple noise generator
 /// @return A random value between -1 and 1
@@ -68,6 +68,10 @@ class BasicOscillator
     /// @param type The type of the oscillator
     void SetType(OscillatorType type);
 
+    /// @brief Set the duty cycle of the oscillator when oscillator type is square
+    /// @param duty
+    void SetDuty(float duty);
+
     /// @brief Return the type of the oscillator
     /// @return The type of the oscillator
     OscillatorType GetType() const;
@@ -96,6 +100,7 @@ class BasicOscillator
     OscillatorType type_ = OscillatorType::Sine;
     float frequency_ = 0.f;
     float samplerate_;
+    float duty_ = 0.5f;
 
     float phase_ = 0.f;
     float phase_increment_ = 0.f;

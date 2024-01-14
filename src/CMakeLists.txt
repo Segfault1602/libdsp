@@ -1,6 +1,7 @@
 set(LIB_SOURCES
     basic_oscillators.cpp
     bow_table.cpp
+    buchla_lpg.cpp
     chorus.cpp
     dsp_base.cpp
     bowed_string.cpp
