@@ -20,5 +20,6 @@ readability-*,\
 -readability-named-parameter,\
 -readability-identifier-length,\
 -cppcoreguidelines-pro-bounds-constant-array-index,\
--modernize-use-auto
+-modernize-use-auto,\
+-modernize-loop-convert
 "

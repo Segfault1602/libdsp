@@ -51,7 +51,6 @@ class BuchlaLPG
     float sd_ = 0.f;
     float so_ = 0.f;
     float yo_ = 0.f;
-    float xo_ = 0.f;
 
     bool non_lin_ = false;
 };

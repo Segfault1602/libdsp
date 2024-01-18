@@ -1,5 +1,6 @@
 #include "buchla_lpg.h"
 
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <cstddef>
@@ -38,14 +39,13 @@ int8_t sign(float x)
     {
         return 1;
     }
-    else if (x < 0)
+
+    if (x < 0)
     {
         return -1;
     }
-    else
-    {
-        return 0;
-    }
+
+    return 0;
 }
 
 } // namespace

@@ -14,6 +14,7 @@ FetchContent_MakeAvailable(nanobench doctest)
 
 add_executable(perf_tests
     perf_tests.cpp
+    buchla_lpg_perf.cpp
     basicosc_perf.cpp
     phaseshaper_perf.cpp)
 target_include_directories(perf_tests PRIVATE ${doctest_SOURCE_DIR}/doctest)
