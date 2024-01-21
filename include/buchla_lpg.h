@@ -10,6 +10,8 @@ float GetCurrent(float vc, float offset, bool smoothed);
 
 float ProcessCurrent(float c);
 
+void GetCurrent(const float* vc_in, float* vc_out, size_t size, bool smoothed);
+
 /// @brief Buchla Low Pass Gate based on Josh Rohs' MATLAB implementation
 /// Original paper: http://www.music.mcgill.ca/~gary/courses/projects/618_2018/rohs/MUMT618_Buchla_LPG_Report.pdf
 class BuchlaLPG
@@ -28,10 +30,15 @@ class BuchlaLPG
     /// @param size The size of the input and output buffer
     void ProcessBlock(const float* cv_in, const float* in, float* out, size_t size);
 
+    void ProcessCurrent(const float* vc_in, float* vc_out, size_t size);
+
+    void ProcessAudio(const float* vc_in, const float* in, float* out, size_t size);
+
   private:
     float samplerate_;
     float dt_ = 0.f;
     float f_ = 0.f;
+    float f_inv_ = 0.f;
 
     float prev_current_ = 0.f;
 

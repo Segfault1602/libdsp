@@ -80,7 +80,19 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/tests/Debug/libdsp_tests.exe",
             "args": [
-                "--gtest_filter=Phase*"
+                "--gtest_filter=Buchla*"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "console": "externalTerminal"
+        },
+        {
+            "name": "PerfTests",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/tests/perf/Debug/perf_tests.exe",
+            "args": [
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
