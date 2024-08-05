@@ -36,7 +36,7 @@ TEST(BasicOscillatorsTest, SineBlock)
     constexpr size_t kSize = 1024;
     float out_std[kSize];
     float p = 0.f;
-    for (auto i = 0; i < kSize; i++)
+    for (size_t i = 0; i < kSize; i++)
     {
         out_std[i] = sfdsp::Sine(p);
         p += phase_increment;
@@ -48,7 +48,7 @@ TEST(BasicOscillatorsTest, SineBlock)
     osc.ProcessBlock(out, block_size);
     osc.ProcessBlock(out + block_size, block_size);
 
-    for (auto i = 0; i < kSize; ++i)
+    for (size_t i = 0; i < kSize; ++i)
     {
         ASSERT_NEAR(out[i], out_std[i], 0.0001f);
     }
@@ -83,7 +83,7 @@ TEST(BasicOscillatorsTest, CosineBlock)
     constexpr size_t kSize = 1024;
     float out_std[kSize];
     float p = 0.f;
-    for (auto i = 0; i < kSize; i++)
+    for (size_t i = 0; i < kSize; i++)
     {
         out_std[i] = sfdsp::Cosine(p);
         p += phase_increment;
@@ -95,7 +95,7 @@ TEST(BasicOscillatorsTest, CosineBlock)
     osc.ProcessBlock(out, block_size);
     osc.ProcessBlock(out + block_size, block_size);
 
-    for (auto i = 0; i < kSize; ++i)
+    for (size_t i = 0; i < kSize; ++i)
     {
         ASSERT_NEAR(out[i], out_std[i], 0.0001f);
     }
@@ -147,7 +147,7 @@ TEST(BasicOscillatorsTest, PerfTest)
 
     ASSERT_THAT(duration_block, ::testing::Le(duration_tick));
 
-    for (auto i = 0; i < out_size; ++i)
+    for (size_t i = 0; i < out_size; ++i)
     {
         ASSERT_NEAR(out1[i], out2[i], 0.001f);
     }
@@ -180,12 +180,12 @@ TEST(BasicOscillatorsTests, Triangle)
     sfdsp::BasicOscillator osc;
     osc.Init(kSamplerate, kFreq, sfdsp::OscillatorType::Tri);
 
-    for (auto i = 0; i < test_buffer_size; ++i)
+    for (size_t i = 0; i < test_buffer_size; ++i)
     {
         out[i] = osc.Tick();
     }
 
-    for (auto i = 0; i < test_buffer_size; ++i)
+    for (size_t i = 0; i < test_buffer_size; ++i)
     {
         ASSERT_NEAR(out[i], test_buffer[i], 0.0001f);
     }
@@ -210,7 +210,7 @@ TEST_P(BasicOscillatorTestParam, ProcessBlock)
     sfdsp::BasicOscillator osc;
     osc.Init(kSamplerate, kFreq, type);
 
-    for (auto i = 0; i < test_buffer_size; ++i)
+    for (size_t i = 0; i < test_buffer_size; ++i)
     {
         test_buffer[i] = osc.Tick();
     }
@@ -222,7 +222,7 @@ TEST_P(BasicOscillatorTestParam, ProcessBlock)
 
     const size_t block_size = 512;
     const size_t block_count = test_buffer_size / block_size;
-    for (auto i = 0; i < block_count; ++i)
+    for (size_t i = 0; i < block_count; ++i)
     {
         osc2.ProcessBlock(out.get() + i * block_size, block_size);
     }
@@ -231,7 +231,7 @@ TEST_P(BasicOscillatorTestParam, ProcessBlock)
     const size_t reminder = test_buffer_size % block_size;
     osc2.ProcessBlock(out.get() + block_count * block_size, reminder);
 
-    for (auto i = 0; i < test_buffer_size; ++i)
+    for (size_t i = 0; i < test_buffer_size; ++i)
     {
         ASSERT_NEAR(out[i], test_buffer[i], 0.0001f);
     }
@@ -254,12 +254,12 @@ TEST(BasicOscillatorsTests, Saw)
     sfdsp::BasicOscillator osc;
     osc.Init(kSamplerate, kFreq, sfdsp::OscillatorType::Saw);
 
-    for (auto i = 0; i < test_buffer_size; ++i)
+    for (size_t i = 0; i < test_buffer_size; ++i)
     {
         out[i] = osc.Tick();
     }
 
-    for (auto i = 0; i < test_buffer_size; ++i)
+    for (size_t i = 0; i < test_buffer_size; ++i)
     {
         ASSERT_NEAR(out[i], test_buffer[i], 0.0001f);
     }
@@ -294,7 +294,7 @@ TEST(Phaseshaper, phaseshaper)
     phaseshaper2.SetMod(0.2f);
     phaseshaper2.SetFreq(kFreq);
 
-    for (auto i = 0; i < kSize; ++i)
+    for (size_t i = 0; i < kSize; ++i)
     {
         out2[i] = phaseshaper2.Process();
     }
