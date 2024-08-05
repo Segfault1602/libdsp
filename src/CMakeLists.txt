@@ -28,7 +28,7 @@ endif()
 
 target_include_directories(dsp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_compile_options(dsp PRIVATE -g -gcodeview)
+target_compile_options(dsp PRIVATE -g)
 
 target_link_options(dsp PRIVATE -fuse-ld=lld -g -Wl,--pdb=)
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
