@@ -51,12 +51,8 @@ TEST_CASE("BuchlaLPG")
     std::unique_ptr<float[]> audio_out = std::make_unique<float[]>(kOutputSize);
     constexpr size_t kBlockSize = 128;
 
-    bench.run("Buchla LPG", [&]() {
-        // lpg.ProcessBlock(cv_out.get(), audio_buffer.get(), audio_out.get(), kOutputSize);
-        sfdsp::GetCurrent(cv_out.get(), cv_out.get(), kOutputSize, false);
-        lpg.ProcessCurrent(cv_out.get(), cv_out.get(), kOutputSize);
-        lpg.ProcessAudio(cv_out.get(), audio_buffer.get(), audio_buffer.get(), kOutputSize);
-    });
+    bench.run("Buchla LPG",
+              [&]() { lpg.ProcessBlock(cv_out.get(), audio_buffer.get(), audio_out.get(), kOutputSize); });
 }
 
 TEST_CASE("BuchlaLPG_Detailed")

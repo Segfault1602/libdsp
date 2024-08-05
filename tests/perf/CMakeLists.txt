@@ -16,6 +16,7 @@ add_executable(perf_tests
     perf_tests.cpp
     buchla_lpg_perf.cpp
     basicosc_perf.cpp
-    phaseshaper_perf.cpp)
+    phaseshaper_perf.cpp
+    aligned_perf.cpp)
 target_include_directories(perf_tests PRIVATE ${doctest_SOURCE_DIR}/doctest)
 target_link_libraries(perf_tests PRIVATE nanobench dsp doctest)

@@ -89,77 +89,11 @@ void BuchlaLPG::Init(float samplerate)
     f_inv_ = 1.f / f_;
 }
 
-void BuchlaLPG::ProcessBlock(const float* cv_in, const float* in, float* out, size_t size)
+void BuchlaLPG::ProcessBlock(float* cv_in, const float* in, float* out, size_t size)
 {
-    for (size_t i = 0; i < size; ++i)
-    {
-        // Process the CV
-        const float current = GetCurrent(cv_in[i], kOffset, /*smoothed=*/true);
-        int8_t dir = sign(current - prev_current_);
-        if (dir != prev_dir_)
-        {
-            switch (dir)
-            {
-            case 1:
-                wc_ = kWcOn * (1.f - kRhoOn + kRhoOn * current / 0.040f);
-                break;
-            case -1:
-                wc_ = kWcOff * (1.f + kRhoOff - (kRhoOff) * (yc_) / 0.040f);
-                break;
-            case 0:
-                break;
-            default:
-                assert(false);
-                break;
-            }
-        }
-
-        const float g = wc_ * dt_ * 0.5f;
-        const float vc = (current - sc_) * g / (1.f + g);
-        yc_ = vc + sc_;
-        sc_ = yc_ + vc;
-
-        prev_current_ = current;
-        prev_dir_ = dir;
-
-        const float processed_current = std::max(yc_, 1.01e-5f);
-        const float rf = 1.f / (std::pow(processed_current, 1.4f)) * kAVac + kBVac;
-
-        // Process  the audio
-        // const float amax = (2.f * kC1 * kRa + (kC2 + kC3) * (kRa + rf)) / (kC3 * kRa);
-        const float a = 0.f; // kNormalizedFb * amax;
-        const float a1 = 1.f / (rf * kC1);
-        const float a2 = -1.f / kC1 * (1 / rf + 1.f / kRa);
-        const float b1 = 1.f / (rf * kC2);
-        const float b2 = -2.f / (rf * kC2);
-        const float b3 = b1;
-        const float d1 = a;
-
-        const float yi = in[i];
-        const float d_o = 1.f / (1.f - f_ * a2);
-        const float d_x = 1.f / (1.f - f_ * b2);
-
-        constexpr float kD2 = -1.f;
-
-        if (non_lin_)
-        {
-        }
-        else
-        {
-            float yx = (sx_ + f_ * b1 * yi + f_ * b3 * d_o * so_ + f_ * kB4 * sd_ + kB4 * d1 * d_o * so_) * d_x;
-            yx = yx / (1 - d_x * (f_ * f_ * b3 * d_o * a1 + kB4 * f_ * d1 * d_o * a1 + kB4 * kD2));
-            yo_ = (so_ + f_ * a1 * yx) * d_o;
-            const float yd = sd_ + (1.f / f_) * (d1 * yo_ + kD2 * yx);
-
-            sx_ = sx_ + 2.f * f_ * (b1 * yi + b2 * yx + b3 * yo_ + kB4 * yd);
-
-            so_ = so_ + 2.f * f_ * (a1 * yx + a2 * yo_);
-
-            sd_ = -sd_ - (2.f / f_) * (d1 * yo_ + kD2 * yx);
-        }
-
-        out[i] = yo_;
-    }
+    sfdsp::GetCurrent(cv_in, cv_in, size, /*smoothed=*/false);
+    ProcessCurrent(cv_in, cv_in, size);
+    ProcessAudio(cv_in, in, out, size);
 }
 
 void BuchlaLPG::ProcessCurrent(const float* vc_in, float* vc_out, size_t size)
@@ -205,13 +139,13 @@ void BuchlaLPG::ProcessAudio(const float* vc_in, const float* in, float* out, si
     {
         const float rf = vc_in[i];
 
-        const float a = 0.f; // kNormalizedFb * amax;
+        constexpr float a = 0.f; // kNormalizedFb * amax;
         const float a1 = 1.f / (rf * kC1);
         const float a2 = -1.f / kC1 * (1 / rf + 1.f / kRa);
         const float b1 = 1.f / (rf * kC2);
         const float b2 = -2.f / (rf * kC2);
         const float b3 = b1;
-        const float d1 = a;
+        constexpr float d1 = a;
 
         const float yi = in[i];
         const float d_o = 1.f / (1.f - f_ * a2);
@@ -224,16 +158,16 @@ void BuchlaLPG::ProcessAudio(const float* vc_in, const float* in, float* out, si
         }
         else
         {
-            float yx = (sx_ + f_ * b1 * yi + f_ * b3 * d_o * so_ + f_ * kB4 * sd_ + kB4 * d1 * d_o * so_) * d_x;
+            float yx = (sx_ + f_ * (b1 * yi + b3 * d_o * so_ + kB4 * sd_) + kB4 * d1 * d_o * so_) * d_x;
             yx = yx / (1 - d_x * (f_ * f_ * b3 * d_o * a1 + kB4 * f_ * d1 * d_o * a1 + kB4 * kD2));
             yo_ = (so_ + f_ * a1 * yx) * d_o;
-            const float yd = sd_ + (1.f / f_) * (d1 * yo_ + kD2 * yx);
+            const float yd = sd_ + f_inv_ * (d1 * yo_ + kD2 * yx);
 
             sx_ = sx_ + 2.f * f_ * (b1 * yi + b2 * yx + b3 * yo_ + kB4 * yd);
 
             so_ = so_ + 2.f * f_ * (a1 * yx + a2 * yo_);
 
-            sd_ = -sd_ - (2.f / f_) * (d1 * yo_ + kD2 * yx);
+            sd_ = -sd_ - 2.f * f_inv_ * (d1 * yo_ + kD2 * yx);
         }
 
         out[i] = yo_;

@@ -28,7 +28,7 @@ class BuchlaLPG
     /// @param in The input buffer
     /// @param out The output buffer. Can be the same as `in`
     /// @param size The size of the input and output buffer
-    void ProcessBlock(const float* cv_in, const float* in, float* out, size_t size);
+    void ProcessBlock(float* cv_in, const float* in, float* out, size_t size);
 
     void ProcessCurrent(const float* vc_in, float* vc_out, size_t size);
 

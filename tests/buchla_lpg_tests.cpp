@@ -82,6 +82,11 @@ TEST(BuchlaLPGTestPerf, Current)
     lpg.ProcessCurrent(cv_out.get(), cv_out.get(), kSize);
     lpg.ProcessAudio(cv_out.get(), audio_buffer.get(), audio_buffer.get(), kSize);
 
+    // for (size_t i = 0; i < kSize; ++i)
+    // {
+    //     audio_buffer[i] = 0.01f * cv_out[i];
+    // }
+
     SF_INFO info;
     info.channels = 1;
     info.samplerate = kSamplerate;

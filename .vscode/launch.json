@@ -93,6 +93,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/tests/perf/Debug/perf_tests.exe",
             "args": [
+                "-tc=Aligned"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

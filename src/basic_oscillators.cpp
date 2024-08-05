@@ -2,7 +2,6 @@
 
 #include <cassert>
 #include <cmath>
-#include <cstdlib>
 
 #include "dsp_utils.h"
 #include "sin_table.h"

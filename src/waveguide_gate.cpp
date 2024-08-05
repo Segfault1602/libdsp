@@ -89,7 +89,7 @@ void WaveguideGate::Process(Delayline& left_traveling_line, Delayline& right_tra
 
 void WaveguideGate::Process(Waveguide& wave)
 {
-    return Process(wave.left_traveling_line_, wave.right_traveling_line_);
+    Process(wave.left_traveling_line_, wave.right_traveling_line_);
 }
 
 } // namespace sfdsp
