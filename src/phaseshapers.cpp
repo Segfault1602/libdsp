@@ -202,6 +202,10 @@ void Phaseshaper::ProcessBlock(float* out, size_t size)
         {
             ProcessWaveBlock(phase_buffer, w2_buffer, remaining, static_cast<Waveform>(wave2), gain2);
         }
+        else
+        {
+            memset(w2_buffer, 0, remaining * sizeof(float));
+        }
 
         for (size_t j = 0; j < remaining; ++j)
         {
@@ -454,6 +458,7 @@ void Phaseshaper::ProcessWaveBlock(const float* p, float* out, size_t size, Wave
         ProcessRippleBlock(p, out, size, gain);
         break;
     default:
+        memset(out, 0, size * sizeof(float));
         break;
     }
 }

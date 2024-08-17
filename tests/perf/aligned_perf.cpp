@@ -9,9 +9,23 @@
 using namespace ankerl;
 using namespace std::chrono_literals;
 
+namespace
+{
+template <typename T>
+T* AlignedAlloc(size_t size, size_t alignment)
+{
+    void* ptr = nullptr;
+#ifdef _MSC_VER
+    ptr = _aligned_malloc(size * sizeof(T), alignment);
+#else
+    ptr = aligned_alloc(alignment, size * sizeof(T));
+#endif
+    return static_cast<T*>(ptr);
+}
+} // namespace
+
 TEST_CASE("Aligned")
 {
-
     constexpr size_t size = 1024 * 1024;
 
     nanobench::Bench bench;
@@ -47,8 +61,10 @@ TEST_CASE("Aligned")
     delete[] data_in;
     delete[] data_out;
 
-    float* data_in_aligned = static_cast<float*>(_aligned_malloc(size * sizeof(float), sizeof(float) * 4));
-    float* data_out_aligned = static_cast<float*>(_aligned_malloc(size * sizeof(float), sizeof(float) * 4));
+    // test_aligned<size, 64>(bench);
+
+    float* data_in_aligned = static_cast<float*>(AlignedAlloc<float>(size * sizeof(float), 1024));
+    float* data_out_aligned = static_cast<float*>(AlignedAlloc<float>(size * sizeof(float), 1024));
 
     bench.run("Aligned", [&]() {
         for (size_t i = 0; i < size; i++)

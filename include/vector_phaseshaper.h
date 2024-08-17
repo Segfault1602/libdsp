@@ -56,4 +56,4 @@ class VectorPhaseshaper
     FormantMode formantMode_ = FormantMode::FREE;
 };
 
-}; // namespace sfdsp
+} // namespace sfdsp

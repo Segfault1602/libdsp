@@ -22,7 +22,8 @@ set(LIB_SOURCES
 
 add_library(dsp STATIC ${LIB_SOURCES})
 
-if (CLANG_TIDY_EXE)
+if (CLANG_TIDY_EXE AND NOT LIBDSP_DISABLE_CLANG_TIDY)
+    message(STATUS "Enabling clang-tidy for libdsp")
     set_target_properties(dsp PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
 endif()
 
