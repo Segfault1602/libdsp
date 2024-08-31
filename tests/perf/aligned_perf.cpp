@@ -18,9 +18,19 @@ T* AlignedAlloc(size_t size, size_t alignment)
 #ifdef _MSC_VER
     ptr = _aligned_malloc(size * sizeof(T), alignment);
 #else
-    ptr = aligned_alloc(alignment, size * sizeof(T));
+    ptr = std::aligned_alloc(alignment, size * sizeof(T));
 #endif
     return static_cast<T*>(ptr);
+}
+
+template <typename T>
+void AlignedFree(T* ptr)
+{
+#ifdef _MSC_VER
+    _aligned_free(ptr);
+#else
+    std::free(ptr);
+#endif
 }
 } // namespace
 
@@ -87,6 +97,6 @@ TEST_CASE("Aligned")
         CHECK(data_in_aligned[i] == data_out_aligned[i]);
     }
 
-    _aligned_free(data_in_aligned);
-    _aligned_free(data_out_aligned);
+    AlignedFree(data_in_aligned);
+    AlignedFree(data_out_aligned);
 }
